@@ -1,0 +1,205 @@
+﻿@model EmpGradeSalaryAssignmentViewModel
+@using IMSWEB.Model
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + "";
+}
+
+<h4>Grade Salary Assignment.</h4>
+<hr />
+
+@using (Html.BeginForm(actionName, "GradeSalaryAssignment", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form", Id = "GSAssignForm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.EmpGradeSalaryID);
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            Employee Name
+                        </div>
+                        <div class="col-sm-8">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && Model.EmployeeID != null) ? Model.EmployeeID : "0" });}
+                            @Html.ValidationMessageFor(model => model.EmployeeID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Type, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.Type, ViewBag.ChangeTypes as SelectList, "--Select Change Type--", new { @class = "form-control input-sm" })
+                            @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.GradeID, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.GradeID, ViewBag.Grades as SelectList, "--Select a Grade--", new { @class = "form-control input-sm" })
+                            @Html.ValidationMessageFor(model => model.GradeID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.GrossSalary, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.GrossSalary, new { htmlAttributes = new { @class = "form-control input-sm text-right", type = "number" } })
+                            @Html.ValidationMessageFor(model => model.GrossSalary, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BasicSalary, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.BasicSalary, new { htmlAttributes = new { @class = "form-control input-sm text-right", type = "number" } })
+                            @Html.ValidationMessageFor(model => model.BasicSalary, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EffectDate, htmlAttributes: new { @class = "control-label col-md-4", autofocus = "autofocus" })
+                        <div class="col-md-8">
+                            <div class='input-group date' id='EffectDate' tabindex="2">
+                                <input type='text' class="input-sm form-control input-sm" name='EffectDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.EffectDate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <input type="submit" value="Save" class="btn btn-info btn-sm col-md-offset-5" id="btnSubmit" name="btnSubmit" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <table id="productTable"
+                   data-toggle="table"
+                   data-height="280"
+                   class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>
+                            Sl
+                        </th>
+                        <th data-field="name"
+                            data-sortable="true">
+                            @Html.DisplayNameFor(model => model.GradesalarytypeName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.GradeName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.GrossSalary)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.BasicSalary)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.DateRange)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int c = 1;
+                        foreach (var item in Model.EmpGradeSalaryAssignmentViewModels)
+                        {
+                            <tr>
+                                <td>
+                                    @c
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.GradesalarytypeName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.GradeName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.GrossSalary)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.BasicSalary)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DateRange)
+                                </td>
+                                <td>
+                                    @Html.ActionLink("Delete", "DeleteFromView", new { id = item.EmpGradeSalaryID, previousAction = actionName.ToLower(), EmployeeID = Model.EmployeeID }, new { onclick = "if(!confirm('Do you want to delete this item?')) return false;" })
+                                </td>
+                            </tr>
+                            c++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+}
+
+
+<script language="javascript" type="text/javascript">
+
+    $(function () {
+        $("#Type").select2();
+        $("#GradeID").select2();
+        $('#EffectDate').datetimepicker({
+            @{
+                if (Model == null || Model.EffectDate == null)
+                {
+                    @:defaultDate: moment(),
+                                                        }
+    else
+    {
+    @:defaultDate: '@(Convert.ToDateTime(Model.EffectDate).ToString("dd-MMM-yyyy"))',
+                                        }
+    @:format: 'DD-MMM-YYYY'
+                                        }
+        });
+
+    });
+
+
+    $(document).ready(function () {
+
+
+        $('#EmployeesModal').on('hidden.bs.modal', function () {
+            $("#GSAssignForm").submit();
+        });
+
+        $("#GradeID").on('change', function () {
+            CalculateBasicFromGross();
+        });
+
+        $("#GrossSalary").on('change', function () {
+            CalculateBasicFromGross();
+        });
+
+
+    }); //ready end
+
+    function CalculateBasicFromGross() {
+        var GradeID = parseInt($("#GradeID").val());
+        var Gross = parseFloat($("#GrossSalary").val());
+        if (Gross == 0 ||isNaN(Gross))
+            return;
+
+        if (GradeID == 0 ||isNaN(GradeID))
+            return;
+
+        $.ajax({
+            url: '/GradeSalaryAssignment/CalculateBasicFromGross',
+            type: 'GET',
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            data: { 'GradeID': GradeID, 'GrossSalary': Gross },
+            success: function (data) {
+                $("#BasicSalary").val(data);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+</script>

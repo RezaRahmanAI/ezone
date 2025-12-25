@@ -1,0 +1,188 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@model IPagedList<IMSWEB.GetStockDetailViewModel>
+
+@{
+    ViewBag.Title = "Stock Details";
+}
+<h4 class="text-left inline-header">Existing Stock Details</h4>
+<hr />
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        @using (Html.BeginForm("StockDetails", "Stock", FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                <label>Enter IMEI:</label>
+                            </td>
+                            <td>
+                                <input type='text' class="input-sm form-control input-sm" name='IMEI' placeholder="Enter IMEI" />
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                </div>
+                            </td>
+
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        @using (Html.BeginForm("StockDetails", "Stock", FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                <label>Model Name</label>
+                            </td>
+                            <td>
+                                <input type='text' class="input-sm form-control input-sm" name='ProductName' placeholder="Enter Model Name" />
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                </div>
+                            </td>
+
+                        </tr>
+                    </table>
+                </div>
+            </div>
+           
+        }
+    </div>
+</div>
+
+
+<table id="StockTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="false"
+       data-pagination="true"
+       data-id-field="StockTable"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="20"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th style="padding:20px">
+                Sl
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().StockCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().GodownName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().ColorName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().CompanyName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().IMENO)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Status)
+            </th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    @{
+        int count = 1;
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @count
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StockCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GodownName)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ColorName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompanyName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IMENO)
+                </td>
+                <td>
+                    @if ((int)item.Status == 1)
+                    {
+                        @*@Html.DisplayFor(modelItem => item.Status)*@
+                        <span class="label label-info">@item.Status</span>
+                    }
+                    else if ((int)item.Status == 2)
+                    {
+                        <span class="label label-danger">@item.Status</span>
+                    }
+                    else
+                    {
+                        <span class="label label-warning">@item.Status</span>
+                    }
+                </td>
+                <td>
+                    @Html.ActionLink("Print", "PrintIMEI", new { id = item.SDetailID }, new { @class = "btn btn-xs btn-info" })
+                </td>
+            </tr>
+            count++;
+        }
+    }
+</table>
+
+
+@Html.PagedListPager(Model, page => Url.Action("StockDetails", new { page }))@*, new PagedListRenderOptions() { Display = PagedListDisplayMode.Never, DisplayItemSliceAndTotal = true })*@
+
+<script type="text/javascript">
+       @if (TempData.ContainsKey("IsIMEIPrintReady") && Convert.ToBoolean(TempData["IsIMEIPrintReady"]) == true)
+        {
+            @:$.ajax({
+            @:url: "/Report/PrintIMEI",
+            @:type: "GET",
+            @:dataType: "html",
+            @:success: function (data) {
+            @:$('#report').html(data);
+            @:},
+            @:error: function (err) {
+            @:console.error(JSON.stringify(err));
+            @:}
+            @:});
+         }
+</script>

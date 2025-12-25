@@ -1,0 +1,3536 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using IMSWEB.Service;
+using IMSWEB.Model;
+using System.Data;
+using Microsoft.Reporting.WebForms;
+using IMSWEB.Report.DataSets;
+using Microsoft.AspNet.Identity;
+using System.Web.Mvc;
+using IMSWEB;
+using IMSWEB.SPViewModels;
+
+using IMSWEB.Model.SPModel;
+using System.Reflection;
+
+namespace IMSWEB.Report
+{
+    public class TransactionalReport : ITransactionalReport
+    {
+        DataSet _dataSet = null;
+        ReportParameter _reportParameter = null;
+        List<ReportParameter> _reportParameters = null;
+
+        IExpenditureService _expenditureService;
+        ISalesOrderService _salesOrderService;
+        ISalesOrderDetailService _salesOrderDetailService;
+        IPurchaseOrderService _purchaseOrderService;
+        ICustomerService _customerService;
+        IProductService _productService;
+        ICreditSalesOrderService _creditSalesOrderService;
+        IStockDetailService _stockdetailService;
+        IStockService _StockServce;
+        IColorService _ColorServce;
+        ICashCollectionService _CashCollectionService;
+        ISystemInformationService _systemInformationService;
+        ISRVisitService _SRVisitService;
+        ISRVisitDetailService _SRVisitDetailService;
+        IEmployeeService _EmployeeService;
+        ISRVProductDetailService _SRVProductDetailService;
+        ICategoryService _CategoryService;
+        ICompanyService _CompanyService;
+        IUserService _userService;
+        ISupplierService _SupplierService;
+        IPurchaseOrderDetailService _PurchaseOrderDetailService;
+        IBankTransactionService _bankTransactionService;
+
+        public TransactionalReport(IExpenditureService expenditureService, ICustomerService customerService, IPurchaseOrderService purchaseOrderService,  IBankTransactionService bankTransactionService, ICreditSalesOrderService creditSalesOrderService,
+            ISalesOrderService salesOrderService, ISalesOrderDetailService salesOrderDetailService, IProductService productService, IStockDetailService stockDetailService, IStockService stockService, ICashCollectionService cashCollectionService,
+            IColorService colorServce, ISystemInformationService systemInformationService,
+            ISRVisitService srVisitService, ISRVisitDetailService srVisitDetailService, IEmployeeService employeeService,
+            ISRVProductDetailService srVProductDetailService, ISupplierService SupplierService,
+            ICategoryService categoryService, ICompanyService companyService, IUserService userservice, IPurchaseOrderDetailService PurchaseOrderDetailService)
+        {
+            _expenditureService = expenditureService;
+            _salesOrderService = salesOrderService;
+            _productService = productService;
+            _stockdetailService = stockDetailService;
+            _customerService = customerService;
+            _purchaseOrderService = purchaseOrderService;
+            _bankTransactionService = bankTransactionService;
+            _StockServce = stockService;
+            _systemInformationService = systemInformationService;
+            _salesOrderDetailService = salesOrderDetailService;
+            _CashCollectionService = cashCollectionService;
+            _creditSalesOrderService = creditSalesOrderService;
+            _ColorServce = colorServce;
+            _SRVisitService = srVisitService;
+            _SRVisitDetailService = srVisitDetailService;
+            _EmployeeService = employeeService;
+            _SRVProductDetailService = srVProductDetailService;
+            _CategoryService = categoryService;
+            _CompanyService = companyService;
+            _userService = userservice;
+            _SupplierService = SupplierService;
+            _PurchaseOrderDetailService = PurchaseOrderDetailService;
+        }
+
+        public static string TakaFormat(double TotalAmt)
+        {
+
+            string sInWords = string.Empty;
+
+            string sPoisa = string.Empty;
+            string[] words = TotalAmt.ToString().Split('.');
+            string sTaka = words[0];
+            if (words.Length == 1)
+            {
+                sPoisa = "00";
+            }
+            else
+            {
+                sPoisa = words[1];
+                if (sPoisa.Length == 1)
+                {
+                    sPoisa = sPoisa + "0";
+                }
+            }
+
+            int i = sTaka.Length;
+            string sDH1 = string.Empty;
+
+            if (i == 9)
+            {
+                sDH1 = Spell.SpellAmount.F_Crores(sTaka, sPoisa);
+            }
+            else if (i == 8)
+            {
+                sDH1 = Spell.SpellAmount.F_Crore(sTaka, sPoisa);
+            }
+            else if (i == 7)
+            {
+                sDH1 = Spell.SpellAmount.F_Lakhs(sTaka, sPoisa);
+            }
+            else if (i == 6)
+            {
+                sDH1 = Spell.SpellAmount.F_Lakh(sTaka, sPoisa);
+            }
+            else if (i == 5)
+            {
+                sDH1 = Spell.SpellAmount.F_Thousands(sTaka, sPoisa);
+            }
+            else if (i == 4)
+            {
+                sDH1 = Spell.SpellAmount.F_Thousand(sTaka, sPoisa);
+            }
+            else if (i == 3)
+            {
+                sDH1 = Spell.SpellAmount.F_Hundred(sTaka, sPoisa);
+            }
+            else if (i == 2)
+            {
+                sDH1 = Spell.SpellAmount.Tens(sTaka);
+            }
+
+            sInWords = "In word ," + sDH1 + ".";
+
+            return sInWords;
+
+        }
+        public byte[] ExpenditureReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int reportType)
+        {
+            try
+            {
+
+                var expenseInfos = _expenditureService.GetforExpenditureReport(fromDate, toDate, concernID, reportType);
+                DataRow row = null;
+
+                TransactionalDataSet.dtExpenditureDataTable dtExpenditure = new TransactionalDataSet.dtExpenditureDataTable();
+                //BasicDataSet.dtEmployeesInfoDataTable dtEmployeesInfo = new BasicDataSet.dtEmployeesInfoDataTable();
+
+                foreach (var item in expenseInfos)
+                {
+                    row = dtExpenditure.NewRow();
+                    row["ExpDate"] = item.Item1.ToString("dd MMM yyyy");
+                    row["Description"] = item.Item3;
+                    row["Amount"] = item.Item4.ToString("#,###");
+                    row["ItemName"] = item.Item2;// item.ExpenseItem.Description;
+                    row["VoucherNo"] = item.Item5;
+                    row["UserName"] = item.Item6;
+                    dtExpenditure.Rows.Add(row);
+                }
+
+                dtExpenditure.TableName = "dtExpenditure";
+                _dataSet = new DataSet();
+                _dataSet.Tables.Add(dtExpenditure);
+
+                GetCommonParameters(userName, concernID);
+                _reportParameter = new ReportParameter("Month", fromDate.ToString("dd MMM yyyy") + " To " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Others\\rptExpenditure.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] SalesReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int reportType, string period)
+        {
+            try
+            {
+                #region Summary
+                if (reportType == 1)
+                {
+                    IEnumerable<Tuple<string, string, DateTime, string, decimal, decimal, decimal, Tuple<decimal, decimal, decimal>>> salseInfos =
+                        _salesOrderService.GetSalesReportByConcernID(fromDate, toDate, concernID);
+
+                    IEnumerable<Tuple<string, string, DateTime, string, decimal, decimal, decimal, Tuple<decimal, decimal, decimal>>> CreditsalseInfos =
+                      _creditSalesOrderService.GetCreditSalesReportByConcernID(fromDate, toDate, concernID);
+
+                    DataRow row = null;
+
+                    TransactionalDataSet.dtOrderDataTable dt = new TransactionalDataSet.dtOrderDataTable();
+                    //BasicDataSet.dtEmployeesInfoDataTable dtEmployeesInfo = new BasicDataSet.dtEmployeesInfoDataTable();
+
+                    foreach (var item in salseInfos)
+                    {
+                        row = dt.NewRow();
+                        row["CustomerCode"] = item.Item1;
+                        row["Name"] = item.Item2;
+                        row["Date"] = item.Item3.ToString("dd MMM yyyy");
+                        row["InvoiceNo"] = item.Item4;
+                        // item.ExpenseItem.Description;
+                        row["GrandTotal"] = item.Item5;
+                        row["DiscountAmount"] = item.Item6;
+                        row["Amount"] = item.Item7;
+                        row["RecAmt"] = item.Rest.Item1;
+                        row["DueAmount"] = item.Rest.Item2;
+                        row["SalesType"] = "Sales";
+                        row["AdjustAmt"] = item.Rest.Item3;
+
+                        dt.Rows.Add(row);
+                    }
+
+                    foreach (var item in CreditsalseInfos)
+                    {
+                        row = dt.NewRow();
+                        row["CustomerCode"] = item.Item1;
+                        row["Name"] = item.Item2;
+                        row["Date"] = item.Item3.ToString("dd MMM yyyy");
+                        row["InvoiceNo"] = item.Item4;
+                        // item.ExpenseItem.Description;
+                        row["GrandTotal"] = item.Item5;
+                        row["DiscountAmount"] = item.Item6;
+                        row["Amount"] = item.Item7;
+                        row["RecAmt"] = item.Rest.Item1;
+                        row["DueAmount"] = item.Rest.Item2;
+                        row["SalesType"] = "Credit Sales";
+                        row["AdjustAmt"] = 0;
+
+                        dt.Rows.Add(row);
+                    }
+
+                    dt.TableName = "dtOrder";
+                    _dataSet = new DataSet();
+                    _dataSet.Tables.Add(dt);
+
+                    GetCommonParameters(userName, concernID);
+                    if (period == "Daily")
+                        _reportParameter = new ReportParameter("Month", "Sales report for the date from : " + fromDate.ToString("dd MMM yyyy") + " To " + toDate.ToString("dd MMM yyyy"));
+                    else if (period == "Monthly")
+                        _reportParameter = new ReportParameter("Month", "Sales report for the Month : " + fromDate.ToString("MMM, yyyy"));
+                    else if (period == "Yearly")
+                        _reportParameter = new ReportParameter("Month", "Sales report for the Year : " + fromDate.ToString("yyyy"));
+                    _reportParameters.Add(_reportParameter);
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptMonthlyOrder.rdlc");
+                }
+                #endregion
+
+                else
+                {
+                    IEnumerable<Tuple<DateTime, string, string, string, decimal, decimal, decimal, Tuple<decimal, decimal, decimal, decimal, decimal, string, string, Tuple<int, decimal>>>> salseDetailInfos =
+                                                            _salesOrderService.GetSalesDetailReportByConcernID(fromDate, toDate, concernID);
+
+                    IEnumerable<Tuple<DateTime, string, string, string, decimal, decimal, decimal, Tuple<decimal, decimal, decimal, decimal, decimal, string, string, Tuple<int>>>> CreditsalseDetailInfos =
+                                        _creditSalesOrderService.GetCreditSalesDetailReportByConcernID(fromDate, toDate, concernID);
+
+                    TransactionalDataSet.dtCustomerWiseSalesDataTable dt = new TransactionalDataSet.dtCustomerWiseSalesDataTable();
+                    int SOrderID = 0, CreditSaleID = 0;
+                    decimal TotalDueSales = 0, AdjAmount = 0;
+                    decimal GrandTotal = 0;
+                    decimal TotalDis = 0;
+                    decimal NetTotal = 0;
+                    decimal RecAmt = 0;
+                    decimal CurrDue = 0;
+
+                    foreach (var grd in salseDetailInfos)
+                    {
+                        //StockDetail std = oSTDList.FirstOrDefault(x => x.SDetailID == grd.StockDetailID);
+
+                        if (SOrderID != grd.Rest.Rest.Item1)
+                        {
+                            TotalDueSales = TotalDueSales + (decimal)grd.Rest.Item4;
+                            GrandTotal = GrandTotal + (decimal)grd.Item7;
+                            TotalDis = TotalDis + (decimal)grd.Rest.Item1;
+                            NetTotal = NetTotal + (decimal)grd.Rest.Item2;
+                            RecAmt = RecAmt + (decimal)grd.Rest.Item3;
+                            CurrDue = CurrDue + (decimal)grd.Rest.Item4;
+                            AdjAmount = AdjAmount + grd.Rest.Rest.Item2;
+                        }
+
+                        SOrderID = grd.Rest.Rest.Item1;
+                        dt.Rows.Add(grd.Item1.ToString("dd MMM yyyy"), grd.Item2, grd.Item3, grd.Item4, grd.Item5, grd.Item6, grd.Item7, grd.Rest.Item1, grd.Rest.Item2, grd.Rest.Item3, grd.Rest.Item4, grd.Rest.Item5, grd.Rest.Item6, grd.Rest.Item7, "Sales", grd.Rest.Rest.Item2);
+
+                    }
+
+                    //For Credit Sales
+                    foreach (var grd in CreditsalseDetailInfos)
+                    {
+                        //StockDetail std = oSTDList.FirstOrDefault(x => x.SDetailID == grd.StockDetailID);
+
+                        if (CreditSaleID != grd.Rest.Rest.Item1)
+                        {
+                            TotalDueSales = TotalDueSales + (decimal)grd.Rest.Item4;
+                            GrandTotal = GrandTotal + (decimal)grd.Item7;
+                            TotalDis = TotalDis + (decimal)grd.Rest.Item1;
+                            NetTotal = NetTotal + (decimal)grd.Rest.Item2;
+                            RecAmt = RecAmt + (decimal)grd.Rest.Item3;
+                            CurrDue = CurrDue + (decimal)grd.Rest.Item4;
+                        }
+
+                        CreditSaleID = grd.Rest.Rest.Item1;
+                        dt.Rows.Add(grd.Item1.ToString("dd MMM yyyy"), grd.Item2, grd.Item3, grd.Item4, grd.Item5, grd.Item6, grd.Item7, grd.Rest.Item1, grd.Rest.Item2, grd.Rest.Item3, grd.Rest.Item4, grd.Rest.Item5, grd.Rest.Item6, grd.Rest.Item7, "Credit Sales", 0m);
+
+                    }
+
+                    dt.TableName = "dtCustomerWiseSales";
+                    _dataSet = new DataSet();
+                    _dataSet.Tables.Add(dt);
+
+                    GetCommonParameters(userName, concernID);
+                    if (period == "Daily")
+                        _reportParameter = new ReportParameter("Date", "Sales details for the date from : " + fromDate.ToString("dd MMM yyyy") + " To " + toDate.ToString("dd MMM yyyy"));
+                    else if (period == "Monthly")
+                        _reportParameter = new ReportParameter("Date", "Sales details for the Month : " + fromDate.ToString("MMM, yyyy"));
+                    else if (period == "Yearly")
+                        _reportParameter = new ReportParameter("Date", "Sales details the Year : " + fromDate.ToString("yyyy"));
+
+                    _reportParameters.Add(_reportParameter);
+
+                    _reportParameter = new ReportParameter("GrandTotal", GrandTotal.ToString());
+                    _reportParameters.Add(_reportParameter);
+
+                    _reportParameter = new ReportParameter("TotalDis", TotalDis.ToString());
+                    _reportParameters.Add(_reportParameter);
+
+                    _reportParameter = new ReportParameter("NetTotal", NetTotal.ToString());
+                    _reportParameters.Add(_reportParameter);
+
+                    _reportParameter = new ReportParameter("RecAmt", RecAmt.ToString());
+                    _reportParameters.Add(_reportParameter);
+
+                    _reportParameter = new ReportParameter("CurrDue", CurrDue.ToString());
+                    _reportParameters.Add(_reportParameter);
+
+                    _reportParameter = new ReportParameter("AdjAmount", AdjAmount.ToString());
+                    _reportParameters.Add(_reportParameter);
+
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptSalesDetails.rdlc");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] PurchaseReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int reportType, string period)
+        {
+            try
+            {
+
+                if (reportType == 1)
+                {
+                    IEnumerable<Tuple<string, string, DateTime, string, decimal, decimal, decimal, Tuple<decimal, decimal>>> purchaseInfos =
+                        _purchaseOrderService.GetPurchaseReportByConcernID(fromDate, toDate, concernID);
+                    DataRow row = null;
+
+                    TransactionalDataSet.dtReceiveOrderDataTable dt = new TransactionalDataSet.dtReceiveOrderDataTable();
+                    //BasicDataSet.dtEmployeesInfoDataTable dtEmployeesInfo = new BasicDataSet.dtEmployeesInfoDataTable();
+
+                    foreach (var item in purchaseInfos)
+                    {
+                        row = dt.NewRow();
+                        row["CompanyCode"] = item.Item1;
+                        row["Name"] = item.Item2;
+                        row["OrderDare"] = item.Item3.ToString("dd MMM yyyy");
+                        row["ChallanNo"] = item.Item4;
+                        // item.ExpenseItem.Description;
+                        row["GrandTotal"] = item.Item5;
+                        row["DisAmt"] = item.Item6;
+                        row["TotalAmt"] = item.Item7;
+                        row["RecAmt"] = item.Rest.Item1;
+                        row["DueAmt"] = item.Rest.Item2;
+                        dt.Rows.Add(row);
+                    }
+
+                    dt.TableName = "dtReceiveOrder";
+                    _dataSet = new DataSet();
+                    _dataSet.Tables.Add(dt);
+
+                    GetCommonParameters(userName, concernID);
+                    _reportParameter = new ReportParameter("Month", "Purchase report for the date from : " + fromDate.ToString("dd MMM yyyy") + " To " + toDate.ToString("dd MMM yyyy"));
+                    _reportParameters.Add(_reportParameter);
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\rptPurchaseOrder.rdlc");
+                }
+                else
+                {
+                    IEnumerable<Tuple<DateTime, string, string, decimal, decimal, decimal, decimal, Tuple<decimal, decimal, decimal, decimal, string, string, string, Tuple<decimal>>>> Purchases =
+                                                            _purchaseOrderService.GetPurchaseDetailReportByConcernID(fromDate, toDate, concernID);
+
+                    decimal TotalDuePurchase = 0;
+                    decimal GrandTotal = 0;
+                    decimal TotalDis = 0;
+                    decimal NetTotal = 0;
+                    decimal RecAmt = 0;
+                    decimal CurrDue = 0;
+
+                    /*   x.OrderDate,
+                   x.ChallanNo,
+                  x.ProductName,
+                  x.UnitPrice,
+                  x.PPDISAmt,
+                  x.TAmount,
+                  x.GrandTotal, new Tuple<decimal, decimal, decimal, decimal, decimal, string>(
+                                      x.TDiscount,
+                                      x.TotalAmt,
+                                     (decimal)x.RecAmt,
+                                     x.PaymentDue,
+                                     x.Quantity,
+                                     x.IMENO)*/
+
+
+                    if (Purchases != null)
+                    {
+                        TransactionalDataSet.dtSuppWiseDataDataTable dt = new TransactionalDataSet.dtSuppWiseDataDataTable();
+
+
+                        string SChallanNo = "";
+                        foreach (var grd in Purchases)
+                        {
+                            //POProductDetail oPOPD = oPOPList.FirstOrDefault(x => x.POrderDetailID == grd.POrderDetailID);
+
+
+                            if (SChallanNo != grd.Item2)
+                            {
+                                TotalDuePurchase = TotalDuePurchase + (decimal)grd.Rest.Item4;
+                                GrandTotal = GrandTotal + (decimal)grd.Item7;
+                                TotalDis = TotalDis + (decimal)grd.Rest.Item1;
+                                NetTotal = NetTotal + (decimal)grd.Rest.Item2;
+                                RecAmt = RecAmt + (decimal)grd.Rest.Item3;
+                                CurrDue = CurrDue + (decimal)grd.Rest.Item4;
+
+                            }
+                            //dt.Rows.Add(grd.OrderDate, grd.ChallanNo, grd.ProductName, grd.UnitPrice, grd.PPDISAmt, grd.TAmount - grd.PPDISAmt, grd.GrandTotal, grd.TDiscount, grd.TotalAmt, grd.RecAmt, grd.PaymentDue, grd.Quantity, oPOPD.IMENo, "", oPOPD.POrderDetail.Color.Description);
+                            dt.Rows.Add(grd.Item1, grd.Item2, grd.Item3, grd.Item4, grd.Item5, grd.Item6 - grd.Item5, grd.Item7, grd.Rest.Item1, grd.Rest.Item2, grd.Rest.Item3, grd.Rest.Item4, "1", grd.Rest.Item6, grd.Rest.Item5, grd.Rest.Item7, grd.Rest.Rest.Item1);
+
+                            SChallanNo = grd.Item2;
+                        }
+
+                        dt.TableName = "dtSuppWiseData";
+                        _dataSet = new DataSet();
+                        _dataSet.Tables.Add(dt);
+
+                        GetCommonParameters(userName, concernID);
+                        if (period == "Daily")
+                            _reportParameter = new ReportParameter("Date", "Purchase details for the date from : " + fromDate.ToString("dd MMM yyyy") + " To " + toDate.ToString("dd MMM yyyy"));
+                        else if (period == "Monthly")
+                            _reportParameter = new ReportParameter("Date", "Purchase details for the Month : " + fromDate.ToString("MMM, yyyy"));
+                        else if (period == "Yearly")
+                            _reportParameter = new ReportParameter("Date", "Purchase details the Year : " + fromDate.ToString("yyyy"));
+
+                        _reportParameters.Add(_reportParameter);
+
+                        _reportParameter = new ReportParameter("GrandTotal", GrandTotal.ToString());
+                        _reportParameters.Add(_reportParameter);
+
+                        _reportParameter = new ReportParameter("TotalDis", TotalDis.ToString());
+                        _reportParameters.Add(_reportParameter);
+
+                        _reportParameter = new ReportParameter("NetTotal", NetTotal.ToString());
+                        _reportParameters.Add(_reportParameter);
+
+                        _reportParameter = new ReportParameter("RecAmt", RecAmt.ToString());
+                        _reportParameters.Add(_reportParameter);
+
+                        _reportParameter = new ReportParameter("CurrDue", CurrDue.ToString());
+                        _reportParameters.Add(_reportParameter);
+
+                    }
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\rptPurchaseDetails.rdlc");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] SalesInvoiceReport(SOrder oOrder, string userName, int concernID)
+        {
+            try
+            {
+
+                DataTable orderdDT = new DataTable();
+                TransactionalDataSet.dtInvoiceDataTable dt = new TransactionalDataSet.dtInvoiceDataTable();
+                TransactionalDataSet.dtWarrentyDataTable dtWarrenty = new TransactionalDataSet.dtWarrentyDataTable();
+                Customer customer = _customerService.GetCustomerById(oOrder.CustomerID);
+                //    IEnumerable<Tuple<int, string, string,
+                //decimal, string, string, string, Tuple<string, decimal?>>> products = _productService.GetAllProduct();
+                Product product = null;
+
+                //string SChasisBarcode = string.Empty;
+                //decimal FreeQtyAmt = 0;
+                string Warrenty = string.Empty;
+                foreach (SOrderDetail item in oOrder.SOrderDetails)
+                {
+                    StockDetail std = _stockdetailService.GetById(item.SDetailID);
+                    Color clr = _ColorServce.GetColorById(std.ColorID);
+                    product = _productService.GetProductById(std.ProductID);
+
+                    //if (item.IsFree == 1)
+                    //{
+                    //    //FreeQtyAmt += item.UTAmount;
+                    //    dt.Rows.Add(product.ProductName + " [Free]", item.Quantity, "Pcs", item.UnitPrice, "0 %", "0.00", "0", "0", std.IMENO, std.Stock.Color.Description, "");
+
+                    //}
+                    //else
+                    //{
+                    //dt.Rows.Add(product.ProductName, item.Rest.Item1, "Pcs", item.Rest.Item2 + item.Rest.Item6 + item.Rest.Rest.Item2, "0 %", item.Rest.Item4, item.Rest.Item5, item.Rest.Item6, std.IMENO, clr.Name, "", item.Rest.Rest.Item2);
+                    //+ item.PPDAmount + item.PPOffer
+                    dt.Rows.Add(product.ProductName, item.Quantity, "Pcs", item.UnitPrice, "0 %", item.UTAmount, item.PPDPercentage, item.PPDAmount, std.IMENO, clr.Name, "", item.PPOffer);
+                    //}
+                    if (item.Compressor != 0)
+                        Warrenty = "Compressor: " + item.Compressor + " Months" + Environment.NewLine;
+                    if (item.Motor != 0)
+                        Warrenty = Warrenty + "Motor: " + item.Motor + " Months" + Environment.NewLine;
+                    if (item.Panel != 0)
+                        Warrenty = Warrenty + "Panel: " + item.Panel + " Months" + Environment.NewLine;
+                    if (item.Spareparts != 0)
+                        Warrenty = Warrenty + "Spareparts: " + item.Spareparts + " Months";
+
+                    dtWarrenty.Rows.Add(product.ProductName, std.IMENO, Warrenty);
+                    Warrenty = string.Empty;
+
+
+                }
+
+                if (dt != null && (dt.Rows != null && dt.Rows.Count > 0))
+                    orderdDT = dt.AsEnumerable().OrderBy(o => (String)o["ProductName"]).CopyToDataTable();
+                dt.TableName = "dtInvoice";
+                _dataSet = new DataSet();
+                _dataSet.Tables.Add(dt);
+                dtWarrenty.TableName = "dtWarrenty";
+                _dataSet.Tables.Add(dtWarrenty);
+
+                string sInwodTk = TakaFormat(Convert.ToDouble(oOrder.RecAmount));
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("TDiscount", oOrder.TDAmount.ToString("0.00"));
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Total", (oOrder.TotalAmount).ToString("0.00"));
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("GTotal", (oOrder.GrandTotal + (oOrder.Customer.TotalDue - oOrder.PaymentDue)).ToString());
+
+                _reportParameter = new ReportParameter("GTotal", "0.00");
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Paid", oOrder.RecAmount.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CurrDue", (oOrder.PaymentDue).ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("InvoiceNo", oOrder.InvoiceNo);
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("TotalDue", oOrder.TotalDue.ToString());
+                _reportParameter = new ReportParameter("TotalDue", customer.TotalDue.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("InvoiceDate", oOrder.InvoiceDate.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Company", customer.CompanyName);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CAddress", customer.Address);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Name", customer.Name);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("MobileNo", customer.ContactNo);
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter =new ReportParameter("InWordTK", sInwodTk);
+                //_reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\AMSalesInvoice.rdlc");
+                //return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\AMMoneyReceiptInvoice.rdlc");
+            }
+
+            catch (Exception Ex)
+            {
+
+                throw Ex;
+            }
+        }
+
+        public byte[] SalesInvoiceReport(int oOrderID, string userName, int concernID)
+        {
+            try
+            {
+
+                SOrder oOrder = _salesOrderService.GetSalesOrderById(Convert.ToInt32(oOrderID));
+                var soDetails = _salesOrderDetailService.GetSalesOrderDetailByOrderIdForInvoice(Convert.ToInt32(oOrderID));
+
+                DataTable orderdDT = new DataTable();
+                TransactionalDataSet.dtInvoiceDataTable dt = new TransactionalDataSet.dtInvoiceDataTable();
+                TransactionalDataSet.dtWarrentyDataTable dtWarrenty = new TransactionalDataSet.dtWarrentyDataTable();
+
+                Customer customer = _customerService.GetCustomerById(oOrder.CustomerID);
+                //    IEnumerable<Tuple<int, string, string,
+                //decimal, string, string, string, Tuple<string, decimal?>>> products = _productService.GetAllProduct();
+                Product product = null;
+
+                //string SChasisBarcode = string.Empty;
+                //decimal FreeQtyAmt = 0;
+                string Warrenty = string.Empty;
+                foreach (var item in soDetails)
+                {
+                    StockDetail std = _stockdetailService.GetById(item.Item4);
+                    Color clr = _ColorServce.GetColorById(std.ColorID);
+                    product = _productService.GetProductById(std.ProductID);
+                    //if (item.IsFree == 1)
+                    //{
+                    //    //FreeQtyAmt += item.UTAmount;
+                    //    dt.Rows.Add(product.ProductName + " [Free]", item.Quantity, "Pcs", item.UnitPrice, "0 %", "0.00", "0", "0", std.IMENO, std.Stock.Color.Description, "");
+
+                    //}
+                    //else
+                    //{
+                    // dt.Rows.Add(product.ProductName, item.Quantity, "Pcs", item.UnitPrice, "0 %", item.UTAmount, item.PPDPercentage, item.PPDAmount, std.IMENO, "", "");
+                    //+ item.Rest.Item6 + item.Rest.Rest.Item2
+                    dt.Rows.Add(product.ProductName, item.Rest.Item1, "Pcs", item.Rest.Item2, "0 %", item.Rest.Item4, item.Rest.Item5, item.Rest.Item6, std.IMENO, clr.Name, "", item.Rest.Rest.Item2);
+                    //}
+
+                    if (item.Rest.Rest.Item3 != 0)
+                        Warrenty = "Compressor: " + item.Rest.Rest.Item3 + " Months" + Environment.NewLine;
+                    if (item.Rest.Rest.Item4 != 0)
+                        Warrenty = Warrenty + "Motor: " + item.Rest.Rest.Item4 + " Months" + Environment.NewLine;
+                    if (item.Rest.Rest.Item5 != 0)
+                        Warrenty = Warrenty + "Panel: " + item.Rest.Rest.Item5 + " Months" + Environment.NewLine;
+                    if (item.Rest.Rest.Item6 != 0)
+                        Warrenty = Warrenty + "Spareparts: " + item.Rest.Rest.Item6 + " Months";
+
+                    dtWarrenty.Rows.Add(product.ProductName, std.IMENO, Warrenty);
+                    Warrenty = string.Empty;
+
+                }
+                orderdDT = dt.AsEnumerable().OrderBy(o => (String)o["ProductName"]).CopyToDataTable();
+                dt.TableName = "dtInvoice";
+                _dataSet = new DataSet();
+                _dataSet.Tables.Add(dt);
+                dtWarrenty.TableName = "dtWarrenty";
+                _dataSet.Tables.Add(dtWarrenty);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("TDiscount", oOrder.TDAmount.ToString("0.00"));
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Total", (oOrder.TotalAmount).ToString("0.00"));
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("GTotal", (oOrder.GrandTotal + (oOrder.Customer.TotalDue - oOrder.PaymentDue)).ToString());
+
+                _reportParameter = new ReportParameter("GTotal", "0.00");
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Paid", oOrder.RecAmount.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CurrDue", (oOrder.PaymentDue).ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("InvoiceNo", oOrder.InvoiceNo);
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("TotalDue", oOrder.TotalDue.ToString());
+                _reportParameter = new ReportParameter("TotalDue", customer.TotalDue.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("InvoiceDate", oOrder.InvoiceDate.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Company", customer.CompanyName);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CAddress", customer.Address);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Name", customer.Name);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("MobileNo", customer.ContactNo);
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\AMSalesInvoice.rdlc");
+            }
+
+            catch (Exception Ex)
+            {
+
+                throw Ex;
+            }
+        }
+
+        public byte[] CreditSalesInvoiceReport(CreditSale oOrder, string userName, int concernID)
+        {
+            try
+            {
+
+                DataTable orderdDT = new DataTable();
+                TransactionalDataSet.CreditSalesInfoDataTable dt = new TransactionalDataSet.CreditSalesInfoDataTable();
+                TransactionalDataSet.dtWarrentyDataTable dtWarrenty = new TransactionalDataSet.dtWarrentyDataTable();
+                Customer customer = _customerService.GetCustomerById(oOrder.CustomerID);
+
+                DataRow oSDRow = null;
+                Product product = null;
+                StockDetail oSTDetail = null;
+                int count = 1;
+                string Warrenty = string.Empty;
+
+                foreach (CreditSalesSchedules item in oOrder.CreditSalesSchedules)
+                {
+                    oSDRow = dt.NewRow();
+
+                    oSDRow["ScheduleNo"] = count;
+                    oSDRow["PaymentDate"] = Convert.ToDateTime(item.MonthDate).ToString("dd MMM yyyy");
+                    oSDRow["Balance"] = item.Balance;
+                    oSDRow["InstallmetAmt"] = item.InstallmentAmt;
+                    oSDRow["ClosingBalance"] = item.ClosingBalance;
+                    oSDRow["PaymentStatus"] = item.PaymentStatus;
+                    dt.Rows.Add(oSDRow);
+                    count++;
+
+
+                }
+
+                dt.TableName = "CreditSalesInfo";
+                _dataSet = new DataSet();
+                _dataSet.Tables.Add(dt);
+
+                TransactionalDataSet.CSalesProductDataTable CSProductDT = new TransactionalDataSet.CSalesProductDataTable();
+                DataRow oCSPRow = null;
+                int nCOunt = 1;
+
+                foreach (CreditSaleDetails item in oOrder.CreditSaleProducts)
+                {
+                    oSTDetail = _stockdetailService.GetById(item.StockDetailID);
+                    product = _productService.GetProductById(item.ProductID);
+
+                    oCSPRow = CSProductDT.NewRow();
+                    oCSPRow["SLNo"] = nCOunt.ToString();
+                    oCSPRow["PName"] = product.ProductName;
+                    oCSPRow["IMENO"] = oSTDetail.IMENO;
+                    oCSPRow["Qty"] = item.Quantity.ToString();
+                    oCSPRow["UnitPrice"] = item.UnitPrice.ToString();
+                    oCSPRow["PPOffer"] = item.PPOffer.ToString();
+                    oCSPRow["TotalAmt"] = item.UTAmount.ToString();
+                    CSProductDT.Rows.Add(oCSPRow);
+
+                    if (item.Compressor != 0)
+                        Warrenty = "Compressor: " + item.Compressor + " Months" + Environment.NewLine;
+                    if (item.Motor != 0)
+                        Warrenty = Warrenty + "Motor: " + item.Motor + " Months" + Environment.NewLine;
+                    if (item.Panel != 0)
+                        Warrenty = Warrenty + "Panel: " + item.Panel + " Months" + Environment.NewLine;
+                    if (item.Spareparts != 0)
+                        Warrenty = Warrenty + "Spareparts: " + item.Spareparts + " Months";
+
+                    dtWarrenty.Rows.Add(product.ProductName, oSTDetail.IMENO, Warrenty);
+                    Warrenty = string.Empty;
+                }
+
+                CSProductDT.TableName = "CSalesProduct";
+                _dataSet.Tables.Add(CSProductDT);
+
+                dtWarrenty.TableName = "dtWarrenty";
+                _dataSet.Tables.Add(dtWarrenty);
+
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("InvoiceNo", oOrder.InvoiceNo);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("IssueDate", oOrder.IssueDate.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("ProductName", "");
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CustomerName", customer.Name);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CAddress", customer.Address);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CContactNo", customer.ContactNo);
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("Remarks", oOrder.Remarks);
+                //_reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("SalesPrice", (oOrder.TSalesAmt - oOrder.TotalOffer).ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("DownPayment", oOrder.DownPayment.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("RemainingAmt", oOrder.Remaining.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("CustomerCode", customer.Code);
+                _reportParameters.Add(_reportParameter);
+
+
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "CreditSales\\CreditSalesInfo.rdlc");
+            }
+
+            catch (Exception Ex)
+            {
+
+                throw Ex;
+            }
+        }
+
+        public byte[] CreditSalesInvoiceReportByID(int oOrderID, string userName, int concernID)
+        {
+            try
+            {
+
+                DataTable orderdDT = new DataTable();
+                TransactionalDataSet.CreditSalesInfoDataTable dt = new TransactionalDataSet.CreditSalesInfoDataTable();
+                TransactionalDataSet.dtWarrentyDataTable dtWarrenty = new TransactionalDataSet.dtWarrentyDataTable();
+
+                CreditSale oOrder = _creditSalesOrderService.GetSalesOrderById(oOrderID);
+
+                IEnumerable<CreditSalesSchedules> oCSShedules = _creditSalesOrderService.GetSalesOrderSchedules(oOrderID);
+                IEnumerable<CreditSaleDetails> oCSDetails = _creditSalesOrderService.GetSalesOrderDetails(oOrderID).ToList();
+                Customer customer = _customerService.GetCustomerById(oOrder.CustomerID);
+
+                DataRow oSDRow = null;
+                Product product = null;
+                StockDetail oSTDetail = null;
+                string Warrenty = string.Empty;
+
+                int count = 1;
+                foreach (CreditSalesSchedules oSItem in oCSShedules)
+                {
+                    oSDRow = dt.NewRow();
+
+                    oSDRow["ScheduleNo"] = count;
+                    oSDRow["PaymentDate"] = Convert.ToDateTime(oSItem.MonthDate).ToString("dd MMM yyyy");
+                    oSDRow["Balance"] = oSItem.Balance;
+                    oSDRow["InstallmetAmt"] = oSItem.InstallmentAmt;
+                    oSDRow["ClosingBalance"] = oSItem.ClosingBalance;
+                    oSDRow["PaymentStatus"] = oSItem.PaymentStatus;
+                    dt.Rows.Add(oSDRow);
+                    count++;
+                }
+
+                dt.TableName = "CreditSalesInfo";
+                _dataSet = new DataSet();
+                _dataSet.Tables.Add(dt);
+
+                TransactionalDataSet.CSalesProductDataTable CSProductDT = new TransactionalDataSet.CSalesProductDataTable();
+                DataRow oCSPRow = null;
+                int nCOunt = 1;
+
+                foreach (CreditSaleDetails item in oCSDetails)
+                {
+                    oSTDetail = _stockdetailService.GetById(item.StockDetailID);
+                    product = _productService.GetProductById(item.ProductID);
+
+                    oCSPRow = CSProductDT.NewRow();
+                    oCSPRow["SLNo"] = nCOunt.ToString();
+                    oCSPRow["PName"] = product.ProductName;
+                    oCSPRow["IMENO"] = oSTDetail.IMENO;
+                    oCSPRow["Qty"] = item.Quantity.ToString();
+                    oCSPRow["UnitPrice"] = item.UnitPrice.ToString();
+                    oCSPRow["PPOffer"] = item.PPOffer.ToString();
+                    oCSPRow["TotalAmt"] = item.UTAmount.ToString();
+                    CSProductDT.Rows.Add(oCSPRow);
+
+                    if (item.Compressor != 0)
+                        Warrenty = "Compressor: " + item.Compressor + " Months" + Environment.NewLine;
+                    if (item.Motor != 0)
+                        Warrenty = Warrenty + "Motor: " + item.Motor + " Months" + Environment.NewLine;
+                    if (item.Panel != 0)
+                        Warrenty = Warrenty + "Panel: " + item.Panel + " Months" + Environment.NewLine;
+                    if (item.Spareparts != 0)
+                        Warrenty = Warrenty + "Spareparts: " + item.Spareparts + " Months";
+
+                    dtWarrenty.Rows.Add(product.ProductName, oSTDetail.IMENO, Warrenty);
+                    Warrenty = string.Empty;
+                }
+
+                CSProductDT.TableName = "CSalesProduct";
+                _dataSet.Tables.Add(CSProductDT);
+                dtWarrenty.TableName = "dtWarrenty";
+                _dataSet.Tables.Add(dtWarrenty);
+
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("InvoiceNo", oOrder.InvoiceNo);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("IssueDate", oOrder.IssueDate.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("ProductName", "");
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CustomerName", customer.Name);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CAddress", customer.Address);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CContactNo", customer.ContactNo);
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("Remarks", oOrder.Remarks);
+                //_reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("SalesPrice", (oOrder.TSalesAmt - oOrder.TotalOffer).ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("DownPayment", oOrder.DownPayment.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("RemainingAmt", oOrder.Remaining.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("CustomerCode", customer.Code);
+                _reportParameters.Add(_reportParameter);
+
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "CreditSales\\CreditSalesInfo.rdlc");
+            }
+
+            catch (Exception Ex)
+            {
+
+                throw Ex;
+            }
+        }
+        public byte[] CustomeWiseSalesReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int reportType, int CustomerID)
+        {
+            try
+            {
+
+                IEnumerable<Tuple<DateTime, string, string, decimal, decimal, decimal, decimal, Tuple<decimal, decimal, decimal, decimal, decimal, string, Tuple<string, string, string, string, string, decimal>>>> salesInfos = _salesOrderService.GetSalesDetailReportByCustomerID(fromDate, toDate, CustomerID);
+                //DataRow row = null;
+
+                decimal TotalDueSales = 0;
+                decimal GrandTotal = 0;
+                decimal TotalDis = 0;
+                decimal NetTotal = 0;
+                decimal RecAmt = 0;
+                decimal CurrDue = 0;
+                decimal CusTotalDue = 0;
+                string SInvoiceNo = "";
+
+                string CusCode = "";
+
+                TransactionalDataSet.dtCustomerWiseSalesDataTable dt = new TransactionalDataSet.dtCustomerWiseSalesDataTable();
+                TransactionalDataSet.dtCustomerDataTable cdt = new TransactionalDataSet.dtCustomerDataTable();
+                _dataSet = new DataSet();
+
+
+                foreach (var grd in salesInfos)
+                {
+                    if (CusCode != grd.Rest.Item7.Item1)
+                    {
+                        CusTotalDue = grd.Rest.Item7.Item6;
+                        cdt.Rows.Add(grd.Rest.Item7.Item1, grd.Rest.Item7.Item2, grd.Rest.Item7.Item5, "", grd.Rest.Item7.Item4, "", grd.Rest.Item7.Item3, grd.Rest.Item7.Item6);
+                        //cdt.TableName = "dtCustomer";
+                        //_dataSet.Tables.Add(cdt);
+                    }
+
+                    CusCode = grd.Rest.Item7.Item1;
+
+                    if (SInvoiceNo != grd.Item2)
+                    {
+                        TotalDueSales = TotalDueSales + (decimal)grd.Rest.Item4;
+                        GrandTotal = GrandTotal + (decimal)grd.Item7;
+                        TotalDis = TotalDis + (decimal)grd.Rest.Item1;
+                        NetTotal = NetTotal + (decimal)grd.Rest.Item2;
+                        RecAmt = RecAmt + (decimal)grd.Rest.Item3;
+                        CurrDue = CurrDue + (decimal)grd.Rest.Item4;
+                    }
+
+
+
+                    SInvoiceNo = grd.Item2;
+                    dt.Rows.Add(grd.Item1.ToString("dd MMM yyyy"), grd.Item2, grd.Item3, grd.Item4, grd.Item5, grd.Item6 - grd.Item5, grd.Item7, grd.Rest.Item1, grd.Rest.Item2, grd.Rest.Item3, grd.Rest.Item4, grd.Rest.Item5, grd.Rest.Item6, "No Color");
+
+                }
+
+                cdt.TableName = "dtCustomer";
+                _dataSet.Tables.Add(cdt);
+
+                dt.TableName = "dtCustomerWiseSales";
+                //_dataSet = new DataSet();
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("Date", "Sales report for the date of : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("PrintedBy", Global.CurrentUser.UserName);
+                //_reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("TotalDue", CusTotalDue.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("TotalDueUpTo", "Total Due Upto Date: " + "0.00");
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("GrandTotal", (GrandTotal).ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("TotalDis", TotalDis.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("NetTotal", (NetTotal).ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("RecAmt", RecAmt.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CurrDue", CurrDue.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("FreeAmt", "0.00");
+                _reportParameters.Add(_reportParameter);
+
+                //GetCommonParameters(userName, concernID);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptCustomerWiseSales.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] SuplierWisePurchaseReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int reportType, int SupplierID)
+        {
+            try
+            {
+                IEnumerable<Tuple<DateTime, string, string, decimal, decimal, decimal, decimal, Tuple<decimal, decimal, decimal, decimal, decimal, string, Tuple<string, string, string, string, string, decimal, decimal>>>> purchaseInfos = _purchaseOrderService.GetPurchaseDetailReportBySupplierID(fromDate, toDate, concernID, SupplierID);
+                //DataRow row = null;
+
+                decimal TotalDueSales = 0;
+                decimal GrandTotal = 0;
+                decimal TotalDis = 0;
+                decimal NetTotal = 0;
+                decimal RecAmt = 0;
+                decimal CurrDue = 0;
+                decimal CusTotalDue = 0;
+                string ChallanNo = "";
+
+                string SuppCode = "";
+
+                TransactionalDataSet.dtSuppWiseDataDataTable dt = new TransactionalDataSet.dtSuppWiseDataDataTable();
+                TransactionalDataSet.dtSupplierDataTable cdt = new TransactionalDataSet.dtSupplierDataTable();
+
+                _dataSet = new DataSet();
+
+                foreach (var grd in purchaseInfos)
+                {
+                    if (SuppCode != grd.Rest.Item7.Item1)
+                    {
+                        CusTotalDue = grd.Item6;
+                        cdt.Rows.Add(grd.Rest.Item7.Item1, grd.Rest.Item7.Item2, grd.Rest.Item7.Item5, grd.Rest.Item7.Item4, grd.Rest.Item7.Item3, grd.Item6);
+                        //cdt.TableName = "dtSupplier";
+                        //_dataSet.Tables.Add(cdt);
+                    }
+
+                    SuppCode = grd.Rest.Item7.Item1;
+
+                    if (ChallanNo != grd.Item2)
+                    {
+                        TotalDueSales = TotalDueSales + (decimal)grd.Rest.Item4;
+                        GrandTotal = GrandTotal + (decimal)grd.Item7;
+                        TotalDis = TotalDis + (decimal)grd.Rest.Item1;
+                        NetTotal = NetTotal + (decimal)grd.Rest.Item2;
+                        RecAmt = RecAmt + (decimal)grd.Rest.Item3;
+                        CurrDue = CurrDue + (decimal)grd.Rest.Item4;
+                    }
+
+                    ChallanNo = grd.Item2;
+                    dt.Rows.Add(grd.Item1.ToString("dd MMM yyyy"), grd.Item2, grd.Item3, grd.Item4, grd.Item5, grd.Item4, grd.Item7, grd.Rest.Item1, grd.Rest.Item2, grd.Rest.Item3, grd.Rest.Item4, 1, grd.Rest.Item6, "", grd.Rest.Item6, grd.Rest.Item7.Item7);
+
+                }
+
+                _dataSet.Tables.Add(cdt);
+                cdt.TableName = "dtSupplier";
+
+                dt.TableName = "dtSuppWiseData";
+                //_dataSet = new DataSet();
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("Date", "Purchase report for the date of : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("PrintedBy", Global.CurrentUser.UserName);
+                //_reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("TotalDue", CusTotalDue.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("TotalDueUpTo", "Total Due Upto Date: " + "0.00");
+                //_reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("GrandTotal", (GrandTotal).ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("TotalDis", TotalDis.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("NetTotal", (NetTotal).ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("RecAmt", RecAmt.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("CurrDue", CurrDue.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                //_reportParameter = new ReportParameter("FreeAmt", "0.00");
+                //_reportParameters.Add(_reportParameter);
+
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\rptSupplierWiseDetails.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] MOWiseSalesReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int MOID, int RptType)
+        {
+            try
+            {
+                IEnumerable<Tuple<string, DateTime, string, string, decimal, decimal, Tuple<decimal, decimal, decimal, decimal>>> MOWiseSalesInfos = _salesOrderService.GetSalesDetailReportByMOID(fromDate, toDate, concernID, MOID, RptType);
+
+                TransactionalDataSet.MOSDetailsDataTable dt = new TransactionalDataSet.MOSDetailsDataTable();
+
+                _dataSet = new DataSet();
+                foreach (var grd in MOWiseSalesInfos)
+                {
+                    dt.Rows.Add(grd.Item1, grd.Item2.ToString("dd MMM yyyy"), grd.Item3, grd.Item4, grd.Item5, grd.Item6, grd.Item7.Item1, grd.Item7.Item2, grd.Item7.Item3, grd.Item7.Item4);
+
+                }
+
+                dt.TableName = "MOSDetails";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("DateRange", "MO Sales report for the date of : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\MOWiseSalesDetails.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] MOWiseCustomerDueRpt(string userName, int concernID, int MOID, int RptType)
+        {
+            try
+            {
+                IEnumerable<Tuple<string, string, string, string, string, decimal>> MOWiseCustomerDue = _salesOrderService.GetMOWiseCustomerDueRpt(concernID, MOID, RptType);
+
+                TransactionalDataSet.MOWiseDueRptDataTable dt = new TransactionalDataSet.MOWiseDueRptDataTable();
+
+                _dataSet = new DataSet();
+                foreach (var grd in MOWiseCustomerDue)
+                {
+                    dt.Rows.Add(grd.Item1, grd.Item2, grd.Item3, grd.Item4, grd.Item5, grd.Item6);
+                }
+
+                dt.TableName = "MOWiseDueRpt";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\MOWiseDueRpt.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public byte[] StockDetailReport(string userName, int concernID, int reportType, int CompanyID, int CategoryID, int ProductID)
+        {
+            try
+            {
+
+                IEnumerable<Tuple<int, string, string, string, string, decimal, decimal, Tuple<decimal, decimal>>> stockInfos = _StockServce.GetforStockReport(userName, concernID, reportType, CompanyID, CategoryID, ProductID).ToList();
+                DataRow row = null;
+                string reportName = string.Empty;
+
+                TransactionalDataSet.StockInfoDataTable dtStockInfoDT = new TransactionalDataSet.StockInfoDataTable();
+
+                string IMENO = "";
+                int count;
+                //StockDetails = _stockdetailService.GetAll();
+                foreach (var item in stockInfos)
+                {
+                    row = dtStockInfoDT.NewRow();
+                    row["UnitType"] = "Pice";
+                    //row["StockCode"] = item.Item1;
+                    row["ProName"] = item.Item2;
+                    row["CompanyName"] = item.Item3;
+                    row["CategoryName"] = item.Item4;
+                    row["ModelName"] = item.Item5;
+                    row["Quantity"] = item.Item6;
+                    row["PRate"] = item.Item7;
+                    row["TotalPrice"] = (item.Item6 * item.Item7);
+
+                    var SDetails = _StockServce.GetStockDetailsByID(item.Item1);
+                    //var SDetails = StockDetails.Where(i=>i.StockID==item.Item1).ToList();
+
+                    IMENO = "";
+                    count = 0;
+
+                    foreach (var itemime in SDetails)
+                    {
+                        if (count == 0)
+                            IMENO = IMENO + itemime.Item3;
+                        else
+                            IMENO = IMENO + System.Environment.NewLine + itemime.Item3;
+                        count++;
+                    }
+
+                    row["StockCode"] = IMENO;
+
+                    dtStockInfoDT.Rows.Add(row);
+                }
+
+                dtStockInfoDT.TableName = "StockInfo";
+                _dataSet = new DataSet();
+                _dataSet.Tables.Add(dtStockInfoDT);
+
+                GetCommonParameters(userName, concernID);
+
+                if (reportType == 0)
+                {
+                    reportName = "Stock\\StockInfo.rdlc";
+                }
+                else if (reportType == 1)
+                {
+                    reportName = "Stock\\rptCompanyWiseStock.rdlc";
+                }
+                else if (reportType == 2)
+                {
+                    reportName = "Stock\\rptCategoryWiseStock.rdlc";
+                }
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, reportName);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] StockSummaryReport(string userName, int concernID, int reportType, int CompanyID, int CategoryID, int ProductID)
+        {
+            try
+            {
+
+                IEnumerable<Tuple<int, string, string, string, string, decimal, decimal, Tuple<decimal, decimal>>> stockInfos = _StockServce.GetforStockReport(userName, concernID, reportType, CompanyID, CategoryID, ProductID).ToList();
+                DataRow row = null;
+                string reportName = string.Empty;
+
+                TransactionalDataSet.StockInfoDataTable dtStockInfoDT = new TransactionalDataSet.StockInfoDataTable();
+
+                string IMENO = "";
+                //int count;
+                //StockDetails = _stockdetailService.GetAll();
+                foreach (var item in stockInfos)
+                {
+                    row = dtStockInfoDT.NewRow();
+                    row["UnitType"] = "Pice";
+                    //row["StockCode"] = item.Item1;
+                    row["ProName"] = item.Item2;
+                    row["CompanyName"] = item.Item3;
+                    row["CategoryName"] = item.Item4;
+                    row["ModelName"] = item.Item5;
+                    row["Quantity"] = item.Item6;
+                    row["PRate"] = item.Item7;
+                    row["TotalPrice"] = (item.Item6 * item.Rest.Item1);
+                    row["StockCode"] = IMENO;
+                    row["SalesRate"] = item.Rest.Item1;
+                    row["CreditSRate"] = item.Rest.Item2;
+                    row["TotalCreditPrice"] = (item.Item6 * item.Rest.Item2);
+                    dtStockInfoDT.Rows.Add(row);
+                }
+
+                dtStockInfoDT.TableName = "StockInfo";
+                _dataSet = new DataSet();
+                _dataSet.Tables.Add(dtStockInfoDT);
+
+                GetCommonParameters(userName, concernID);
+                if (concernID == 1 || concernID == 5 || concernID == 6)
+                {
+                    if (reportType == 0)
+                    {
+                        reportName = "Stock\\StockSummaryInfoForCredit.rdlc";
+                    }
+                    else if (reportType == 1)
+                    {
+                        reportName = "Stock\\rptCompanyWiseStockSummaryForCredit.rdlc";
+                    }
+                    else if (reportType == 2)
+                    {
+                        reportName = "Stock\\rptCategoryWiseStockSummaryForCredit.rdlc";
+                    }
+                }
+                else
+                {
+                    if (reportType == 0)
+                    {
+                        reportName = "Stock\\StockSummaryInfo.rdlc";
+                    }
+                    else if (reportType == 1)
+                    {
+                        reportName = "Stock\\rptCompanyWiseStockSummary.rdlc";
+                    }
+                    else if (reportType == 2)
+                    {
+                        reportName = "Stock\\rptCategoryWiseStockSummary.rdlc";
+                    }
+                }
+
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, reportName);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public byte[] SRInvoiceReport(int oOrderID, string userName, int concernID)
+        {
+            try
+            {
+
+                SRVisit oOrder = _SRVisitService.GetSRVisitById(Convert.ToInt32(oOrderID));
+                var soDetails = _SRVisitDetailService.GetSRVisitDetailById(Convert.ToInt32(oOrderID));
+
+                DataTable orderdDT = new DataTable();
+                TransactionalDataSet.dtSRVisitDataTable dt = new TransactionalDataSet.dtSRVisitDataTable();
+                Employee employee = _EmployeeService.GetEmployeeById(oOrder.EmployeeID);
+                Product product = null;
+                Category oCategory = null;
+                Company oCompany = null;
+                string IMENO = "";
+
+                int count = 0;
+
+                foreach (var item in soDetails)
+                {
+                    product = _productService.GetProductById(item.Item2);
+
+                    if (product != null)
+                    {
+                        oCategory = _CategoryService.GetCategoryById(product.CategoryID);
+                        oCompany = _CompanyService.GetCompanyById(product.CompanyID);
+                    }
+
+                    IMENO = "";
+                    count = 0;
+                    IEnumerable<SRVProductDetail> SRVPD = _SRVProductDetailService.GetSRVProductDetailsById(item.Item1, item.Item2);
+
+                    foreach (SRVProductDetail itemime in SRVPD)
+                    {
+                        if (count == 0)
+                            IMENO = IMENO + itemime.IMENO;
+                        else
+                            IMENO = IMENO + System.Environment.NewLine + itemime.IMENO;
+                        count++;
+                    }
+
+                    dt.Rows.Add(item.Item5, oCategory.Description, oCompany.Name, SRVPD.Count(), IMENO);
+                }
+                orderdDT = dt.AsEnumerable().OrderBy(o => (String)o["ProductName"]).CopyToDataTable();
+                dt.TableName = "dtSRVisit";
+                _dataSet = new DataSet();
+                _dataSet.Tables.Add(dt);
+
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("InvoiceNo", oOrder.ChallanNo);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("InvoiceDate", oOrder.VisitDate.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Name", employee.Name);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("MobileNo", employee.ContactNo);
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptSRVisit.rdlc");
+            }
+
+            catch (Exception Ex)
+            {
+
+                throw Ex;
+            }
+        }
+
+        public byte[] SRInvoiceReportByChallanNo(string ChallanNo, string userName, int concernID)
+        {
+            try
+            {
+                SRVisit oOrder = _SRVisitService.GetSRVisitByChallanNo(ChallanNo, concernID);
+                var soDetails = _SRVisitDetailService.GetSRVisitDetailById(Convert.ToInt32(oOrder.SRVisitID));
+
+                DataTable orderdDT = new DataTable();
+                TransactionalDataSet.dtSRVisitDataTable dt = new TransactionalDataSet.dtSRVisitDataTable();
+                Employee employee = _EmployeeService.GetEmployeeById(oOrder.EmployeeID);
+                Product product = null;
+                Category oCategory = null;
+                Company oCompany = null;
+
+                string IMENO = "";
+                int count = 0;
+
+                foreach (var item in soDetails)
+                {
+                    product = _productService.GetProductById(item.Item2);
+
+                    if (product != null)
+                    {
+                        oCategory = _CategoryService.GetCategoryById(product.CategoryID);
+                        oCompany = _CompanyService.GetCompanyById(product.CompanyID);
+                    }
+
+                    IMENO = "";
+                    count = 0;
+                    IEnumerable<SRVProductDetail> SRVPD = _SRVProductDetailService.GetSRVProductDetailsById(item.Item1, item.Item2);
+
+                    foreach (SRVProductDetail itemime in SRVPD)
+                    {
+                        if (count == 0)
+                            IMENO = IMENO + itemime.IMENO;
+                        else
+                            IMENO = IMENO + System.Environment.NewLine + itemime.IMENO;
+                        count++;
+                    }
+
+
+                    ////product = _productService.GetProductById(item.);
+                    //IMENO = "";
+                    //var SRVPD = _SRVProductDetailService.GetSRVProductDetailsById(item.Item1, item.Item2);
+
+                    //foreach (var itemime in SRVPD)
+                    //{
+                    //    IMENO = IMENO + System.Environment.NewLine + itemime.IMENO;
+                    //}
+
+                    dt.Rows.Add(item.Item5, oCategory.Description, oCompany.Name, item.Item4, IMENO);
+                }
+                orderdDT = dt.AsEnumerable().OrderBy(o => (String)o["ProductName"]).CopyToDataTable();
+                dt.TableName = "dtSRVisit";
+                _dataSet = new DataSet();
+                _dataSet.Tables.Add(dt);
+
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("InvoiceNo", oOrder.ChallanNo);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("InvoiceDate", oOrder.VisitDate.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Name", employee.Name);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("MobileNo", employee.ContactNo);
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptSRVisit.rdlc");
+            }
+
+            catch (Exception Ex)
+            {
+
+                throw Ex;
+            }
+        }
+        public string GetLocalTime()
+        {
+            try
+            {
+                //TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById();
+                //DateTime correctDateTime = DateTime.UtcNow.AddHours((localZone.BaseUtcOffset.Hours));
+                return DateTime.Now.AddHours(10).ToString();
+            }
+            catch
+            {
+                return DateTime.Now.AddHours(10).ToString();
+            }
+        }
+
+        private void GetCommonParameters(string userName, int concernID)
+        {
+            string logoPath = string.Empty;
+            SystemInformation currentSystemInfo = _systemInformationService.GetSystemInformationByConcernId(concernID);
+            _reportParameters = new List<ReportParameter>();
+
+            _reportParameter = new ReportParameter("Logo", logoPath);
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("CompanyName", currentSystemInfo.Name);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Phone", currentSystemInfo.TelephoneNo);
+            _reportParameters.Add(_reportParameter);
+
+
+            _reportParameter = new ReportParameter("Address", currentSystemInfo.Address);
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("PrintedBy", userName);
+            _reportParameters.Add(_reportParameter);
+        }
+
+        public byte[] DefaultingCustomerReport(DateTime date, string userName, int concernID)
+        {
+            try
+            {
+                _dataSet = new DataSet();
+                IEnumerable<Tuple<string, string, string, decimal, decimal>> defaultingCustomers = _creditSalesOrderService.GetDefaultingCustomer(date, concernID);
+
+                TransactionalDataSet.dtDefaultingCustomerDataTable dt = new TransactionalDataSet.dtDefaultingCustomerDataTable();
+
+
+                foreach (var item in defaultingCustomers)
+                {
+
+                    dt.Rows.Add(item.Item1, item.Item2, item.Item3, item.Item4, item.Item5);
+
+                }
+                dt.TableName = "dtDefaultingCustomer";
+                _dataSet.Tables.Add(dt);
+                GetCommonParameters(userName, concernID);
+                List<ReportParameter> parameters = new List<ReportParameter>();
+                _reportParameter = new ReportParameter("Date", " till " + date.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "CreditSales\\rptDefaultingCustomer.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Date: 05-Jun-2018
+        /// New Method
+        /// </summary>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <param name="userName"></param>
+        /// <param name="concernID"></param>
+        /// <returns></returns>
+        public byte[] DefaultingCustomerReport(DateTime fromDate, DateTime toDate, string userName, int concernID)
+        {
+            try
+            {
+                _dataSet = new DataSet();
+                IEnumerable<Tuple<string, string, string, string, DateTime, DateTime, decimal, Tuple<decimal, decimal, decimal, decimal, string, decimal, decimal, Tuple<int, decimal>>>> upComing = _creditSalesOrderService.GetDefaultingCustomer(fromDate, toDate, concernID);
+
+                TransactionalDataSet.dtUpcomingScheduleDataTable dt = new TransactionalDataSet.dtUpcomingScheduleDataTable();
+                foreach (var item in upComing)
+                {
+                    dt.Rows.Add(item.Item2, item.Item3, item.Item4, "", item.Item5, item.Item6, item.Item7, item.Rest.Item1 + item.Rest.Item7, item.Rest.Rest.Item2, item.Rest.Item3, 0m, item.Rest.Item5, item.Rest.Item6, item.Rest.Item7, item.Rest.Item4, item.Rest.Rest.Item2 - item.Rest.Item6);
+                }
+
+                dt.TableName = "dtUpcomingSchedule";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+                _reportParameter = new ReportParameter("DateRange", "Default Customer Report Sales Date From: " + fromDate.ToString("dd MMM yyyy") + " To " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "CreditSales\\rptDefaultingCustomerNew.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public byte[] InstallmentCollectionReport(DateTime fromDate, DateTime toDate, string userName, int concernID)
+        {
+            try
+            {
+                _dataSet = new DataSet();
+                IEnumerable<Tuple<string, string, string, string, DateTime, DateTime, decimal, Tuple<decimal, decimal, decimal, decimal, string, decimal>>> upComing = _creditSalesOrderService.GetScheduleCollection(fromDate, toDate, concernID);
+                TransactionalDataSet.dtUpcomingScheduleDataTable dt = new TransactionalDataSet.dtUpcomingScheduleDataTable();
+                foreach (var item in upComing)
+                {
+                    //dt.Rows.Add(oCSDItem.InvoiceNo, oCSDItem.Name, oCSDItem.ContactNo, "", oCSDItem.SalesDate, oCSDItem.MonthDate, oCSDItem.TSalesAmt, oCSDItem.NetAmount, oCSDItem.FixedAmt, oCSDItem.Remaining, oCSDItem.InstallmentAmt, oCSDItem.Remarks, oCSDItem.DownPayment);
+                    dt.Rows.Add(item.Item2, item.Item3, item.Item4, "", item.Item5, item.Item6, item.Item7, item.Rest.Item1, item.Rest.Item2, item.Rest.Item3, item.Rest.Item4, item.Rest.Item5, item.Rest.Item6);
+                }
+
+                dt.TableName = "dtUpcomingSchedule";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("PaymentDate", fromDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "CreditSales\\UpComingSchedule.rdlc");
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] UpComingScheduleReport(DateTime fromDate, DateTime toDate, string userName, int concernID)
+        {
+            try
+            {
+                _dataSet = new DataSet();
+                IEnumerable<Tuple<string, string, string, string, DateTime, DateTime, decimal, Tuple<decimal, decimal, decimal, decimal, string, decimal, decimal, Tuple<int>>>> upComing = _creditSalesOrderService.GetUpcomingSchedule(fromDate, toDate, concernID);
+
+                TransactionalDataSet.dtUpcomingScheduleDataTable dt = new TransactionalDataSet.dtUpcomingScheduleDataTable();
+                decimal DefaultAmount = 0;
+                foreach (var item in upComing)
+                {
+
+                    //dt.Rows.Add(oCSDItem.InvoiceNo, oCSDItem.Name, oCSDItem.ContactNo, "", oCSDItem.SalesDate, oCSDItem.MonthDate, oCSDItem.TSalesAmt, oCSDItem.NetAmount, oCSDItem.FixedAmt, oCSDItem.Remaining, oCSDItem.InstallmentAmt, oCSDItem.Remarks, oCSDItem.DownPayment);
+                    DefaultAmount = _creditSalesOrderService.GetDefaultAmount(item.Rest.Rest.Item1, fromDate);
+                    dt.Rows.Add(item.Item2, item.Item3, item.Item4, "", item.Item5, item.Item6, item.Item7, item.Rest.Item1 + item.Rest.Item7, item.Rest.Item2, item.Rest.Item3, item.Rest.Item4, item.Rest.Item5, item.Rest.Item6, item.Rest.Item7, DefaultAmount);
+                }
+
+                dt.TableName = "dtUpcomingSchedule";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+                _reportParameter = new ReportParameter("PaymentDate", fromDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("ToDate", toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "CreditSales\\UpComingSchedule.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] CashCollectionReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int customerId, int reportType)
+        {
+            try
+            {
+                IEnumerable<Tuple<DateTime, string, string, string, decimal, decimal, decimal, Tuple<decimal, string, string, string, string, string>>> CashCollectionInfos = _CashCollectionService.GetCashCollectionData(fromDate, toDate, concernID, customerId, reportType);
+
+                TransactionalDataSet.dtCollectionRptDataTable dt = new TransactionalDataSet.dtCollectionRptDataTable();
+                _dataSet = new DataSet();
+
+                foreach (var grd in CashCollectionInfos)
+                {
+                    dt.Rows.Add(grd.Item1.ToString("dd MMM yyyy"), grd.Item2, grd.Item4 + " & " + grd.Item3, grd.Item4, grd.Item5, grd.Item6, grd.Item7, grd.Rest.Item1, grd.Rest.Item2, grd.Rest.Item3, grd.Rest.Item4, grd.Rest.Item5, grd.Rest.Item6);
+                }
+
+                if (concernID == 1 || concernID == 5 || concernID == 6)
+                {
+                    IEnumerable<Tuple<string, string, string, string, DateTime, DateTime, decimal, Tuple<decimal, decimal, decimal, decimal, string, decimal>>> CreditCollections = _creditSalesOrderService.GetCreditCollectionReport(fromDate, toDate, concernID, customerId);
+                    foreach (var grd in CreditCollections)
+                    {
+                        dt.Rows.Add(grd.Item6.ToString("dd MMM yyyy"), grd.Item3, "", grd.Item4, grd.Rest.Item3, grd.Rest.Item4, grd.Rest.Item3, 0m, "CreditCollection", "N/A", "N/A", "N/A", "N/A", "EMP Name");
+                    }
+                }
+
+                dt.TableName = "dtCollectionRpt";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("Month", "Cash Collection report for the date of : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Others\\rptCollectionRpt.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] CashDeliverReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int supplierId, int reportType)
+        {
+            try
+            {
+                IEnumerable<Tuple<DateTime, string, string, string, decimal, decimal, decimal, Tuple<decimal, string, string, string, string, string>>> CashCollectionInfos = _CashCollectionService.GetCashDeliveryData(fromDate, toDate, concernID, supplierId, reportType);
+
+                TransactionalDataSet.dtCollectionRptDataTable dt = new TransactionalDataSet.dtCollectionRptDataTable();
+                _dataSet = new DataSet();
+
+                foreach (var grd in CashCollectionInfos)
+                {
+                    dt.Rows.Add(grd.Item1.ToString("dd MMM yyyy"), grd.Item2, grd.Item3, grd.Item4, grd.Item5, grd.Item6, grd.Item7, grd.Rest.Item1, grd.Rest.Item2, grd.Rest.Item3, grd.Rest.Item4, grd.Rest.Item5, grd.Rest.Item6);
+                }
+
+                dt.TableName = "dtCollectionRpt";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+                _reportParameter = new ReportParameter("Month", "Cash Delivery report for the date of : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Others\\rptCollectionRpt.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] MOWiseSDetailReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int MOID)
+        {
+            try
+            {
+                var MOWiseSalesInfos = _salesOrderService.GetforSalesDetailReportByMO(fromDate, toDate, MOID);
+
+                TransactionalDataSet.dtMOWSDetailsDataTable dt = new TransactionalDataSet.dtMOWSDetailsDataTable();
+                _dataSet = new DataSet();
+                string EmpName = "";
+                int SORderID = 0;
+                decimal TotalAmount = 0, GrandTotal = 0, totalDueAmount = 0, totalCashSales = 0, NetDiscount = 0;
+                foreach (var grd in MOWiseSalesInfos)
+                {
+                    EmpName = grd.EmployeeName;
+
+                    if (SORderID != grd.SOrderID)
+                    {
+                        TotalAmount = TotalAmount + grd.TotalAmount;
+                        totalCashSales = totalCashSales + grd.RecAmount;
+                        totalDueAmount = totalDueAmount + grd.PaymentDue;
+                        GrandTotal = GrandTotal + grd.Grandtotal;
+                        NetDiscount = NetDiscount + grd.NetDiscount;
+                    }
+                    dt.Rows.Add(grd.EmployeeName, grd.InvoiceDate, grd.InvoiceNo, grd.ProductName, grd.CustomerName, grd.UnitPrice, grd.RecAmount, grd.PaymentDue, grd.TotalAmount, grd.Grandtotal, grd.NetDiscount, grd.TotalAmount, grd.RecAmount, grd.PaymentDue, grd.Quantity, grd.IMENO, grd.CustomerCode, grd.AdjAmount);
+                    SORderID = grd.SOrderID;
+                }
+
+                dt.TableName = "dtMOWSDetails";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("Date", "" + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("EmpName", "Sales Representative:[" + EmpName + "]");
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("GrandTotal", GrandTotal.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("NetTotal", TotalAmount.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("totalCashSales", totalCashSales.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("totalDueAmount", totalDueAmount.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("NetDiscount", NetDiscount.ToString());
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptMOWiseSDetails.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] ProductWisePriceProtection(DateTime fromDate, DateTime toDate, string userName, int concernID)
+        {
+            try
+            {
+                IEnumerable<Tuple<string, string, decimal, decimal, decimal, decimal, DateTime>> PWPriceProtection = _StockServce.GetPriceProtectionReport(userName, concernID, fromDate, toDate);
+
+                TransactionalDataSet.dtPProtectionDataTable dt = new TransactionalDataSet.dtPProtectionDataTable();
+                _dataSet = new DataSet();
+                //string SuppName = "";
+
+                foreach (var grd in PWPriceProtection)
+                {
+                    //SuppName = grd.Item6;
+                    if (grd.Item5 > 0)
+                        dt.Rows.Add(grd.Item1, grd.Item7, grd.Item2, grd.Item3, grd.Item4, grd.Item5, grd.Item6);
+                }
+
+                dt.TableName = "dtPProtection";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("DateRange", "Price Protection Data From " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Stock\\rptPProtection.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public byte[] ProductWisePandSReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int productID)
+        {
+            try
+            {
+                IEnumerable<Tuple<DateTime, string, string, decimal, decimal>> purchase = _purchaseOrderService.GetPurchaseByProductID(fromDate, toDate, concernID, productID);
+                IEnumerable<Tuple<DateTime, string, string, decimal, decimal>> sales = _salesOrderService.GetSalesByProductID(fromDate, toDate, concernID, productID);
+
+                TransactionalDataSet.PWPDetailsDataTable pwp = new TransactionalDataSet.PWPDetailsDataTable();
+                TransactionalDataSet.PWSDetailsDataTable pws = new TransactionalDataSet.PWSDetailsDataTable();
+                _dataSet = new DataSet();
+                decimal TotalPurchase = 0;
+                decimal TotalSales = 0;
+                decimal StockIn = 0;
+                foreach (var grd in purchase)
+                {
+                    TotalPurchase = TotalPurchase + grd.Item4;
+                    pwp.Rows.Add(grd.Item1, grd.Item2, "", "", grd.Item3, grd.Item4, grd.Item5, 0);
+                }
+                foreach (var grd in sales)
+                {
+                    TotalSales = TotalSales + grd.Item4;
+                    pws.Rows.Add(grd.Item1, grd.Item2, "", "", grd.Item3, grd.Item4, grd.Item5, 0);
+                }
+
+                StockIn = TotalPurchase - TotalSales;
+                pwp.TableName = "PWPDetails";
+                _dataSet.Tables.Add(pws);
+                pws.TableName = "PWSDetails";
+                _dataSet.Tables.Add(pwp);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("DateRange", "Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("OutStandingStock", Math.Round(StockIn, 0).ToString());
+                _reportParameters.Add(_reportParameter);
+
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\rptProductWPandS.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] SRVisitStatusReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int MOID)
+        {
+            try
+            {
+                //IEnumerable<SRVisitStatusReportModel> MOWiseSalesInfos= _SRVisitService.SRVisitStatusReport(fromDate, toDate, concernID, MOID);
+
+                IEnumerable<Tuple<DateTime, string, string, decimal, string, string, string, Tuple<string>>> MOWiseSalesInfos = _SRVisitService.GetSRViistDetailReportByEmployeeID(fromDate, toDate, concernID, MOID);
+                TransactionalDataSet.dtSRVisitStatusDataTable dt = new TransactionalDataSet.dtSRVisitStatusDataTable();
+                _dataSet = new DataSet();
+                string EmpName = "";
+                string IMENO = "";
+                string VChallanNo = "";
+                string ContactNo = "";
+                string InvoiceNo = "";
+                int count = 0;
+                var gdata = from d in MOWiseSalesInfos
+                            group d by d.Item2;
+                foreach (var grd in MOWiseSalesInfos)
+                {
+                    EmpName = grd.Item6;
+                    ContactNo = grd.Rest.Item1;
+                    InvoiceNo = grd.Item2;
+
+                    //count = 0;
+
+                    if (VChallanNo == grd.Item2 || VChallanNo == "")
+                    {
+                        if (count == 0)
+                            IMENO = IMENO + grd.Item5;
+                        else
+                            IMENO = IMENO + System.Environment.NewLine + grd.Item5;
+                        count++;
+                    }
+
+                    //IEnumerable<SRVProductDetail> SRVPD = _SRVProductDetailService.GetSRVProductDetailsById(item.Item1, item.Item2);
+                    //foreach (SRVProductDetail itemime in SRVPD)
+                    //{
+                    //    if (count == 0)
+                    //        IMENO = IMENO + itemime.IMENO;
+                    //    else
+                    //        IMENO = IMENO + System.Environment.NewLine + itemime.IMENO;
+                    //    count++;
+                    //}
+
+
+                    if (VChallanNo != grd.Item2)
+                    {
+
+                        dt.Rows.Add(grd.Item1, grd.Item3, "", "", grd.Item4, IMENO, "0", "0");
+                        IMENO = "";
+                        count = 0;
+                    }
+                    VChallanNo = grd.Item2;
+
+                }
+
+                dt.TableName = "dtSRVisitStatus";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("InvoiceDate", "" + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("InvoiceNo", InvoiceNo);
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("Name", "Sales Representative:[" + EmpName + "]");
+                _reportParameters.Add(_reportParameter);
+
+                _reportParameter = new ReportParameter("MobileNo", ContactNo);
+                _reportParameters.Add(_reportParameter);
+
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptSRVisitStatus.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] SRWiseCustomerSalesSummary(DateTime fromDate, DateTime toDate, string userName, int concernID, int EmployeeID)
+        {
+
+            var SRwiseCustomerSalesList = _salesOrderService.SRWiseCustomerSalesSummary(fromDate, toDate, concernID, EmployeeID);
+            TransactionalDataSet.dtSRWiseCustSalesSummaryDataTable dt = new TransactionalDataSet.dtSRWiseCustSalesSummaryDataTable();
+            _dataSet = new DataSet();
+            foreach (var item in SRwiseCustomerSalesList)
+            {
+                dt.Rows.Add(item.EmployeeID, item.SRName, item.ConcernID, item.CustomerID, item.Code, item.CustomerName, item.Address, item.ContactNo, item.BarUnitPrice, item.SmartUnitPrice, item.BarQuantity, item.SmartQuantity, item.TotalPriceBar, item.TotalPriceSmart, item.BarAndSmartQty, item.BarAndSmartPrice);
+            }
+
+            dt.TableName = "dtSRWiseCustSalesSummary";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptSRWiseCustSalesSummary.rdlc");
+
+        }
+
+        public byte[] CustomerLedger(DateTime fromDate, DateTime toDate, string userName, int concernID, int CustomerID)
+        {
+            var customerLedgerdata = _salesOrderService.CustomerLedger(fromDate, toDate, concernID, CustomerID);
+            TransactionalDataSet.dtCustomerLedgerDataTable dt = new TransactionalDataSet.dtCustomerLedgerDataTable();
+            _dataSet = new DataSet();
+            foreach (var item in customerLedgerdata)
+            {
+                dt.Rows.Add(item.ConcernID, item.CustomerID, item.Code, item.CustomerName, item.InvoiceDate, item.InvoiceNo, item.SOrderID, item.Opening, item.CashSales, item.DueSales, item.TotalSalesAmt, item.TotalDue, item.CollectionAmt, item.AdjustAmt, item.Closing, item.ProductID, item.ProductName, item.Quantity, item.ProSalesAmt,item.ProductReturnAmt,item.PenaltyInterestAmt);
+            }
+
+            dt.TableName = "dtCustomerLedger";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptCustomerLedger.rdlc");
+        }
+
+
+        public byte[] CustomerDueReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int CustomerID)
+        {
+            var customerdue = _salesOrderService.CustomerDue(fromDate, toDate, concernID, CustomerID).ToList();
+            decimal closingGrandtotal = 0;
+
+            var tempZeroClosing = (from cd in customerdue
+                                   group cd by cd.CustomerID into g
+                                   select new
+                                   {
+                                       CustomerID = g.Key,
+                                       Name = g.FirstOrDefault().Name,
+                                       Closing = g.LastOrDefault().Balance,
+                                   }).Where(i => i.Closing == 0).ToList();
+
+            customerdue.RemoveAll(i => tempZeroClosing.Any(j => j.CustomerID == i.CustomerID));
+
+            List<Tuple<int, decimal>> GrandTotalCal = new List<Tuple<int, decimal>>();
+
+            TransactionalDataSet.dtCustomerDueDataTable dt = new TransactionalDataSet.dtCustomerDueDataTable();
+            _dataSet = new DataSet();
+            int CID = 0;
+            DateTime CDate = DateTime.MinValue;
+            bool IsSalesFound = false;
+            foreach (var item in customerdue)
+            {
+                if (CID != item.CustomerID)
+                {
+                    IsSalesFound = false;
+                    if (item.Status.Equals("aSales") || item.Status.Equals("bCreditSales") || item.Status.Equals("RSales"))
+                    {
+                        if (item.TransDate >= fromDate && item.TransDate <= toDate)
+                        {
+                            IsSalesFound = true;
+                            CDate = item.TransDate;
+                            GrandTotalCal.Add(new Tuple<int, decimal>(item.CustomerID, item.Balance));
+                            dt.Rows.Add(item.TransDate, item.CustomerID, item.ConcernID, item.TransDate, item.Code, item.Name, item.Address, item.ContactNo, item.InvoiceNo, item.SalesAmount, item.DueSales, item.InterestAmt, item.TotalSalesAmt, item.RecAmount, item.CollectionAmt, item.Status, item.Balance,item.AdjustAmt,item.ReturnAmt);
+                        }
+                    }
+                    else
+                    {
+                        //no operation for Cash collection and credit collection status
+                    }
+
+                }
+                else
+                {
+                    if (item.Status.Equals("aSales") || item.Status.Equals("bCreditSales") || item.Status.Equals("RSales"))
+                    {
+                        if (item.TransDate >= fromDate && item.TransDate <= toDate)
+                        {
+                            if (CDate == DateTime.MinValue)
+                                CDate = item.TransDate;
+                            IsSalesFound = true;
+                            GrandTotalCal.Add(new Tuple<int, decimal>(item.CustomerID, item.Balance));
+                            dt.Rows.Add(item.TransDate, item.CustomerID, item.ConcernID, CDate, item.Code, item.Name, item.Address, item.ContactNo, item.InvoiceNo, item.SalesAmount, item.DueSales, item.InterestAmt, item.TotalSalesAmt, item.RecAmount, item.CollectionAmt, item.Status, item.Balance, item.AdjustAmt, item.ReturnAmt);
+                        }
+                    }
+                    else
+                    {
+                        if (IsSalesFound == true)
+                        {
+                            if (item.TransDate >= fromDate)
+                            {
+                                GrandTotalCal.Add(new Tuple<int, decimal>(item.CustomerID, item.Balance));
+                                dt.Rows.Add(item.TransDate, item.CustomerID, item.ConcernID, CDate, item.Code, item.Name, item.Address, item.ContactNo, item.InvoiceNo, item.SalesAmount, item.DueSales, item.InterestAmt, item.TotalSalesAmt, item.RecAmount, item.CollectionAmt, item.Status, item.Balance, item.AdjustAmt, item.ReturnAmt);
+                            }
+                        }
+                    }
+                }
+
+                CID = item.CustomerID;
+            }
+
+            dt.TableName = "dtCustomerDue";
+            _dataSet.Tables.Add(dt);
+
+            var cl = (from cd in GrandTotalCal
+                      group cd by cd.Item1 into g
+                      select new
+                      {
+                          Id = g.Key,
+                          Closing = g.LastOrDefault().Item2,
+                      }).ToList();
+
+            closingGrandtotal = cl.Sum(i => i.Closing);
+
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("ClosingGrandTotal", closingGrandtotal.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            if (concernID == 2 || concernID == 3 || concernID == 4 || concernID == 7)
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptCustomerDueMobile.rdlc");
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptCustomerDue.rdlc");
+        }
+
+
+
+        public byte[] DailyStockVSSalesSummary(DateTime fromDate, DateTime toDate, string userName, int concernID, int ProductID)
+        {
+            var customerLedgerdata = _StockServce.DailyStockVSSalesSummary(fromDate, toDate, concernID, ProductID);
+            TransactionalDataSet.dtDailyStockandSalesSummaryDataTable dt = new TransactionalDataSet.dtDailyStockandSalesSummaryDataTable();
+            _dataSet = new DataSet();
+
+            int ProductID_old = 0;
+
+            double TotalOpeningStockQty = 0;
+            double TotalOpeningStockValue = 0;
+            double TotalClosingQty = 0;
+            double TotalClosingValue = 0;
+            double TotalClosingQtyTemp = 0;
+            double TotalClosingValueTemp = 0;
+
+            foreach (var item in customerLedgerdata)
+            {
+                if (ProductID_old != item.ProductID)
+                {
+                    TotalOpeningStockQty = TotalOpeningStockQty + (double)item.OpeningStockQuantity;
+                    TotalOpeningStockValue = TotalOpeningStockValue + (double)item.OpeningStockValue;
+
+                    TotalClosingQty = TotalClosingQty + TotalClosingQtyTemp;
+                    TotalClosingValue = TotalClosingValue + TotalClosingValueTemp;
+
+                    TotalClosingQtyTemp = (double)item.ClosingStockQuantity;
+                    TotalClosingValueTemp = (double)item.ClosingStockValue;
+
+                }
+                else
+                {
+                    TotalClosingQtyTemp = (double)item.ClosingStockQuantity;
+                    TotalClosingValueTemp = (double)item.ClosingStockValue;
+                }
+                dt.Rows.Add(item.Date, item.ConcernID, item.ProductID, item.Code, item.ProductName, item.ColorID, item.ColorName, item.OpeningStockQuantity, item.TotalStockQuantity, item.PurchaseQuantity, item.SalesQuantity, item.ClosingStockQuantity, item.OpeningStockValue, item.TotalStockValue, item.ClosingStockValue, item.ReturnQuantity, item.SalesQuantity - item.ReturnQuantity);
+
+
+
+                ProductID_old = item.ProductID;
+            }
+
+
+            TotalClosingQty = TotalClosingQty + TotalClosingQtyTemp;
+            TotalClosingValue = TotalClosingValue + TotalClosingValueTemp;
+
+
+
+
+
+            dt.TableName = "dtDailyStockandSalesSummary";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("TotalOpeningStockQty", TotalOpeningStockQty.ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("TotalOpeningStockValue", Convert.ToDecimal(TotalOpeningStockValue).ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("TotalClosingQty", TotalClosingQty.ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("TotalClosingValue", Convert.ToDecimal(TotalClosingValue).ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("DateRange", "Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Stock\\rptDailyStockandSalesSummary.rdlc");
+        }
+
+
+        public byte[] DailyCashBookLedger(DateTime fromDate, DateTime toDate, string userName, int concernID)
+        {
+            var customerLedgerdata = _CashCollectionService.DailyCashBookLedger(fromDate, toDate, concernID);
+            TransactionalDataSet.dtDailyCashbookLedgerDataTable dt = new TransactionalDataSet.dtDailyCashbookLedgerDataTable();
+            _dataSet = new DataSet();
+            foreach (var item in customerLedgerdata)
+            {
+                dt.Rows.Add(item.ConcernID, item.Date, item.OpeningBalance, item.CashSales, item.DueCollection, item.DownPayment, item.InstallAmt, item.Loan, item.BankWithdrwal, item.OthersIncome, item.TotalIncome, item.PaidAmt, item.Delivery, item.EmployeeSalary, item.Conveyance, item.BankDeposit, item.LoanPaid, item.Vat, item.OthersExpense, item.SRET, item.TotalExpense, item.ClosingBalance);
+            }
+
+            dt.TableName = "dtDailyCashbookLedger";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Others\\rptDailyCashBookLedger.rdlc");
+        }
+
+
+
+
+
+        public byte[] BankSummaryReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int ProductID)
+        {
+            var customerLedgerdata = _StockServce.DailyStockVSSalesSummary(fromDate, toDate, concernID, ProductID);
+            TransactionalDataSet.dtDailyStockandSalesSummaryDataTable dt = new TransactionalDataSet.dtDailyStockandSalesSummaryDataTable();
+            _dataSet = new DataSet();
+
+            int ProductID_old = 0;
+
+            double TotalOpeningStockQty = 0;
+            double TotalOpeningStockValue = 0;
+            double TotalClosingQty = 0;
+            double TotalClosingValue = 0;
+            double TotalClosingQtyTemp = 0;
+            double TotalClosingValueTemp = 0;
+
+            foreach (var item in customerLedgerdata)
+            {
+                if (ProductID_old != item.ProductID)
+                {
+                    TotalOpeningStockQty = TotalOpeningStockQty + (double)item.OpeningStockQuantity;
+                    TotalOpeningStockValue = TotalOpeningStockValue + (double)item.OpeningStockValue;
+
+                    TotalClosingQty = TotalClosingQty + TotalClosingQtyTemp;
+                    TotalClosingValue = TotalClosingValue + TotalClosingValueTemp;
+
+                    TotalClosingQtyTemp = (double)item.ClosingStockQuantity;
+                    TotalClosingValueTemp = (double)item.ClosingStockValue;
+
+                }
+                else
+                {
+                    TotalClosingQtyTemp = (double)item.ClosingStockQuantity;
+                    TotalClosingValueTemp = (double)item.ClosingStockValue;
+                }
+                dt.Rows.Add(item.Date, item.ConcernID, item.ProductID, item.Code, item.ProductName, item.ColorID, item.ColorName, item.OpeningStockQuantity, item.TotalStockQuantity, item.PurchaseQuantity, item.SalesQuantity, item.ClosingStockQuantity, item.OpeningStockValue, item.TotalStockValue, item.ClosingStockValue, item.ReturnQuantity, item.SalesQuantity - item.ReturnQuantity);
+
+
+
+                ProductID_old = item.ProductID;
+            }
+
+
+            TotalClosingQty = TotalClosingQty + TotalClosingQtyTemp;
+            TotalClosingValue = TotalClosingValue + TotalClosingValueTemp;
+
+
+
+
+
+            dt.TableName = "dtDailyStockandSalesSummary";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("TotalOpeningStockQty", TotalOpeningStockQty.ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("TotalOpeningStockValue", Convert.ToDecimal(TotalOpeningStockValue).ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("TotalClosingQty", TotalClosingQty.ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("TotalClosingValue", Convert.ToDecimal(TotalClosingValue).ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("DateRange", "Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Stock\\rptDailyStockandSalesSummary.rdlc");
+        }
+
+
+        public byte[] DailyCashBookLedger(DateTime fromDate, DateTime toDate, string userName, int concernID)
+        {
+            var customerLedgerdata = _CashCollectionService.DailyCashBookLedger(fromDate, toDate, concernID);
+            TransactionalDataSet.dtDailyCashbookLedgerDataTable dt = new TransactionalDataSet.dtDailyCashbookLedgerDataTable();
+            _dataSet = new DataSet();
+            foreach (var item in customerLedgerdata)
+            {
+                dt.Rows.Add(item.ConcernID, item.Date, item.OpeningBalance, item.CashSales, item.DueCollection, item.DownPayment, item.InstallAmt, item.Loan, item.BankWithdrwal, item.OthersIncome, item.TotalIncome, item.PaidAmt, item.Delivery, item.EmployeeSalary, item.Conveyance, item.BankDeposit, item.LoanPaid, item.Vat, item.OthersExpense, item.SRET, item.TotalExpense, item.ClosingBalance);
+            }
+
+            dt.TableName = "dtDailyCashbookLedger";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Others\\rptDailyCashBookLedger.rdlc");
+        }
+        public byte[] ReplacementInvoiceReport(IEnumerable<ReplaceOrderDetail> ROrderDetails, ReplaceOrder ROrder, string userName, int concernID)
+        {
+            TransactionalDataSet.dtReplaceInvoiceDataTable dt = new TransactionalDataSet.dtReplaceInvoiceDataTable();
+            _dataSet = new DataSet();
+            Customer customer = _customerService.GetCustomerById(ROrder.CustomerId);
+            decimal dtotalamount = 0, rtotlaamount = 0;
+            int TotalQty = 0;
+            foreach (var item in ROrderDetails)
+            {
+                dt.Rows.Add(item.DamageProductName, item.ProductName, item.DamageIMEINO, item.ReplaceIMEINO, item.DamageUnitPrice, item.UnitPrice, item.Quantity, item.Quantity, item.Remarks);
+                dtotalamount += Convert.ToDecimal(item.DamageUnitPrice);
+                TotalQty += Convert.ToInt32(item.Quantity);
+                rtotlaamount += Convert.ToDecimal(item.UnitPrice);
+            }
+
+            dt.TableName = "dtReplaceInvoice";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            //_reportParameter = new ReportParameter("Total", ROrder.TotalAmount);
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("GTotal", (oOrder.GrandTotal + (oOrder.Customer.TotalDue - oOrder.PaymentDue)).ToString());
+
+            //_reportParameter = new ReportParameter("GTotal", "0.00");
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("Paid", ROrder.RecieveAmount.ToString());
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("CurrDue", (ROrder.PaymentDue).ToString());
+            //_reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InvoiceNo", ROrder.InvoiceNo);
+            _reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("TotalDue", oOrder.TotalDue.ToString());
+            _reportParameter = new ReportParameter("TotalDue", customer.TotalDue.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InvoiceDate", ROrder.OrderDate.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Company", customer.CompanyName);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("CAddress", customer.Address);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Name", customer.Name);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("MobileNo", customer.ContactNo);
+            _reportParameters.Add(_reportParameter);
+
+
+            _reportParameter = new ReportParameter("DamageTotalAmount", dtotalamount.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("ReplaceTotalAmount", rtotlaamount.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("TotalQty", TotalQty.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptReplacementOrderInvoice.rdlc");
+        }
+
+
+        public byte[] ReplaceInvoiceReportByID(int orderId, string username, int concernID)
+        {
+            TransactionalDataSet.dtReplaceInvoiceDataTable dt = new TransactionalDataSet.dtReplaceInvoiceDataTable();
+            var ROrder = _salesOrderService.GetSalesOrderById(Convert.ToInt32(orderId));
+            var rorderdetaisl = _salesOrderService.GetReplaceOrderInvoiceReportByID(orderId);
+            Customer customer = _customerService.GetCustomerById(ROrder.CustomerID);
+            decimal dtotalamount = 0, rtotlaamount = 0;
+            int TotalQty = 0;
+            _dataSet = new DataSet();
+            foreach (var item in rorderdetaisl)
+            {
+                dt.Rows.Add(item.DamageProductName, item.ProductName, item.DamageIMEINO, item.ReplaceIMEINO, item.DamageUnitPrice, item.UnitPrice, item.Quantity, item.Quantity, item.Remarks);
+                dtotalamount += Convert.ToDecimal(item.DamageUnitPrice);
+                TotalQty += Convert.ToInt32(item.Quantity);
+                rtotlaamount += Convert.ToDecimal(item.UnitPrice);
+            }
+
+            dt.TableName = "dtReplaceInvoice";
+            _dataSet.Tables.Add(dt);
+
+            #region Parameter
+            GetCommonParameters(username, concernID);
+
+            //_reportParameter = new ReportParameter("Total", ROrder.TotalAmount.ToString());
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("GTotal", (oOrder.GrandTotal + (oOrder.Customer.TotalDue - oOrder.PaymentDue)).ToString());
+
+            //_reportParameter = new ReportParameter("GTotal", "0.00");
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("Paid", ROrder.RecAmount.ToString());
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("CurrDue", (ROrder.PaymentDue).ToString());
+            //_reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InvoiceNo", ROrder.InvoiceNo);
+            _reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("TotalDue", oOrder.TotalDue.ToString());
+            _reportParameter = new ReportParameter("TotalDue", customer.TotalDue.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InvoiceDate", ROrder.InvoiceDate.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Company", customer.CompanyName);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("CAddress", customer.Address);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Name", customer.Name);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("MobileNo", customer.ContactNo);
+            _reportParameters.Add(_reportParameter);
+
+
+            _reportParameter = new ReportParameter("DamageTotalAmount", dtotalamount.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("ReplaceTotalAmount", rtotlaamount.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("TotalQty", TotalQty.ToString());
+            _reportParameters.Add(_reportParameter);
+            #endregion
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptReplacementOrderInvoice.rdlc");
+        }
+
+
+        public byte[] ReturnInvoiceReport(IEnumerable<ReplaceOrderDetail> ROrderDetails, ReplaceOrder ROrder, string userName, int concernID)
+        {
+            TransactionalDataSet.dtReturnInvoiceDataTable dt = new TransactionalDataSet.dtReturnInvoiceDataTable();
+            _dataSet = new DataSet();
+            Customer customer = _customerService.GetCustomerById(ROrder.CustomerId);
+            foreach (var item in ROrderDetails)
+            {
+                dt.Rows.Add(item.DamageProductName, item.DamageIMEINO, item.UnitPrice, item.Quantity, item.MPRate);
+            }
+
+            dt.TableName = "dtReturnInvoice";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            //_reportParameter = new ReportParameter("Total", ROrder.TotalAmount);
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("GTotal", (oOrder.GrandTotal + (oOrder.Customer.TotalDue - oOrder.PaymentDue)).ToString());
+
+            //_reportParameter = new ReportParameter("GTotal", "0.00");
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("Paid", ROrder.RecieveAmount.ToString());
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("CurrDue", (ROrder.PaymentDue).ToString());
+            //_reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InvoiceNo", ROrder.InvoiceNo);
+            _reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("TotalDue", oOrder.TotalDue.ToString());
+            _reportParameter = new ReportParameter("TotalDue", customer.TotalDue.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InvoiceDate", ROrder.OrderDate.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Company", customer.CompanyName);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("CAddress", customer.Address);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Name", customer.Name);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("MobileNo", customer.ContactNo);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Remarks", "Remarks: " + ROrder.Remarks);
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptReturnInvoice.rdlc");
+        }
+
+        public byte[] ReturnInvoiceReportByID(int orderId, string username, int concernID)
+        {
+            TransactionalDataSet.dtReturnInvoiceDataTable dt = new TransactionalDataSet.dtReturnInvoiceDataTable();
+            var ROrder = _salesOrderService.GetSalesOrderById(Convert.ToInt32(orderId));
+            var rorderdetaisl = _salesOrderService.GetReturnOrderInvoiceReportByID(orderId);
+            Customer customer = _customerService.GetCustomerById(ROrder.CustomerID);
+            _dataSet = new DataSet();
+            foreach (var item in rorderdetaisl)
+            {
+                dt.Rows.Add(item.DamageProductName, item.DamageIMEINO, item.UnitPrice, item.Quantity, item.MPRate);
+            }
+
+            dt.TableName = "dtReturnInvoice";
+            _dataSet.Tables.Add(dt);
+            #region Parameter
+            GetCommonParameters(username, concernID);
+
+            //_reportParameter = new ReportParameter("Total", ROrder.TotalAmount);
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("GTotal", (oOrder.GrandTotal + (oOrder.Customer.TotalDue - oOrder.PaymentDue)).ToString());
+
+            //_reportParameter = new ReportParameter("GTotal", "0.00");
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("Paid", ROrder.RecieveAmount.ToString());
+            //_reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("CurrDue", (ROrder.PaymentDue).ToString());
+            //_reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InvoiceNo", ROrder.InvoiceNo);
+            _reportParameters.Add(_reportParameter);
+
+            //_reportParameter = new ReportParameter("TotalDue", oOrder.TotalDue.ToString());
+            _reportParameter = new ReportParameter("TotalDue", customer.TotalDue.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InvoiceDate", ROrder.InvoiceDate.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Company", customer.CompanyName);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("CAddress", customer.Address);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Name", customer.Name);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("MobileNo", customer.ContactNo);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Remarks", "Remarks: " + ROrder.Remarks);
+            _reportParameters.Add(_reportParameter);
+            #endregion
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptReturnInvoice.rdlc");
+        }
+
+
+
+        public byte[] DailyWorkSheet(DateTime fromDate, DateTime toDate, string userName, int concernID)
+        {
+            var reportData = _salesOrderService.DailyWorkSheetReport(fromDate, toDate, concernID);
+            TransactionalDataSet.dtDailyWorkSheetDataTable dt = new TransactionalDataSet.dtDailyWorkSheetDataTable();
+            _dataSet = new DataSet();
+            foreach (var item in reportData)
+            {
+                dt.Rows.Add(item.ConcernID, item.Date, item.OpeningBalance, item.CashSales, item.DueCollection, item.DownPayment, item.InstallAmt, item.Loan, item.BankWithdrwal, item.OthersIncome, item.TotalIncome, item.DueSales, item.PaidAmt, item.Delivery, item.EmployeeSalary, item.Conveyance, item.BankDeposit, item.LoanPaid, item.Vat, item.OthersExpense, item.SRET, item.TotalExpense, item.ClosingBalance);
+            }
+
+            dt.TableName = "dtDailyWorkSheet";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptDailyWorkSheet.rdlc");
+        }
+
+        /// <summary>
+        /// Author:aminul
+        /// Date: 20-Mar-2018
+        /// </summary>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <param name="userName"></param>
+        /// <param name="concernID"></param>
+        /// <param name="EmployeeID"></param>
+        /// <returns></returns>
+        public byte[] SRVisitReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int EmployeeID)
+        {
+            var SRVisitData = _SRVisitService.SRVisitReport(fromDate, toDate, concernID, EmployeeID);
+            TransactionalDataSet.dtSRVisitReportDataTable dt = new TransactionalDataSet.dtSRVisitReportDataTable();
+            _dataSet = new DataSet();
+            List<SRVisitReportModel> SRVisitList = new List<SRVisitReportModel>();
+            StringBuilder strBuilderSalesIMEI = new StringBuilder();
+            StringBuilder strBuilderOpening = new StringBuilder();
+            StringBuilder strBuilderTaken = new StringBuilder();
+            StringBuilder strBuilderBalance = new StringBuilder();
+
+            if (SRVisitData.Count() != 0)
+            {
+                var tempSRVisits = SRVisitData.Where(i => i.TransDate >= fromDate && i.TransDate <= toDate);
+                if (tempSRVisits.Count() == 0)
+                {
+                    var LastSRVisit = SRVisitData.OrderByDescending(i => i.TransDate).FirstOrDefault();
+                    if (LastSRVisit.TransDate <= toDate)
+                    {
+                        var TodaySRVisit = new SRVisitReportModel();
+                        TodaySRVisit.TransDate = toDate;
+                        TodaySRVisit.balance_qty = LastSRVisit.balance_qty;
+                        TodaySRVisit.ConcernID = LastSRVisit.ConcernID;
+                        TodaySRVisit.EmployeeId = LastSRVisit.EmployeeId;
+                        TodaySRVisit.EmployeeName = LastSRVisit.EmployeeName;
+                        TodaySRVisit.imeno_balance = LastSRVisit.imeno_balance;
+                        TodaySRVisit.Opening_productno = LastSRVisit.Opening_productno;
+                        TodaySRVisit.Opening_imeno = LastSRVisit.imeno_balance;
+                        TodaySRVisit.sale_imeno = string.Empty;
+                        TodaySRVisit.taken_imeno = string.Empty;
+                        SRVisitList.Add(TodaySRVisit);
+                    }
+
+                }
+                else
+                    SRVisitList.AddRange(tempSRVisits);
+            }
+
+            string linedraw = "------------------------------------------------------------";
+            int OpeningCount = 0, OpeningGrandCount = 0, TakenCount = 0, TakenCountGrand = 0, SalesCount = 0, SalesCountGrand = 0, BalanceCount = 0, BalanceCountGrand = 0;
+            foreach (var item in SRVisitList)
+            {
+
+
+                #region SaleIMEI
+                string[] SaleIMEI = item.sale_imeno.Split(new char[] { '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                SalesCount = SaleIMEI.Length;
+                SalesCountGrand += SalesCount;
+                string tempProduct = string.Empty;
+                int productcounter = 0;
+                foreach (var imei in SaleIMEI)
+                {
+                    int len = imei.LastIndexOf('-');
+                    if (len < 0)
+                        len = 0;
+                    string product = imei.Substring(0, len);
+
+                    if (!product.Equals(tempProduct) && tempProduct.Equals(string.Empty)) //new product
+                    {
+                        strBuilderSalesIMEI.Append(product);
+                        strBuilderSalesIMEI.Append(System.Environment.NewLine);
+                        strBuilderSalesIMEI.Append(linedraw);
+                        strBuilderSalesIMEI.Append(System.Environment.NewLine);
+                        tempProduct = product;
+                    }
+
+                    if (!product.Equals(tempProduct)) //last imei of product
+                    {
+                        strBuilderSalesIMEI.Append(System.Environment.NewLine);
+                        strBuilderSalesIMEI.Append(linedraw);
+                        strBuilderSalesIMEI.Append(System.Environment.NewLine);
+                        strBuilderSalesIMEI.Append("           SubTotal: " + productcounter);
+                        strBuilderSalesIMEI.Append(System.Environment.NewLine);
+                        productcounter = 0;
+
+
+                        tempProduct = product;
+                        strBuilderSalesIMEI.Append(product);
+                        strBuilderSalesIMEI.Append(System.Environment.NewLine);
+                        strBuilderSalesIMEI.Append(linedraw);
+                        strBuilderSalesIMEI.Append(System.Environment.NewLine);
+                    }
+
+                    strBuilderSalesIMEI.Append(imei.Substring(product.Length + 1) + ", ");
+                    productcounter++;
+
+
+                }
+                strBuilderSalesIMEI.Append(linedraw);
+                strBuilderSalesIMEI.Append(System.Environment.NewLine);
+                strBuilderSalesIMEI.Append("             Total: " + SalesCount);
+                #endregion
+
+                #region Opening
+                tempProduct = string.Empty;
+                productcounter = 0;
+                string[] Opening_imeno = item.Opening_imeno.Split(new char[] { '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                OpeningCount = Opening_imeno.Length;
+                OpeningGrandCount += OpeningCount;
+                foreach (var imei in Opening_imeno)
+                {
+                    int len = imei.LastIndexOf('-');
+                    if (len < 0)
+                        len = 0;
+                    string product = imei.Substring(0, len);
+
+                    if (!product.Equals(tempProduct) && tempProduct.Equals(string.Empty))
+                    {
+                        strBuilderOpening.Append(product);
+                        strBuilderOpening.Append(System.Environment.NewLine);
+                        strBuilderOpening.Append(linedraw);
+                        strBuilderOpening.Append(System.Environment.NewLine);
+                        tempProduct = product;
+                    }
+
+
+                    if (!product.Equals(tempProduct))
+                    {
+                        strBuilderOpening.Append(System.Environment.NewLine);
+                        strBuilderOpening.Append(linedraw);
+                        strBuilderOpening.Append(System.Environment.NewLine);
+                        strBuilderOpening.Append("           SubTotal: " + productcounter);
+                        strBuilderOpening.Append(System.Environment.NewLine);
+                        productcounter = 0;
+
+                        tempProduct = product;
+                        strBuilderOpening.Append(product);
+                        strBuilderOpening.Append(System.Environment.NewLine);
+                        strBuilderOpening.Append(linedraw);
+                        strBuilderOpening.Append(System.Environment.NewLine);
+                    }
+
+                    strBuilderOpening.Append(imei.Substring(product.Length + 1) + ", ");
+                    productcounter++;
+
+
+                }
+                strBuilderOpening.Append(linedraw);
+                strBuilderOpening.Append(System.Environment.NewLine);
+                strBuilderOpening.Append("             Total: " + OpeningCount);
+                #endregion
+
+                #region Taken
+                tempProduct = string.Empty;
+                productcounter = 0;
+                string[] taken_imeno = item.taken_imeno.Split(new char[] { '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                TakenCount = taken_imeno.Length;
+                TakenCountGrand += TakenCount;
+                foreach (var imei in taken_imeno)
+                {
+
+                    int len = imei.LastIndexOf('-');
+                    if (len < 0)
+                        len = 0;
+                    string product = imei.Substring(0, len);
+
+                    if (!product.Equals(tempProduct) && tempProduct.Equals(string.Empty))
+                    {
+                        strBuilderTaken.Append(product);
+                        strBuilderTaken.Append(System.Environment.NewLine);
+                        strBuilderTaken.Append(linedraw);
+                        strBuilderTaken.Append(System.Environment.NewLine);
+                        tempProduct = product;
+                    }
+
+
+                    if (!product.Equals(tempProduct))
+                    {
+                        strBuilderTaken.Append(System.Environment.NewLine);
+                        strBuilderTaken.Append(linedraw);
+                        strBuilderTaken.Append(System.Environment.NewLine);
+                        strBuilderTaken.Append("           SubTotal: " + productcounter);
+                        strBuilderTaken.Append(System.Environment.NewLine);
+                        productcounter = 0;
+
+                        tempProduct = product;
+                        strBuilderTaken.Append(product);
+                        strBuilderTaken.Append(System.Environment.NewLine);
+                        strBuilderTaken.Append(linedraw);
+                        strBuilderTaken.Append(System.Environment.NewLine);
+                    }
+                    strBuilderTaken.Append(imei.Substring(product.Length + 1) + ", ");
+                    productcounter++;
+
+
+                }
+                strBuilderTaken.Append(linedraw);
+                strBuilderTaken.Append(System.Environment.NewLine);
+                strBuilderTaken.Append("             Total: " + TakenCount);
+                #endregion
+
+                #region Balance
+                tempProduct = string.Empty;
+                productcounter = 0;
+                string[] imeno_balance = item.imeno_balance.Split(new char[] { '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                BalanceCount = imeno_balance.Length;
+                BalanceCountGrand += BalanceCount;
+                foreach (var imei in imeno_balance)
+                {
+                    int len = imei.LastIndexOf('-');
+                    if (len < 0)
+                        len = 0;
+                    string product = imei.Substring(0, len);
+
+                    if (!product.Equals(tempProduct) && tempProduct.Equals(string.Empty))
+                    {
+                        strBuilderBalance.Append(product);
+                        strBuilderBalance.Append(System.Environment.NewLine);
+                        strBuilderBalance.Append(linedraw);
+                        strBuilderBalance.Append(System.Environment.NewLine);
+                        tempProduct = product;
+                    }
+
+
+                    if (!product.Equals(tempProduct))
+                    {
+                        strBuilderBalance.Append(System.Environment.NewLine);
+                        strBuilderBalance.Append(linedraw);
+                        strBuilderBalance.Append(System.Environment.NewLine);
+                        strBuilderBalance.Append("           SubTotal: " + productcounter);
+                        strBuilderBalance.Append(System.Environment.NewLine);
+                        productcounter = 0;
+
+                        tempProduct = product;
+                        strBuilderBalance.Append(product);
+                        strBuilderBalance.Append(System.Environment.NewLine);
+                        strBuilderBalance.Append(linedraw);
+                        strBuilderBalance.Append(System.Environment.NewLine);
+                    }
+
+                    strBuilderBalance.Append(imei.Substring(product.Length + 1) + ", ");
+                    productcounter++;
+
+                }
+                strBuilderBalance.Append(linedraw);
+                strBuilderBalance.Append(System.Environment.NewLine);
+                strBuilderBalance.Append("             Total: " + BalanceCount);
+                #endregion
+
+                dt.Rows.Add(item.ConcernID, item.EmployeeId, item.EmployeeName, item.TransDate, item.OpeningQty, strBuilderOpening, item.Opening_productno, item.taken_qty, strBuilderTaken, item.taken_product, item.Total_qty, item.sale_qty, strBuilderSalesIMEI, item.sale_product, item.balance_qty, strBuilderBalance, item.product_balance);
+
+                strBuilderBalance.Clear();
+                strBuilderOpening.Clear();
+                strBuilderSalesIMEI.Clear();
+                strBuilderTaken.Clear();
+            }
+
+            dt.TableName = "dtSRVisitReport";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+            var SR = SRVisitData.FirstOrDefault();
+            string SRName = string.Empty;
+            if (SR != null)
+            {
+                SRName = SR.EmployeeName;
+            }
+            _reportParameter = new ReportParameter("SRName", SRName);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("DateRange", "SR visit Report from date: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("OpeningGrandCount", OpeningGrandCount.ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("TakenCountGrand", TakenCountGrand.ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("SalesCountGrand", SalesCountGrand.ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("BalanceCountGrand", BalanceCountGrand.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "SR\\rptSRVisitReportWithIMEI.rdlc");
+        }
+
+        /// <summary>
+        /// Author:aminul
+        /// Date: 20-Mar-2018
+        /// </summary>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <param name="userName"></param>
+        /// <param name="concernID"></param>
+        /// <param name="EmployeeID"></param>
+        /// <returns></returns>
+        public byte[] SRWiseCustomerStatusReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int EmployeeID)
+        {
+            var reportData = _SRVisitService.SRWiseCustomerStatusReport(fromDate, toDate, concernID, EmployeeID);
+            TransactionalDataSet.dtSRWiseCustomerStatusReportDataTable dt = new TransactionalDataSet.dtSRWiseCustomerStatusReportDataTable();
+            _dataSet = new DataSet();
+            decimal netsales = 0, expenseAmount = 0, NetExpenseAmt = 0;
+            int employeeID = 0;
+            reportData.OrderBy(i => i.EmployeeID);
+            foreach (var item in reportData)
+            {
+                netsales = item.SlaesAmount - item.ReturnAmount;
+                expenseAmount = _expenditureService.GetExpenditureAmountByUserID(_userService.GetUserIDByEmployeeID(item.EmployeeID), fromDate, toDate);
+                if (employeeID != item.EmployeeID)
+                {
+                    NetExpenseAmt += expenseAmount;
+                    employeeID = item.EmployeeID;
+                }
+                dt.Rows.Add(item.ConcernID, item.EmployeeID, item.EmployeeName, item.CustomerID, item.Code, item.Name, (item.Address + ", " + item.ContactNo), item.Address, item.OpeningDue, item.SlaesAmount, item.ReturnAmount, netsales, item.Collection, item.ClosingAmount, expenseAmount);
+            }
+
+            dt.TableName = "dtSRWiseCustomerStatusReport";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+            _reportParameter = new ReportParameter("SRName", reportData.Count() == 0 ? "" : reportData.FirstOrDefault().EmployeeName);
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("NetExpenseAmt", NetExpenseAmt.ToString());
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("DateRange", "SR wise customer status Report Date from: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "SR\\rptSRWiseCustomerStatusReport.rdlc");
+        }
+
+
+
+        public byte[] ReplacementReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int CustomerID)
+        {
+            var reportData = _salesOrderService.ReplacementOrderReport(fromDate, toDate, concernID, CustomerID);
+            TransactionalDataSet.dtReplacementOrderReportDataTable dt = new TransactionalDataSet.dtReplacementOrderReportDataTable();
+            _dataSet = new DataSet();
+            foreach (var item in reportData)
+            {
+                dt.Rows.Add(item.SOrderID, item.SalesDate, item.Invoice, item.ReturnDate, item.ReturnInvoice, item.CustomerCode, item.CustomerName, (item.CustomerAddress + " & " + item.CustomerMobile), item.CustomerMobile, item.DamageProudct, item.DamageIMEI, item.DamageQty, item.DamageSalesRate, item.ReplaceProduct, item.ReplaceIMEI, item.ReplaceQty, item.ReplaceRate, item.Remarks, item.PODate);
+            }
+
+            dt.TableName = "dtReplacementOrderReport";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Replacement report from date: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptReplacementOrderReport.rdlc");
+        }
+
+
+        public byte[] ReturntReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int CustomerID)
+        {
+            var reportData = _salesOrderService.ReturnOrderReport(fromDate, toDate, concernID, CustomerID);
+            TransactionalDataSet.dtReturnOrderReportDataTable dt = new TransactionalDataSet.dtReturnOrderReportDataTable();
+            _dataSet = new DataSet();
+            foreach (var item in reportData)
+            {
+                dt.Rows.Add(item.ReturnDate, item.ReturnInvoice, item.CustomerCode, item.CustomerName, (item.CustomerAddress + " & " + item.CustomerMobile), item.CustomerMobile, item.Remarks, item.ProductName, item.ReturnIMEI, item.ReturnQty, item.ReturnAmount);
+            }
+
+            dt.TableName = "dtReturnOrderReport";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Return report from date: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptReturnOrderReport.rdlc");
+        }
+
+
+        private byte[] CreateCashCollectionMoneyReceipt(CashCollection cashCollection, string userName, int concernID)
+        {
+            var Customer = _customerService.GetCustomerById((int)cashCollection.CustomerID);
+            _dataSet = new DataSet();
+            //dt.TableName = "dtReturnOrderReport";
+            //_dataSet.Tables.Add(dt);
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("ReceiptNo", cashCollection.ReceiptNo);
+            _reportParameters.Add(_reportParameter);
+            string sInwodTk = TakaFormat(Convert.ToDouble(cashCollection.Amount.ToString()));
+            sInwodTk = sInwodTk.Replace("Taka", "");
+            sInwodTk = sInwodTk.Replace("Only", "Taka Only");
+            //_SOrder.RecAmount.ToString()
+            _reportParameter = new ReportParameter("ReceiptTK", cashCollection.Amount.ToString());
+            _reportParameters.Add(_reportParameter);
+            //_SOrder.InvoiceDate.ToString()
+            _reportParameter = new ReportParameter("ReceiptDate", cashCollection.EntryDate.ToString());
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Name", Customer.Name);
+            _reportParameters.Add(_reportParameter);
+
+
+            _reportParameter = new ReportParameter("BalanceDue", (Customer.TotalDue).ToString());
+            _reportParameters.Add(_reportParameter);
+
+
+
+            _reportParameter = new ReportParameter("CusAddress", Customer.Address);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InWordTK", sInwodTk);
+            _reportParameters.Add(_reportParameter);
+
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Others\\AMMoneyReceipt.rdlc");
+        }
+        public byte[] CashCollectionMoneyReceipt(CashCollection cashCollection, string userName, int concernID)
+        {
+            return CreateCashCollectionMoneyReceipt(cashCollection, userName, concernID);
+        }
+        public byte[] CashCollectionMoneyReceiptByID(int CashCollectionID, string userName, int concernID)
+        {
+            var cashCollection = _CashCollectionService.GetCashCollectionById(CashCollectionID);
+            return CreateCashCollectionMoneyReceipt(cashCollection, userName, concernID);
+        }
+
+        public byte[] CrditSalesMoneyReceipt(CreditSale CreditSale, List<CreditSaleDetails> details, CreditSalesSchedules schedules, string userName, int concernID)
+        {
+            var Customer = _customerService.GetCustomerById(CreditSale.CustomerID);
+            _dataSet = new DataSet();
+            GetCommonParameters(userName, concernID);
+            _reportParameter = new ReportParameter("CusCode", Customer.Code);
+            _reportParameters.Add(_reportParameter);
+
+            string sInwodTk = TakaFormat(Convert.ToDouble(schedules.InstallmentAmt));
+
+            _reportParameter = new ReportParameter("CusName", Customer.Name);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("InvoiceNo", CreditSale.InvoiceNo);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("TSalesAmt", sInwodTk);
+            _reportParameters.Add(_reportParameter);
+
+            _reportParameter = new ReportParameter("Remaining", CreditSale.Remaining.ToString());
+            _reportParameters.Add(_reportParameter);
+            if (CreditSale.DownPayment != 0m)
+                sInwodTk = TakaFormat(Convert.ToDouble(CreditSale.DownPayment.ToString()));
+            else
+                sInwodTk = TakaFormat(Convert.ToDouble(schedules.InstallmentAmt.ToString()));
+
+            sInwodTk = sInwodTk.Replace("Taka", "");
+            sInwodTk = sInwodTk.Replace("Only", "Taka Only");
+            _reportParameter = new ReportParameter("InWordTK", sInwodTk);
+            _reportParameters.Add(_reportParameter);
+
+
+
+            //if (_oCSDetails != null)
+            //{
+            //    _reportParameter = new ReportParameter("TDue", _oCSDetails.InstallmentAmt.ToString());
+            //    _reportParameters.Add(_reportParameter);
+            //    _reportParameter = new ReportParameter("PaymentDate", _oCSDetails.PaymentDate.Value.ToString("dd MMM yyyy"));
+            //    _reportParameters.Add(_reportParameter);
+
+            //    sInwodTk = TakaFormat(Convert.ToDouble((_CreditSale.TSalesAmt - (_CreditSale.Remaining)).ToString()));
+            //    sInwodTk = sInwodTk.Replace("Taka", "");
+            //    sInwodTk = sInwodTk.Replace("Only", "Taka Only");
+
+            //    _reportParameter = new ReportParameter("TReceiveAmt", (_CreditSale.TSalesAmt - (_CreditSale.Remaining)).ToString() + '(' + sInwodTk + ')');
+
+            //    _reportParameters.Add(_reportParameter);
+
+
+            //}
+            //else
+            //{
+            if (CreditSale.DownPayment != 0m)
+                _reportParameter = new ReportParameter("TDue", CreditSale.DownPayment.ToString());
+            else
+                _reportParameter = new ReportParameter("TDue", schedules.InstallmentAmt.ToString());
+
+            _reportParameters.Add(_reportParameter);
+            _reportParameter = new ReportParameter("PaymentDate", CreditSale.IssueDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            sInwodTk = TakaFormat(Convert.ToDouble((schedules.InstallmentAmt).ToString()));
+            sInwodTk = sInwodTk.Replace("Taka", "");
+            sInwodTk = sInwodTk.Replace("Only", "Taka Only");
+
+            _reportParameter = new ReportParameter("TReceiveAmt", schedules.InstallmentAmt.ToString() + '(' + sInwodTk + ')');
+            _reportParameters.Add(_reportParameter);
+
+            //}
+
+
+            string SModels = "";
+            Product objProduct = null;
+            foreach (var oSItem in details)
+            {
+                objProduct = _productService.GetProductById(oSItem.ProductID);
+                if (SModels == "")
+                {
+                    SModels = objProduct.ProductName;
+                }
+                else
+                {
+                    SModels = SModels + "," + objProduct.ProductName;
+                }
+            }
+
+            _reportParameter = new ReportParameter("PModels", SModels);
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "CreditSales\\CreditMoneyReceipt.rdlc");
+        }
+
+
+        public byte[] MonthlyBenefit(DateTime fromDate, DateTime toDate, string userName, int concernID)
+        {
+            var Data = _salesOrderService.MonthlyBenefitReport(fromDate, toDate, concernID);
+            _dataSet = new DataSet();
+            TransactionalDataSet.dtMonthlyBenefitReportDataTable dt = new TransactionalDataSet.dtMonthlyBenefitReportDataTable();
+
+            foreach (var it in Data)
+            {
+                dt.Rows.Add(it.InvoiceDate,
+                    it.SalesTotal + it.CreditSalesTotal - it.TDAmount_Sale - it.TDAmount_CreditSale,
+                    it.PurchaseTotal + it.CreditPurchase,
+                    it.TDAmount_Sale,
+                    it.TDAmount_CreditSale,
+                    it.FirstTotalInterest,
+                    it.HireCollection,
+                    it.CreditSalesTotal,
+                    it.CreditPurchase,
+                    it.CommisionProfit,
+                    it.HireProfit,
+                    it.TotalProfit,
+                    it.OthersIncome,
+                    it.TotalIncome,
+                    it.Adjustment,
+                    it.LastPayAdjustment,
+                    it.TotalExpense,
+                    it.Benefit);
+            }
+
+
+            dt.TableName = "dtMonthlyBenefitReport";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Monthly Benefit Report From Month: " + fromDate.ToString("MMMM-yyyy") + " to " + toDate.ToString("MMMM-yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            if (concernID == 2 || concernID == 3 || concernID == 4 || concernID == 7)
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\MonthlyBenefitRptMobile.rdlc");
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\MonthlyBenefitRpt.rdlc");
+
+
+        }
+
+
+        public byte[] ProductWiseBenefitReport(DateTime fromDate, DateTime toDate, int ProductID, string userName, int concernID)
+        {
+            var Data = _salesOrderService.ProductWiseBenefitReport(fromDate, toDate, concernID);
+            _dataSet = new DataSet();
+            TransactionalDataSet.dtBenefitRptDataTable dt = new TransactionalDataSet.dtBenefitRptDataTable();
+            if (ProductID != 0)
+                Data = Data.Where(i => i.ProductID == ProductID).ToList();
+
+            foreach (var item in Data)
+            {
+                dt.Rows.Add(item.Code, item.ProductName, item.CategoryName, item.IMENO, item.SalesTotal, item.Discount, item.NetSales, item.PurchaseTotal, item.CommisionProfit, item.HireProfit, item.HireCollection, item.TotalProfit);
+            }
+
+
+            dt.TableName = "dtBenefitRpt";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("Month", "Product Wise Benefit Report From Date: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            if (concernID == 2 || concernID == 3 || concernID == 4 || concernID == 7)
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\BenefitRptMobile.rdlc");
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\BenefitRpt.rdlc");
+        }
+
+
+        public byte[] ProductWiseSalesReport(DateTime fromDate, DateTime toDate, int CustomerID, string userName, int concernID)
+        {
+            var Data = _salesOrderService.ProductWiseSalesReport(fromDate, toDate, concernID, CustomerID);
+            _dataSet = new DataSet();
+            TransactionalDataSet.dtProductWiseSalesDataTable dt = new TransactionalDataSet.dtProductWiseSalesDataTable();
+
+            var CreditSalesData = _creditSalesOrderService.ProductWiseCreditSalesReport(fromDate, toDate, concernID, CustomerID);
+
+            foreach (var item in Data)
+            {
+                dt.Rows.Add(item.SOrderID, item.Date, item.EmployeeCode, item.EmployeeName, item.CustomerCode, item.CustomerName, (item.Mobile + " & " + item.Address), item.Mobile, item.ProductName, item.Quantity, item.SalesRate, item.TotalAmount, "Sales");
+            }
+
+            foreach (var item in CreditSalesData)
+            {
+                dt.Rows.Add(item.SOrderID, item.Date, item.EmployeeCode, item.EmployeeName, item.CustomerCode, item.CustomerName, (item.Mobile + " & " + item.Address), item.Mobile, item.ProductName, item.Quantity, item.SalesRate, item.TotalAmount, "Credit Sales");
+            }
+
+            dt.TableName = "dtProductWiseSales";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Product Wise Sales Report From Date: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\ProductWiseSalesRpt.rdlc");
+
+        }
+
+        public byte[] ProductWisePurchaseReport(DateTime fromDate, DateTime toDate, int SupplierID, string userName, int concernID)
+        {
+            var Data = _purchaseOrderService.ProductWisePurchaseReport(fromDate, toDate, concernID, SupplierID);
+            _dataSet = new DataSet();
+            TransactionalDataSet.dtProductWiseSalesDataTable dt = new TransactionalDataSet.dtProductWiseSalesDataTable();
+
+
+            foreach (var item in Data)
+            {
+                dt.Rows.Add(0, item.Date, item.SupplierCode, item.SupplierName, "", "", (item.Mobile + " & " + item.Address), item.Mobile, item.ProductName, item.Quantity, item.PurchaseRate, item.TotalAmount);
+            }
+
+
+            dt.TableName = "dtProductWiseSales";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Product Wise Purchase Report From Date: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\ProductWisePurchaseRpt.rdlc");
+
+        }
+
+        public byte[] DamageProductReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int CustomerID)
+        {
+            var reportData = _salesOrderService.DamageProductReport(fromDate, toDate, concernID, CustomerID);
+            TransactionalDataSet.dtReplacementOrderReportDataTable dt = new TransactionalDataSet.dtReplacementOrderReportDataTable();
+            _dataSet = new DataSet();
+            foreach (var item in reportData)
+            {
+                dt.Rows.Add(item.SOrderID, item.SalesDate, item.Invoice, item.ReturnDate, item.ReturnInvoice, item.CustomerCode, item.CustomerName, (item.CustomerAddress + " & " + item.CustomerMobile), item.CustomerMobile, item.DamageProudct, item.DamageIMEI, item.DamageQty, item.DamageSalesRate, item.ReplaceProduct, item.ReplaceIMEI, item.ReplaceQty, item.ReplaceRate, item.Remarks);
+            }
+
+            dt.TableName = "dtReplacementOrderReport";
+            _dataSet.Tables.Add(dt);
+
+            GetCommonParameters(userName, concernID);
+
+            _reportParameter = new ReportParameter("DateRange", "Damage Product report from date: " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+            _reportParameters.Add(_reportParameter);
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptDamageProductReport.rdlc");
+        }
+
+        /// <summary>
+        /// Date: 16-May-2018
+        /// </summary>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <param name="userName"></param>
+        /// <param name="concernID"></param>
+        /// <param name="EmployeeID"></param>
+        /// <returns></returns>
+        public byte[] SRWiseCashCollectionReport(DateTime fromDate, DateTime toDate, string userName, int concernID, int EmployeeID)
+        {
+            try
+            {
+                IEnumerable<Tuple<DateTime, string, string, string, decimal, decimal, decimal, Tuple<decimal, string, string, string, string, string, string>>> CashCollectionInfos = _CashCollectionService.GetSRWiseCashCollectionReportData(fromDate, toDate, concernID, EmployeeID);
+
+                TransactionalDataSet.dtCollectionRptDataTable dt = new TransactionalDataSet.dtCollectionRptDataTable();
+                _dataSet = new DataSet();
+
+                foreach (var grd in CashCollectionInfos)
+                {
+                    dt.Rows.Add(grd.Item1.ToString("dd MMM yyyy"), grd.Item2, grd.Item4 + " & " + grd.Item3, grd.Item4, grd.Item5, grd.Item6, grd.Item7, grd.Rest.Item1, grd.Rest.Item2, grd.Rest.Item3, grd.Rest.Item4, grd.Rest.Item5, grd.Rest.Item6, grd.Rest.Item7);
+                }
+
+                dt.TableName = "dtCollectionRpt";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("Month", "SR Wise Cash Collection report for the date of : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+
+                return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Others\\rptSRWiseCashCollection.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] ProductwiseSalesDetails(string userName, int concernID, int reportType, int CompanyID, int CategoryID, int ProductID, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var Data = _salesOrderService.ProductWiseSalesDetailsReport(CompanyID, CategoryID, ProductID, fromDate, toDate);
+                var CreditData = _creditSalesOrderService.ProductWiseCreditSalesDetailsReport(CompanyID, CategoryID, ProductID, fromDate, toDate);
+
+                TransactionalDataSet.PWSDetailsDataTable dt = new TransactionalDataSet.PWSDetailsDataTable();
+                _dataSet = new DataSet();
+
+                foreach (var item in Data)
+                {
+                    dt.Rows.Add(item.Date, item.InvoiceNo, item.CompanyName, item.CategoryName, item.ProductName, item.Quantity, item.SalesRate, item.TotalAmount);
+                }
+                foreach (var item in CreditData)
+                {
+                    dt.Rows.Add(item.Date, item.InvoiceNo, item.CompanyName, item.CategoryName, item.ProductName, item.Quantity, item.SalesRate, item.TotalAmount);
+                }
+
+                dt.TableName = "PWSDetails";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+
+                _reportParameter = new ReportParameter("PrintDate", GetLocalTime());
+                _reportParameters.Add(_reportParameter);
+
+                if (reportType == 0)
+                {
+                    _reportParameter = new ReportParameter("DateRange", "Product Wise Sales Date From : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                    _reportParameters.Add(_reportParameter);
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptPWSalesDetails.rdlc");
+                }
+                else if (reportType == 1)
+                {
+                    _reportParameter = new ReportParameter("DateRange", "Company Wise Sales Date From : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                    _reportParameters.Add(_reportParameter);
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptCompanyWiseSDetails.rdlc");
+                }
+                else
+                {
+                    _reportParameter = new ReportParameter("DateRange", "Category Wise Sales Date From : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                    _reportParameters.Add(_reportParameter);
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Sales\\rptCategoryWSalesDetails.rdlc");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] ProductWisePurchaseDetailsReport(string userName, int concernID, int reportType, int CompanyID, int CategoryID, int ProductID, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var Data = _purchaseOrderService.ProductWisePurchaseDetailsReport(CompanyID, CategoryID, ProductID, fromDate, toDate);
+
+                TransactionalDataSet.PWPDetailsDataTable dt = new TransactionalDataSet.PWPDetailsDataTable();
+                _dataSet = new DataSet();
+
+                foreach (var item in Data)
+                {
+                    dt.Rows.Add(item.Date, item.ChallanNo, item.CompanyName, item.CategoryName, item.ProductName, item.Quantity, item.PurchaseRate, item.TotalAmount);
+                }
+
+                dt.TableName = "PWPDetails";
+                _dataSet.Tables.Add(dt);
+
+                GetCommonParameters(userName, concernID);
+                _reportParameter = new ReportParameter("PrintDate", GetLocalTime());
+                _reportParameters.Add(_reportParameter);
+                if (reportType == 0)
+                {
+                    _reportParameter = new ReportParameter("DateRange", "Product Wise Purchase Date From : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                    _reportParameters.Add(_reportParameter);
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\rptProductWPDetails.rdlc");
+                }
+                else if (reportType == 1)
+                {
+                    _reportParameter = new ReportParameter("DateRange", "Company Wise Purchase Date From : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                    _reportParameters.Add(_reportParameter);
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\rptCompanyWPDetails.rdlc");
+                }
+                else
+                {
+                    _reportParameter = new ReportParameter("DateRange", "Category Wise Purchase Date From : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                    _reportParameters.Add(_reportParameter);
+                    return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\rptCategoryWPDetails.rdlc");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public byte[] BankTransactionReport(string userName, int concernID, int reportType, int BankID, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {          
+                var Data = _bankTransactionService.GetAllBankTransaction();
+                TransactionalDataSet.dtBankTransactionDataTable dt = new TransactionalDataSet.dtBankTransactionDataTable();               
+                _dataSet = new DataSet(); 
+
+                if(BankID!=0)
+                {
+                    Data = Data.Where(o => o.Item4 == BankID.ToString() && o.Item6>=fromDate &&o.Item6<=toDate);
+                }
+             
+                foreach (var item in Data)
+                {
+                    dt.Rows.Add(item.Item6, item.Item3, ((EnumTransactionType)(Convert.ToInt32(item.Item4))).ToString(), item.Item2, item.Item5, item.Item7);
+                }
+                dt.TableName = "BankTransaction";
+                _dataSet.Tables.Add(dt);
+                GetCommonParameters(userName, concernID);
+                _reportParameter = new ReportParameter("PrintDate", GetLocalTime());
+                _reportParameters.Add(_reportParameter);               
+                _reportParameter = new ReportParameter("DateRange", "Bank Transaction for Date From : " + fromDate.ToString("dd MMM yyyy") + " to " + toDate.ToString("dd MMM yyyy"));
+                _reportParameters.Add(_reportParameter);
+                 return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Bank\\rptBankTransactions.rdlc");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public byte[] POInvoice(POrder POrder, string userName, int concernID)
+        {
+            TransactionalDataSet.dtPOInvoiceDataTable dtPODetail = new TransactionalDataSet.dtPOInvoiceDataTable();
+            _dataSet = new DataSet();
+            var Supplier = _SupplierService.GetSupplierById(POrder.SupplierID);
+            var Products = _productService.GetProductDetails();
+            if (POrder.POrderDetails != null)
+            {
+                foreach (var item in POrder.POrderDetails)
+                {
+                    var Product = Products.FirstOrDefault(p => p.Item1 == item.ProductID);
+                    dtPODetail.Rows.Add(Product.Item3, Product.Item4, Product.Item5, "Model", item.UnitPrice, item.PPDISAmt, item.PPDISPer, item.ExtraPPDISAmt, item.ExtraPPDISPer, item.Quantity, item.TAmount, Product.Item2, item.MRPRate);
+                }
+            }
+            dtPODetail.TableName = "dtPOInvoice";
+            _dataSet.Tables.Add(dtPODetail);
+
+
+            GetCommonParameters(userName, concernID);
+
+            if (POrder != null)
+            {
+                _reportParameter = new ReportParameter("SupplierCode", Supplier.Code);
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("SupplierName", Supplier.Name);
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("ChallanNo", POrder.ChallanNo);
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("OrderDate", POrder.OrderDate.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("FlatDis", POrder.NetDiscount.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("NetTotal", POrder.TotalAmt.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("PaidAmt", POrder.RecAmt.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("CurrentDue", POrder.PaymentDue.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("PrintDate", "Date: " + GetLocalTime());
+                _reportParameters.Add(_reportParameter);
+            }
+
+            if (POrder.Status == (int)EnumPurchaseType.DeliveryOrder)
+            {
+                _reportParameter = new ReportParameter("ReportHeader", "Delivery Order");
+                _reportParameters.Add(_reportParameter);
+            }
+            else
+            {
+                _reportParameter = new ReportParameter("ReportHeader", "Purchase Order");
+                _reportParameters.Add(_reportParameter);
+            }
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\rptPOInvoice.rdlc");
+        }
+
+
+        public byte[] POInvoiceByID(int POrderID, string userName, int concernID)
+        {
+            TransactionalDataSet.dtPOInvoiceDataTable dtPODetail = new TransactionalDataSet.dtPOInvoiceDataTable();
+            _dataSet = new DataSet();
+            var POrder = _purchaseOrderService.GetPurchaseOrderById(POrderID);
+            var POrderDetails = _PurchaseOrderDetailService.GetPOrderDetailByID(POrderID);
+            var Supplier = _SupplierService.GetSupplierById(POrder.SupplierID);
+            var Products = _productService.GetProductDetails();
+            if (POrderDetails != null)
+            {
+                foreach (var item in POrderDetails)
+                {
+                    var Product = Products.FirstOrDefault(p => p.Item1 == item.ProductID);
+                    dtPODetail.Rows.Add(Product.Item3, Product.Item4, Product.Item5, "Model", item.UnitPrice, item.PPDISAmt, item.PPDISPer, item.ExtraPPDISAmt, item.ExtraPPDISPer, item.Quantity, item.TAmount, Product.Item2, item.MRPRate);
+                }
+            }
+            dtPODetail.TableName = "dtPOInvoice";
+            _dataSet.Tables.Add(dtPODetail);
+
+
+            GetCommonParameters(userName, concernID);
+
+            if (POrder != null)
+            {
+                _reportParameter = new ReportParameter("SupplierCode", Supplier.Code);
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("SupplierName", Supplier.Name);
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("ChallanNo", POrder.ChallanNo);
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("OrderDate", POrder.OrderDate.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("FlatDis", POrder.NetDiscount.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("NetTotal", POrder.TotalAmt.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("PaidAmt", POrder.RecAmt.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("CurrentDue", POrder.PaymentDue.ToString());
+                _reportParameters.Add(_reportParameter);
+                _reportParameter = new ReportParameter("PrintDate", "Date: " + GetLocalTime());
+                _reportParameters.Add(_reportParameter);
+            }
+
+            if (POrder.Status == (int)EnumPurchaseType.DeliveryOrder)
+            {
+                _reportParameter = new ReportParameter("ReportHeader", "Delivery Order");
+                _reportParameters.Add(_reportParameter);
+            }
+            else
+            {
+                _reportParameter = new ReportParameter("ReportHeader", "Purchase Order");
+                _reportParameters.Add(_reportParameter);
+            }
+
+            return ReportBase.GenerateTransactionalReport(_dataSet, _reportParameters, "Purchase\\rptPOInvoice.rdlc");
+        }
+
+    }
+}

@@ -1,0 +1,78 @@
+﻿@model CreateSMSSettingViewModel
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = "SMS Setting";
+}
+<h4 class="inline-header">SMS Setting</h4>
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm("SettingEdit", "SMSService", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new
+        {
+            @class = "form-horizontal",
+            role = "form",
+            enctype = "multipart/form-data"
+        }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id);
+            <div class="row">
+                <div class="col-md-offset-3 col-md-6">
+                    <div class="panel">
+                        <div class="panel-body">
+
+                            <div class="form-check  col-md-offset-3">
+                                @Html.EditorFor(model => model.RetailSaleSmsService, new { htmlAttributes = new { @class = "form-check-input" } })
+                                @Html.LabelFor(model => model.RetailSaleSmsService, htmlAttributes: new { @class = "form-check-label" })
+                                @Html.ValidationMessageFor(model => model.RetailSaleSmsService, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-check  col-md-offset-3">
+                                @Html.EditorFor(model => model.HireSaleSmsService, new { htmlAttributes = new { @class = "form-check-input" } })
+                                @Html.LabelFor(model => model.HireSaleSmsService, htmlAttributes: new { @class = "form-check-label" })
+                                @Html.ValidationMessageFor(model => model.HireSaleSmsService, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="form-check  col-md-offset-3">
+                                @Html.EditorFor(model => model.CashCollectionSmsService, new { htmlAttributes = new { @class = "form-check-input" } })
+                                @Html.LabelFor(model => model.CashCollectionSmsService, htmlAttributes: new { @class = "form-check-label" })
+                                @Html.ValidationMessageFor(model => model.CashCollectionSmsService, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-check  col-md-offset-3">
+                                @Html.EditorFor(model => model.InstallmentSmsService, new { htmlAttributes = new { @class = "form-check-input" } })
+                                @Html.LabelFor(model => model.InstallmentSmsService, htmlAttributes: new { @class = "form-check-label" })
+                                @Html.ValidationMessageFor(model => model.InstallmentSmsService, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-check  col-md-offset-3">
+                                @Html.EditorFor(model => model.RemindDateSmsService, new { htmlAttributes = new { @class = "form-check-input" } })
+                                @Html.LabelFor(model => model.RemindDateSmsService, htmlAttributes: new { @class = "form-check-label" })
+                                @Html.ValidationMessageFor(model => model.RemindDateSmsService, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="form-check  col-md-offset-3">
+                                @Html.EditorFor(model => model.IsBanglaSmsEnable, new { htmlAttributes = new { @class = "form-check-input" } })
+                                @Html.LabelFor(model => model.IsBanglaSmsEnable, htmlAttributes: new { @class = "form-check-label" })
+                                @Html.ValidationMessageFor(model => model.IsBanglaSmsEnable, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-4 col-md-8">
+                                <input type="submit" value="Update Setting" class="btn btn-sm btn-primary" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            
+                    
+                
+            
+
+
+
+        }
+    </div>
+</div>
+

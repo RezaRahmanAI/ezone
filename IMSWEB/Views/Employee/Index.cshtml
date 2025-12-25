@@ -1,0 +1,119 @@
+﻿@model IEnumerable<GetEmployeeViewModel>
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Employees";
+}
+
+<h4 class="text-left inline-header">Existing employees</h4>
+@Html.ActionLink("Create New Employee", "Create", "Employee", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right", id = "toolbar" })
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table id="employeeTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="10"
+                       data-toolbar="#toolbar"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="code"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Code)
+                            </th>
+                            <th data-field="name"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th data-field="contactNo"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.ContactNo)
+                            </th>
+                            <th data-field="joiningDate"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.JoiningDate)
+                            </th>
+                            <th data-field="designation"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.DesignationName)
+                            </th>
+                            <th data-field="MachineEMPID"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.MachineEMPID)
+                            </th>
+                            <th data-field="Status"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Status)
+                            </th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Code)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ContactNo)
+                                    </td>
+                                    <td>
+                                        @(Convert.ToDateTime(item.JoiningDate).ToString("dd-MMM-yyyy"))
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DesignationName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.MachineEMPID)
+                                    </td>
+                                    <td>
+                                        <span class="@item.Status.ToString()">
+                                            @item.Status.ToString()
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                                        @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { onclick = "if(!confirm('Do you want to delete this employee?')) return false;" })
+                                        @if (item.Status == EnumActiveInactive.Active.ToString())
+                                        {
+                                            @Html.ActionLink("InActive", "InActive", new { id = item.Id }, new { onclick = "if(!confirm('Do you want to inactive this employee?')) return false;" })
+                                        }
+                                        else
+                                        {
+                                            @Html.ActionLink("Active", "Active", new { id = item.Id }, new { onclick = "if(!confirm('Do you want to active this employee?')) return false;" })
+                                        }
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

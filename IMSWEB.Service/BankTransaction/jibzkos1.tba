@@ -1,0 +1,102 @@
+﻿using IMSWEB.Data;
+using IMSWEB.Model;
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace IMSWEB.Service
+{
+    public class BankTransactionService : IBankTransactionService
+    {
+        private readonly IBaseRepository<BankTransaction> _bankTransactionRepository;
+        private readonly IBaseRepository<Bank> _bankRepository;
+
+        private readonly IUnitOfWork _unitOfWork;
+
+
+        public BankTransactionService(IBaseRepository<BankTransaction> bankTransactionRepository, IBaseRepository<Bank> bankRepository,                   
+            IUnitOfWork unitOfWork)
+        {
+            _bankTransactionRepository = bankTransactionRepository;
+            _bankRepository = bankRepository;
+         
+            _unitOfWork = unitOfWork;
+          
+
+        }
+
+        public void AddBankTransaction(BankTransaction bankTransaction)
+        {
+            _bankTransactionRepository.Add(bankTransaction);
+        }
+
+        public void UpdateBankTransaction(BankTransaction bankTransaction)
+        {
+            _bankTransactionRepository.Update(bankTransaction);
+        }
+
+        public void SaveBankTransaction()
+        {
+            _unitOfWork.Commit();
+        }
+
+        public async Task<IEnumerable<Tuple<int, string, string, string, decimal, DateTime?, string>>> GetAllBankTransactionAsync()
+        {
+            return await _bankTransactionRepository.GetAllBankTransactionAsync(_bankRepository);
+        }
+
+        public IEnumerable<Tuple<int, string, decimal, DateTime?, string>> GetAllBankTransaction()
+        {
+            return _bankTransactionRepository.GetAllBankTransaction(_bankRepository);
+        }
+
+        //public IEnumerable<Tuple<int, string, string, decimal, string, string, string, Tuple<decimal?, string, decimal, int, int, string, string, Tuple<int, int, int, int>>>> GetAllProductFromDetail()
+        //{
+        //    return _productRepository.GetAllProductFromDetail(_categoryRepository,
+        //        _companyRepository, _colorRepository, _stockRepository, _stockDetailRepository, _saleOfferRepository);
+        //}
+        //public IEnumerable<Tuple<int, string, string, decimal, string, string, string, Tuple<decimal?, string, decimal, int, int, string, string, Tuple<decimal, int, int, int, int>>>> GetAllProductFromDetailForCredit()
+        //{
+        //    return _productRepository.GetAllProductFromDetailForCredit(_categoryRepository,
+        //        _companyRepository, _colorRepository, _stockRepository, _stockDetailRepository, _saleOfferRepository);
+        //}
+
+        //public IEnumerable<Tuple<int, string, string,
+        // decimal, string, string, string, Tuple<decimal?, string, decimal, int, int, string, string>>> GetAllSalesProductFromDetailByCustomerID(int CustomerID)
+        //{
+        //    return _productRepository.GetAllSalesProductFromDetailByCustomerID(_categoryRepository,
+        //        _companyRepository, _colorRepository, _stockRepository, _stockDetailRepository, _saleOfferRepository,_SOrderRepository,_SOrderDetailRepository,CustomerID);
+        //}
+
+        //public IEnumerable<Tuple<int, string, string,
+        //  decimal, string, string, string, Tuple<decimal?, string, decimal, int, int, string, string>>> GetAllSalesProductFromDetailByCustomerID(int CustomerID)
+        //{
+        //    return _productRepository.GetAllSalesProductFromDetail(_categoryRepository,
+        //        _companyRepository, _colorRepository, _stockRepository, _stockDetailRepository, _saleOfferRepository);
+        //}
+        public BankTransaction GetBankTransactionById(int id)
+        {
+            return _bankTransactionRepository.FindBy(x => x.BankTranID == id).First();
+        }
+
+        public void DeleteBankTransaction(int id)
+        {
+            _bankTransactionRepository.Delete(x => x.BankTranID== id);
+        }
+
+
+        //public IEnumerable<Tuple<int, string, string, decimal, string, string, string, Tuple<decimal?, string, decimal, int, int, string, string>>> SRWiseGetAllProductFromDetail(int EmployeeID)
+        //{
+        //    return _productRepository.SRWiseGetAllProductFromDetail(_categoryRepository,
+        //        _companyRepository, _colorRepository, _stockRepository, _stockDetailRepository, _saleOfferRepository,_SRVisitRepository,_SRVisitDetailRepository,_SRVProductDetailRepository,EmployeeID);
+        //}
+
+        //public IEnumerable<Tuple<int,string, string, string, string>> GetProductDetails()
+        //{
+        //    return _productRepository.GetProductDetail(_categoryRepository, _companyRepository);
+        //}
+    }
+}

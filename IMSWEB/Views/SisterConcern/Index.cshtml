@@ -1,0 +1,88 @@
+﻿@model IEnumerable<CreateSisterConcernViewModel>
+    @{
+        ViewBag.Title = "SisterConcern";
+    }
+
+
+    <style>
+        table#SisterConcernTable td {
+            padding: 10px !important;
+        }
+    </style>
+
+
+    @Html.ActionLink("Create new sister concern", "Create", "SisterConcern", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+    <h4>Existing Sister Concerns</h4>
+    @*<h4>Company Information</h4>*@
+    <hr />
+    
+
+
+    <table id="SisterConcernTable"
+           data-toggle="table"
+           data-search="true"
+           data-show-refresh="true"
+           data-show-toggle="true"
+           data-show-columns="true"
+           data-pagination="true"
+           data-show-export="true"
+           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>
+                    Sl
+                </th>
+
+                <th data-field="name"
+                    data-sorter="sorter"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th data-field="Address"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.Address)
+                </th>
+                <th data-field="ContactNo"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.ContactNo)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                                  int count = 1;
+                                  foreach (var item in Model)
+                                  {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Address)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ContactNo)
+                    </td>
+                    <td>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { onclick = "if(!confirm('Do you want to delete this Sister Concern?')) return false;" })
+                        }
+
+                    </td>
+                </tr>
+                                      count++;                     
+            }
+                                  
+            }
+        </tbody>
+    </table>

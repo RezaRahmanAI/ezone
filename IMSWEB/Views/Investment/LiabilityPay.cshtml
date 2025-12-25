@@ -1,0 +1,154 @@
+﻿@model IEnumerable< ShareInvestmentViewModel>
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Liability Pay";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+}
+<h4 class="inline-header">Existing @ViewBag.Title</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm(actionName, controllerName, FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <input type='hidden' name='ParentName' id="ParentName" />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+
+                            </td>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                    @Html.ActionLink("Create new", "CreateLiabilityPay", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table id="cashcollectionTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="10"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="code"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.EntryDate)
+                            </th>
+                            <th data-field="Name"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.HeadName)
+                            </th>
+                            <th data-field="Purpose"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Purpose)
+                            </th>
+                            <th data-field="ParentName"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Amount)
+                            </th>
+                            <th>
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @item.EntryDate.ToString("dd MMM yyyy")
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.HeadName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Purpose)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Amount)
+                                    </td>
+                                    <td>
+                                        @if (User.IsInRole(EnumUserRoles.LocalAdmin.ToString()) || User.IsInRole(EnumUserRoles.hoqueLocalAdmin.ToString()) || User.IsInRole(EnumUserRoles.Admin.ToString()))
+                                        {
+                                            @Html.ActionLink("Edit", "EditLP", new { id = item.SIID })
+                                            <span>|</span>
+                                            @Html.ActionLink("Delete", "Delete", new { id = item.SIID }, new { onclick = "if(!confirm('Do you want to delete this Transaction?')) return false;" })
+                                        }
+                                    </td>
+                                </tr>
+                                        count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+       format: 'DD-MMM-YYYY'
+    });
+
+</script>

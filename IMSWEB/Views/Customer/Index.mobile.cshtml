@@ -1,0 +1,199 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@model IPagedList<IMSWEB.GetCustomerViewModel>
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Customers";
+}
+
+<h4 class="text-left inline-header">Existing customers</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6 col-md-offset-2">
+        @using (Html.BeginForm("Index", "Customer", FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+
+                                <label>Name</label>
+                            </td>
+                            <td>
+                                <input type='text' class="input-sm form-control input-sm" name='Name' placeholder="Enter name" />
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                </div>
+                            </td>
+
+                        </tr>
+                    </table>
+
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                <label> Contact No</label>
+                            </td>
+                            <td>
+                                <input type='text' class="input-sm form-control input-sm" name='ContactNo' placeholder="Enter mobile no" />
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                </div>
+                            </td>
+
+                        </tr>
+                    </table>
+
+
+
+                </div>
+            </div>
+
+
+        }
+    </div>
+</div>
+@Html.ActionLink("Create new customer", "Create", "Customer", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right", id = "toolbar" })
+<table id="customerTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="15"
+       data-toolbar="#toolbar"
+       class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="code"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.First().Code)
+            </th>
+            @if (User.Identity.GetConcernId() == 25 || User.Identity.GetConcernId() == 5173 || User.Identity.GetConcernId() == 5178)
+            {
+                <th data-field="MemberID"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.First().MemberID)
+                </th>
+            }
+            <th data-field="name"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.First().Name)
+            </th>
+            <th data-field="contactNo"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.First().ContactNo)
+            </th>
+            <th data-field="Address"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.First().Address)
+            </th>
+            <th data-field="customerType"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.First().CustomerType)
+            </th>
+            <th data-field="totalDue"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.First().TotalDue)
+            </th>
+
+            @*<th data-field="cusDueLimit"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.First().CusDueLimit)
+                </th>*@
+            @if (User.IsInRole(EnumUserRoles.Admin.ToString()) || User.IsInRole(EnumUserRoles.LocalAdmin.ToString()) || User.IsInRole(EnumUserRoles.Manager.ToString()))
+            {
+                <th>Actions</th>
+            }
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Code)
+                    </td>
+                    @if (User.Identity.GetConcernId() == 25 || User.Identity.GetConcernId() == 5173 || User.Identity.GetConcernId() == 5178)
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => item.MemberID)
+                        </td>
+                    }
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ContactNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Address)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CustomerType)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TotalDue)
+                    </td>
+
+                    @*<td>
+                            @Html.DisplayFor(modelItem => item.CusDueLimit)
+                        </td>*@
+                    @if (User.IsInRole(EnumUserRoles.Admin.ToString()) || User.IsInRole(EnumUserRoles.LocalAdmin.ToString())
+                        || User.IsInRole(EnumUserRoles.Manager.ToString()))
+                    {
+                        <td>
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-xs btn-primary" })
+                            <span>|</span>
+                            @if (User.IsInRole(EnumUserRoles.Admin.ToString()))
+                            {
+                                @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { onclick = "if(!confirm('Do you want to delete this customer?')) return false;", @class = "btn btn-xs btn-danger" })
+                            }
+                        </td>
+                    }
+
+                    <td>
+                        @using (Ajax.BeginForm("DetailsReport", "Customer", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+                        {
+                            <div class="col-sm-4">
+                                <input type="hidden" value="@item.Id" name="txtCustomerName" />
+                                <input id="btnPreview" type="submit" value="Details" class="btn btn-xs btn-info" />
+                            </div>
+                        }
+                    </td>
+                </tr>
+                count++;
+            }
+        }
+    </tbody>
+</table>
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page }), new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayItemSliceAndTotal = true })

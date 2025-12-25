@@ -1,0 +1,141 @@
+﻿@model IEnumerable<GetPurchaseOrderViewModel>
+
+    @{
+        ViewBag.Title = "Delivery Orders";
+    }
+    <h4 class="text-left inline-header">Existing Delivery Orders.</h4>
+    @Html.ActionLink("Create new order", "CreateDeliveryOrder", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+    <hr />
+    <table id="purchaseOrderTable"
+           data-toggle="table"
+           data-search="true"
+           data-show-refresh="true"
+           data-show-toggle="true"
+           data-show-columns="true"
+           data-show-export="true"
+           data-detail-view="true"
+           data-pagination="true"
+           data-id-field="productName"
+           data-page-list="[10, 25, 50, 100, ALL]"
+           data-page-size="15"
+           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>
+                    Sl
+                </th>
+                <th data-field="challanNo"
+                    data-sortable="true">
+                    @*@Html.DisplayNameFor(model => model.ChallanNo)*@
+                    Delivery No
+                </th>
+                <th data-field="orderDate"
+                    data-sorter="sorter"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.OrderDate)
+                </th>
+                <th data-field="supplierName"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.SupplierName)
+                </th>
+                <th data-field="companyName"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.CompanyName)
+                </th>
+                <th data-field="contactNo"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.ContactNo)
+                </th>
+                <th data-field="status"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int count = 1;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @count
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ChallanNo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OrderDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.SupplierName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CompanyName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ContactNo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>
+                        <td>
+                            @if (User.IsInRole("Admin"))
+                            {
+
+                                if (item.Status.Equals("DeliveryOrder"))
+                                {
+                                    @Html.ActionLink("Edit", "Edit", new { orderId = item.PurchaseOrderId, IsDO = true })
+                                    <span>|</span>
+                                    @Html.ActionLink("Return", "Delete", new { orderId = item.PurchaseOrderId, IsDO = true }, new { onclick = "if(!confirm('Do you want to delete this order?')) return false;" })
+                                }
+
+                            }
+                            @Html.ActionLink("Invoice", "GetInvoiceByID", new { orderId = item.PurchaseOrderId ,IsDO=true}, new { @class = "btn btn-xs btn-info" })
+                        </td>
+                    </tr>
+                            count++;
+                }
+            }
+        </tbody>
+    </table>
+
+
+
+
+                      <script>
+$(document).ready(function () {
+@{
+    if (TempData.ContainsKey("IsInvoiceReady") && Convert.ToBoolean(TempData["IsInvoiceReady"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/PurchaseInvoice",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+     }
+
+    if (TempData.ContainsKey("IsInvoiceReadyById") && Convert.ToBoolean(TempData["IsInvoiceReadyById"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/PurchaseInvoiceById",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+     }
+}
+    });
+</script>

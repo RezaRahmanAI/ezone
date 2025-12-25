@@ -1,0 +1,76 @@
+﻿@using IMSWEB.Model
+@{
+    ViewBag.Title = "SMS Report";
+}
+
+<h4 class="text-left inline-header">SMS Report</h4>
+<hr />
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        @using (Ajax.BeginForm("SMSReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.Label("Status", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                @Html.DropDownList("Status", EnumHelper.GetSelectList(typeof(EnumSMSSendStatus)), "--Select Status--", new { @class = "form-control input-sm" })
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button id="btnPreview" type="submit" class="btn btn-sm btn-info mr-2">
+                                        <i class="fa fa-search" aria-hidden="true">&nbsp;Search</i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#FromDate').datetimepicker({
+            defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+            format: 'DD-MMM-YYYY'
+        });
+
+        $('#ToDate').datetimepicker({
+            defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+            format: 'DD-MMM-YYYY'
+        });
+    });
+
+</script>

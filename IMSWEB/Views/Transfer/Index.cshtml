@@ -1,0 +1,189 @@
+﻿@model IEnumerable<GetTransferViewModel>
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Transfer";
+}
+
+<h4 class="text-left inline-header">Existing Transfers</h4>
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm("Index", "Transfer", FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                @if (!User.IsInRole(EnumUserRoles.MaaElectronicManager.ToString()))
+                                {
+                                    <div class="btn-group">
+                                        <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                        @Html.ActionLink("Create new Transfer", "Create", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+
+                                    </div>
+                                }
+
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<table id="Transfertable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-transferid-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       data-toolbar="#toolbar"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="TransferNo"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.TransferNo)
+            </th>
+            <th data-field="TransferDate"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.TransferDate)
+            </th>
+            @if (!User.IsInRole(EnumUserRoles.MaaElectronicManager.ToString()))
+            {
+                <th data-field="TotalAmount"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.TotalAmount)
+                </th>
+            }
+            <th data-field="FromConcern"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.FromConcern)
+            </th>
+            <th data-field="ToConcernName"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.ToConcernName)
+            </th>
+            <th data-field="Status"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TransferNo)
+                    </td>
+                    <td>
+                        @item.TransferDate.ToString("dd MMM yyyy")
+                    </td>
+                    @if (!User.IsInRole(EnumUserRoles.MaaElectronicManager.ToString()))
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TotalAmount)
+                        </td>
+                    }
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FromConcern)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ToConcernName)
+                    </td>
+                    <td>
+                        <span class="@item.Status">
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </span>
+                    </td>
+                    <td>
+                        @Html.ActionLink("Invoice", "Invoice", new { id = item.TransferID }, new { @class = "btn btn-success btn-xs" })
+                        @*@Html.ActionLink("Edit", "Edit", new { id = item.TransferID }) |*@
+                        @if (item.Status == EnumTransferStatus.Transfer)
+                        {
+                            if (User.IsInRole(EnumUserRoles.LocalAdmin.ToString()) || User.IsInRole(EnumUserRoles.Admin.ToString()))
+                            {
+                                <span>|</span>
+                                @Html.ActionLink("Return", "Delete", new { id = item.TransferID }, new { onclick = "if(!confirm('Do you want to delete this transfer?')) return false;" })
+                            }
+                        }
+                    </td>
+                </tr>
+                count++;
+            }
+
+        }
+    </tbody>
+</table>
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+    format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+    format: 'DD-MMM-YYYY'
+    });
+
+    @if (TempData.ContainsKey("IsTransferInvoiceReadyById") && Convert.ToBoolean(TempData["IsTransferInvoiceReadyById"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/TransferInvoiceByID",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+    }
+</script>

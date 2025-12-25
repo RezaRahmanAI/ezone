@@ -1,0 +1,171 @@
+﻿@model IEnumerable<EmployeeLeaveViewModel>
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Employee Leave";
+    int Counter = 1;
+}
+
+<h4 class="text-left inline-header">Existing Employee Leaves</h4>
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Html.BeginForm("Search", "EmployeeLeave", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    <div class="form-group">
+                        <div class="col-md-6">
+                            <div class='input-group date' id='LeaveDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='LeaveDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 btn-group">
+                            <input type="submit" value="Search" class="btn btn-sm btn-success mr-2" />
+                            @Html.ActionLink("Create new", "Create", "EmployeeLeave", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm ml-3" })
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<table id="emplyeeLeaveTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th data-field="Sl"
+                data-sortable="true">
+                Sl
+            </th>
+            <th data-field="LeaveDate"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.LeaveDate)
+            </th>
+            <th data-field="Description"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th data-field="IsPaidLeave"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.IsPaidLeave)
+            </th>
+            <th data-field="Status"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            @*<th data-field="ShortLeaveHour"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.ShortLeaveHour)
+            </th>*@
+            <th data-field="EmplyeeName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.EmplyeeName)
+            </th>
+            <th data-field="DepartmentName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.DepartmentName)
+            </th>
+            <th data-field="DesignationName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.DesignationName)
+            </th>
+            <th data-field="GradeName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.GradeName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Counter
+                </td>
+                <td>
+                    @item.LeaveDate.ToString("dd MMM yyyy")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsPaidLeave)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                @*<td>
+                    @Html.DisplayFor(modelItem => item.ShortLeaveHour)
+                </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmplyeeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DepartmentName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DesignationName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GradeName)
+                </td>
+                <td>
+                    @if(item.Status==EnumEmployeeLeaveStatus.Pending)
+                    {
+                      @Html.ActionLink("Edit", "Edit", new { id = item.EmployeeLeaveID })
+                      <span>|</span>
+                      @Html.ActionLink("Delete", "Delete", new { id = item.EmployeeLeaveID })
+                         <span>|</span>
+                    }
+                    @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
+                    {
+                        if(item.Status==EnumEmployeeLeaveStatus.Pending)
+                        {
+                              @Html.ActionLink("Approve", "Approve", new { id = item.EmployeeLeaveID })
+                             <span>|</span>
+                        }
+                        else
+                        {
+                           @Html.ActionLink("Reject", "ApproveCancel", new { id = item.EmployeeLeaveID })
+                        }
+                    }
+                  
+                   
+                </td>
+            </tr>
+            Counter++;
+        }
+    </tbody>
+</table>
+
+
+<script>
+    $('#LeaveDate').datetimepicker({
+    @{
+        if (ViewBag.SearchDate == null)
+    {
+        @:defaultDate: moment(),
+        }
+        else
+        {
+        @:defaultDate: '@(Convert.ToDateTime(ViewBag.SearchDate).ToString("MMMM-yyyy"))',
+        }
+        @:format: 'MMMM-YYYY'
+    }
+    });
+</script>

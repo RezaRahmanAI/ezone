@@ -1,0 +1,210 @@
+﻿@model IEnumerable<GetProductViewModel>
+<div class="input-group">
+    <input type="text" class="input-sm form-control input-sm" id="ProductDetailsCode" name="ProductDetailsCode" value="@ViewBag.PDetailsCode" readonly="readonly">
+    <span class="input-group-btn">
+        <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#ProductDetailsModal"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Pick</button>
+    </span>
+    <input type="text" class="input-sm form-control input-sm" id="ProductDetailsName" name="ProductDetailsName" value="@ViewBag.PDetailsName" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="ProductDetailsId" name="ProductDetailsId" value="@ViewBag.PDetailsId" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="StockDetailsId" name="StockDetailsId" value="@ViewBag.PDetailsStockDetailId" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="ColorsId" name="ColorsId" value="@ViewBag.PDetailsColorId" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="Offer" name="OfferDescription" value="@ViewBag.OfferDescription" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="ProductType" name="ProductType" value="@ViewBag.ProductType" readonly="readonly">
+</div>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-lg" id="ProductDetailsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="myModalLabel">Existing ProductDetails</h5>
+            </div>
+            <div class="modal-body">
+                <div id="ProductDetailstoolbar">
+                    @Html.ActionLink("Create new", "Create", "Product", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm", target = "_blank" })
+                    <span class="text-warning">&nbsp;(Requires reload current page to get new item)</span>
+                </div>
+                <table id="ProductDetailsTable"
+                       data-toolbar="#ProductDetailstoolbar"
+                       data-toggle="table"
+                       data-search="true"
+                       data-click-to-select="true"
+                       data-single-select="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="6"
+                       class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th data-field="id" class="hidden">
+                            </th>
+                            <th data-checkbox="true">
+                            </th>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="code"
+                                data-sortable="true">
+                                Code
+                            </th>
+                            <th data-field="name"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Name
+                            </th>
+                            <th data-field="GodownName"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Godown
+                            </th>
+                            <th data-field="category"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Category
+                            </th>
+                            <th data-field="detailId" class="hidden">
+                            </th>
+                            <th data-field="colorId" class="hidden">
+                            </th>
+                            <th data-field="imeNo"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                IME No.
+                            </th>
+                            <th data-field="OrderDate"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                In Date
+                            </th>
+                            <th data-field="colorname"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Color
+                            </th>
+                            <th data-field="mrpRate"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Sales Rate
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="hidden">
+                                        @item.ProductId
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @item.ProductCode
+                                    </td>
+                                    <td>
+                                        @item.ProductName
+                                    </td>
+                                    <td>
+                                        @item.GodownName
+                                    </td>
+                                    <td>
+                                        @item.CategoryName
+                                    </td>
+                                    <td class="hidden">
+                                        @item.StockDetailsId
+                                    </td>
+                                    <td class="hidden">
+                                        @item.ColorId
+                                    </td>
+                                    <td>
+                                        @item.IMENo
+                                    </td>
+                                    <td>
+                                        @item.OrderDate
+                                    </td>
+                                    <td>
+                                        @item.ColorName
+                                    </td>
+                                    <td>
+                                        @item.MRPRate
+                                    </td>
+
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('[id*="_OfferDescription"]').text(@ViewBag.OfferDescription);
+        //$('[id*="_CurrentDue"]').trigger("input");
+        var ProductType = $("#ProductType").val();
+        if(ProductType=="2")
+        {
+            $('[id*="_Quantity"]').attr("readonly", false);
+        }
+    });
+    var $table = $('#ProductDetailsTable');
+    $table.on('check.bs.table', function (e, row) {
+        $('#ProductDetailsCode').val($.trim(row.code));
+        $('#ProductDetailsName').val($.trim(row.name));
+        $('#ProductDetailsId').val($.trim(row.id));
+        $('#StockDetailsId').val($.trim(row.detailId));
+        $('#ColorsId').val($.trim(row.colorId));
+        //$('#OfferDescription').val($.trim(row.));
+        $('[id*="_IMENo"]').val($.trim(row.imeNo));
+        $('[id*="_ColorName"]').val($.trim(row.colorname));
+        $('[id*="_PreviousStock"]').val($.trim(row.preStock));
+        var chkValue = $('#selSalesRate').val();
+        if (chkValue == 1)
+            $('[id*="_MRPRate"]').val($.trim(row.mrpRate)).trigger("input");
+        else if (chkValue==2)
+            $('[id*="_MRPRate"]').val($.trim(row.mrpRate)).trigger("input");
+        else if (chkValue == 3)
+            $('[id*="_MRPRate"]').val($.trim(row.mrpRate)).trigger("input");
+        $('[id*="_Quantity"]').val('1');
+        $('[id*="_OfferDescription"]').text(row.OfferDescription);
+
+        if ($.trim(row.imeNo) == "No Barcode") {
+            $('[id*="_Quantity"]').attr("readonly", false);
+        }
+        else
+        {
+            $('[id*="_Quantity"]').attr("readonly", true);
+        }
+
+        $('[id*="_CompressorWarrentyMonth"]').val($.trim(row.CompressorWarrentyMonth));
+        $('[id*="_PanelWarrentyMonth"]').val($.trim(row.PanelWarrentyMonth));
+        $('[id*="_MotorWarrentyMonth"]').val($.trim(row.MotorWarrentyMonth));
+        $('[id*="_SparePartsWarrentyMonth"]').val($.trim(row.SparePartsWarrentyMonth));
+        $('[id*="_ServiceWarrentyMonth"]').val($.trim(row.ServiceWarrentyMonth));
+    });
+    $table.on('uncheck.bs.table', function (e, row) {
+        $('#ProductDetailsCode').val('');
+        $('#ProductDetailsName').val('');
+        $('#ProductDetailsId').val('');
+        $('#StockDetailsId').val('');
+        $('#ColorsId').val('');
+        $('[id*="_IMENo"]').val('');
+        $('[id*="_ColorName"]').val('');
+        $('[id*="_PreviousStock"]').val('');
+        $('[id*="_MRPRate"]').val('').trigger("input");
+        $('[id*="_Quantity"]').val('');
+        $('[id*="_OfferDescription"]').text('');
+    });
+</script>

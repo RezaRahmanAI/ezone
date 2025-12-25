@@ -1,0 +1,595 @@
+﻿@using IMSWEB.Model
+@model SalesOrderViewModel
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Sales Return";
+}
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+@using (Html.BeginForm(actionName, "Return", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-md-6" style="padding-right:2px !important">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SalesOrder.InvoiceNo, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.SalesOrder.InvoiceNo, new { htmlAttributes = new { @class = "input-sm form-control input-sm" } })
+                                    @Html.ValidationMessageFor(m => m.SalesOrder.InvoiceNo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SalesOrder.OrderDate, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <div class='input-group date' id='OrderDate'>
+                                        <input type='text' class="input-sm form-control input-sm" name='OrderDate' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.SalesOrder.OrderDate, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SalesOrder.CustomerId, new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Customer, id = (Model != null && Model.SalesOrder.CustomerId != null) ? Model.SalesOrder.CustomerId : "0" });}
+                                    @Html.ValidationMessageFor(m => m.SalesOrder.CustomerId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group" style="display: none;">
+                                @Html.LabelFor(m => m.SalesOrder.CurrentDue, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.EditorFor(m => m.SalesOrder.CurrentDue, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(m => m.SalesOrder.CurrentDue, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            @*<div class="form-group">
+                                    <b><span id="SalesOrder_OfferDescription" class="tag">@Model.SalesOrder.OfferDescription</span></b>
+                                </div>*@
+                            <div class="form-group">
+                                <input autofocus="autofocus" placeholder="Enter Return IMEI" class="input-sm form-control text-box single-line" id="externalDamageIMEINO" name="externalDamageIMEINO" style="margin-left: 5px !important;margin-right: 5px !important; width:98%;" type="text" value="">
+                                <span id="externalDamageIMEINOError" class="text-danger" style="display:none">IMEI not Found.</span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                @Html.Label("Return Product", new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.CustomerSalesProduct, id = (Model != null && Model.SODetail.ProductId != null) ? Model.SODetail.ProductId : "0" });}
+                                    @Html.ValidationMessageFor(m => m.SODetail.ProductId, "", new { @class = "text-danger" })
+                                    @Html.HiddenFor(m => m.SODetail.ProductId, new { htmlAttributes = new { @class = "input-sm form-control", @readonly = "readonly" } })
+                                    @Html.HiddenFor(m => m.SODetail.dSalesQuantity)
+                                    @Html.HiddenFor(m => m.SODetail.dSOrderDetailsId)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SODetail.DamageIMEINO, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.SODetail.DamageIMEINO, new { htmlAttributes = new { @class = "input-sm form-control", @readonly = "readonly" } })
+                                    @*@Html.HiddenFor(m => m.SODetail.Quantity, new { htmlAttributes = new { @class = "input-sm form-control", @readonly = "readonly" } })*@
+                                    @Html.HiddenFor(m => m.SODetail.MRPRate, new { htmlAttributes = new { @class = "input-sm form-control", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(m => m.SODetail.DamageIMEINO, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SODetail.UnitPrice, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <input type="text" class="input-sm form-control input-sm" id="dUnitPrice" name="dUnitPrice">
+                                    @Html.ValidationMessageFor(m => m.SODetail.UnitPrice, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SODetail.ColorName, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <input type="text" class="input-sm form-control input-sm" id="dColorName" name="dColorName" readonly="readonly">
+                                    @Html.ValidationMessageFor(m => m.SODetail.ColorName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SODetail.Quantity, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <input type="text" class="input-sm form-control input-sm" id="dQuantity" name="dQuantity">
+                                    @Html.ValidationMessageFor(m => m.SODetail.Quantity, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group" style="display:none">
+                                @Html.LabelFor(m => m.SODetail.dSOrderDetailsId, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <input type="text" class="input-sm form-control input-sm" id="dSOrderDetailsId" name="dSOrderDetailsId" readonly="readonly">
+                                    @Html.ValidationMessageFor(m => m.SODetail.dSOrderDetailsId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group" style="display:none">
+                                @Html.LabelFor(m => m.SODetail.StockID, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <input type="text" class="input-sm form-control input-sm" id="StockID" name="StockID" readonly="readonly">
+                                    @Html.ValidationMessageFor(m => m.SODetail.StockID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group" style="display:none">
+                                @Html.LabelFor(m => m.SODetail.dSalesQuantity, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <input type="text" class="input-sm form-control input-sm" id="dSalesQuantity" name="dSalesQuantity" readonly="readonly">
+                                    @Html.ValidationMessageFor(m => m.SODetail.dSalesQuantity, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="pull-right btn-group">
+                        <input type="submit" class="btn btn-sm btn-primary mr-1" name="addButton" value="Add to order" />
+                        <button type="button" class="btn btn-sm btn-danger">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table id="productTable"
+                                       data-toggle="table"
+                                       data-search="false"
+                                       data-click-to-select="true"
+                                       data-single-select="true"
+                                       data-detail-view="true"
+                                       data-pagination="true"
+                                       data-id-field="name"
+                                       data-page-list="[10, 25, 50, 100, ALL]"
+                                       data-page-size="6"
+                                       data-height="300"
+                                       class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th data-field="count">
+                                                Sl
+                                            </th>
+                                            <th data-field="ProductName"
+                                                data-sortable="true">
+                                                Product
+                                            </th>
+                                            <th data-field="DamageIMEINO"
+                                                data-sorter="sorter"
+                                                data-sortable="true">
+                                                @*@Html.DisplayNameFor(model => model.SODetail.DamageIMEINO)*@
+                                                Return IMEI NO
+                                            </th>
+                                            <th data-field="DamageUnitPrice"
+                                                data-sortable="true">
+                                                @*@Html.DisplayNameFor(model => model.SODetail.ReplaceIMEINO)*@
+                                                Sales Price
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            int count = 1;
+                                            foreach (var item in Model.SODetails)
+                                            {
+                                                if (item.Status == EnumStatus.Updated || item.Status == EnumStatus.Deleted) { continue; }
+                                                <tr>
+                                                    <td>
+                                                        @count
+                                                        <input type="hidden" value="@item.ProductId" />
+                                                        <input type="hidden" value="@item.ColorId" />
+                                                        <input type="hidden" value="@item.StockDetailId" />
+                                                        <input type="hidden" value="@item.dSalesQuantity" />
+                                                        <input type="hidden" value="@item.dSOrderDetailsId" />
+                                                        <input type="hidden" value="@item.StockID" />
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.DamageProductName)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.DamageIMEINO)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.DamageUnitPrice)
+                                                    </td>
+                                                </tr>
+                                                count++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                <br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="row">
+                <div class="col-md-6" style="padding-right: 2px !important;">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SalesOrder.TotalAmount, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.HiddenFor(m => m.SalesOrder.GrandTotal)
+                                    @Html.EditorFor(m => m.SalesOrder.TotalAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(m => m.SalesOrder.TotalAmount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SalesOrder.PaymentDue, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.SalesOrder.PaymentDue, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(m => m.SalesOrder.PaymentDue, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                @Html.Label("Return Amount", new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.SalesOrder.RecieveAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01" } })
+                                    @Html.ValidationMessageFor(m => m.SalesOrder.RecieveAmount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SalesOrder.Remarks, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.SalesOrder.Remarks, new { htmlAttributes = new { @class = "input-sm form-control input-sm" } })
+                                    @Html.ValidationMessageFor(m => m.SalesOrder.Remarks, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="pull-right btn-group">
+                                <input type="submit" class="btn btn-sm btn-success mr-1" name="btnReturn" id="returnBtn" value="Return Save" />
+                                <button type="button" class="btn btn-sm btn-danger">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="modal fade bs-example-modal-lg" id="DamageProductDetailsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="myModalLabel">Sales ProductDetails</h5>
+            </div>
+            <div class="modal-body">
+                <div id="ProductDetailstoolbar">
+                    @Html.ActionLink("Create new", "Create", "Product", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm", target = "_blank" })
+                    <span class="text-warning">&nbsp;(Requires reload current page to get new item)</span>
+                </div>
+                <div class="table-responsive" style="max-height:200px">
+                    <table id="DamageProductDetailsTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-click-to-select="true"
+                           data-single-select="true"
+                           data-detail-view="true"
+                           data-pagination="true"
+                           data-id-field="name"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="6"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                @*<th data-field="id" class="hidden">
+                                    </th>*@
+
+                                <th>
+                                    Sl
+                                </th>
+                                <th data-field="code"
+                                    data-sortable="true">
+                                    Code
+                                </th>
+                                <th data-field="name"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Name
+                                </th>
+
+                                <th data-field="GoownName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Godown Name
+                                </th>
+
+
+                                <th data-field="category"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Category
+                                </th>
+                                @*<th data-field="detailId" class="hidden">
+                                    </th>
+                                    <th data-field="colorId" class="hidden">
+                                    </th>*@
+                                <th data-field="imeNo"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    IME No.
+                                </th>
+                                <th data-field="colorname"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Color
+                                </th>
+                                <th data-field="mrpRate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    MRP Rate
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        $(window).keydown(function (event) {
+            if (event.keyCode == 10 || event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+
+        @{
+            if(Model.SODetail!=null && !string.IsNullOrEmpty(Model.SODetail.DamageIMEINO))
+            {
+                @:$('#externalDamageIMEINO').val("@Model.SODetail.DamageIMEINO").trigger("input");
+            }
+         }
+
+        ToggleCustomerPickerButton()
+    });
+
+    $('#OrderDate').datetimepicker({
+        @{
+                if (Model == null || Model.SalesOrder.OrderDate == null) {
+                    @:defaultDate: moment(),
+                                                                                                                            }
+                else
+                {
+            @:defaultDate:'@(Convert.ToDateTime(Model.SalesOrder.OrderDate).ToString("dd-MMM-yyyy"))',
+                                                                                                                    }
+            @:format: 'DD-MMM-YYYY'
+                                                                                                                            }
+    });
+
+
+    //***********************************
+    //Barcode Reader For Damage IMEI
+    //***********************************
+
+    $("#externalDamageIMEINO").on("input", function () {
+        var CustomerID =getDefaultFloatIfEmpty($("#CustomersId").val());
+        $("#externalDamageIMEINOError").hide();
+        if(CustomerID==0){
+            toastr.info('Select Customer');
+            return;
+        }
+        setTimeout(function () {
+            $.ajax({
+                url: "/Return/GetDamageProductDetailByIMEINo",
+                type: "GET",
+                data: { 'imeiNo': $("#externalDamageIMEINO").val(),'CustomerID':CustomerID },
+                dataType: "json",
+                success: function (data) {
+                    setDamagePickerControls(data);
+                    $("#externalDamageIMEINO").val('');
+                    $("#externalDamageIMEINO").attr('autofocus', 'autofocus');
+                    if(data==false)
+                        $("#externalDamageIMEINOError").show();
+                },
+                error: function (err) {
+                    clearDamagePickerControls();
+                    console.error(JSON.stringify(err));
+                }
+            });
+        }, @((User.Identity.GetConcernId() == 5 || User.Identity.GetConcernId() == 6 || User.Identity.GetConcernId() == 1) ? 200 : 200));
+    });
+
+
+    function setDamagePickerControls(data) {
+        if (data && data.Code != '') {
+            $("#dProductCode").val(data.Code);
+            $("#dProductDetailsName").val(data.Name);
+
+
+
+            $("#dProductDetailsId").val(data.Id);
+            $("#dStockDetailsId").val(data.StockDetailId);
+            $("#dColorsId").val(data.ColorId);
+            $("#dColorName").val(data.ColorName);
+            $("#dGodownID").val(data.GodownID);
+            $("#dGodownName").val(data.GodownName);
+            $('#ProductTypes').val($.trim(data.ProductType));
+            $("#SODetail_Quantity").val(data.Quantity);
+            $("#SODetail_DamageIMEINO").val(data.IMEINo);
+            $('#dUnitPrice').val(data.MrpRate);
+            $('#SODetail_MRPRate').val(data.MrpRate);
+            //$('#dProductDetailsId').val(data.ProductId);
+            $('#ProductDetailsId').val(data.ProductId);
+            $("#dSalesQuantity").val(data.dSalesQuantity);
+            $("#dSOrderDetailsId").val(data.dSOrderDetailsId);
+            $("#StockID").val(data.StockID);
+            $('#dQuantity').val("1");
+            if(data.ProductType==2)
+                $("#dQuantity").prop("readonly",false);
+            else
+                $("#dQuantity").prop("readonly",true);
+
+        }
+        else {
+            clearDamagePickerControls();
+        }
+    }
+
+    function clearDamagePickerControls() {
+        $("#dProductCode").val('');
+        $("#dProductDetailsName").val('');
+        $("#dProductDetailsId").val('');
+        $("#dStockDetailsId").val('');
+        $("#dColorsId").val('');
+        $("#SODetail_ColorName").val('');
+        $("#dColorName").val('');
+        $("#Offer").val('');
+        $("#SalesOrder_OfferDescription").val('');
+        $("#SODetail_Quantity").val('');
+        $("#SODetail_IMENo").val('');
+        $("#SODetail_MRPRate").val('').trigger("input");
+        $("#SODetail_DamageIMEINO").val('');
+        $('#dUnitPrice').val('');
+        $('#ProductType').val('');
+        $("#dSalesQuantity").val('');
+        $("#dSOrderDetailsId").val('');
+        $("#StockID").val('');
+    }
+
+    //**********************
+    //end Barcode Damage IMEI
+    //**********************
+
+    $("#SODetail_MRPRate").on("input", function () {
+        var mrpRate = getDefaultFloatIfEmpty($(this).val()).toFixed(2);
+        $("#SODetail_UnitPrice").val(mrpRate);
+        $("#SODetail_UTAmount").val(mrpRate);
+    });
+
+    $("#SODetail_UnitPrice").on("input", function () {
+        var unitRate = getDefaultFloatIfEmpty($(this).val()).toFixed(2);
+        $("#SODetail_UTAmount").val(unitRate);
+    });
+
+    $("#SODetail_MRPRate").on("input", function () {
+        var mrpRate = getDefaultFloatIfEmpty($(this).val()).toFixed(2);
+        $("#SODetail_UnitPrice").val(mrpRate);
+        var quantity = getDefaultFloatIfEmpty($("#SODetail_Quantity").val());
+        $("#SODetail_UTAmount").val(mrpRate*quantity);
+    });
+
+    $("#SODetail_UnitPrice").on("input", function () {
+        var unitRate = getDefaultFloatIfEmpty($(this).val()).toFixed(2);
+        var quantity = getDefaultFloatIfEmpty($("#SODetail_Quantity").val());
+        $("#SODetail_UTAmount").val(unitRate*quantity);
+    });
+
+
+
+    $("#SalesOrder_RecieveAmount").on("input", function () {
+        var totalAmount = getDefaultFloatIfEmpty($("#SalesOrder_GrandTotal").val());
+        calculateVariousValue(totalAmount);
+    });
+
+    $("#SalesOrder_AdjAmount").on("input", function () {
+        var totalAmount = getDefaultFloatIfEmpty($("#SalesOrder_GrandTotal").val());
+        calculateVariousValue(totalAmount);
+    });
+
+    //$("#SalesOrder_CurrentDue").on("input", function () {
+    //    if (window.location.pathname.toLowerCase() == "/salesorder/create") {
+    //        var totalAmount = getDefaultFloatIfEmpty($("#SalesOrder_GrandTotal").val());
+    //        var totalDiscountAmount = getDefaultFloatIfEmpty($("#SalesOrder_TotalDiscountAmount").val());
+    //        var vatAmount = getDefaultFloatIfEmpty($("#SalesOrder_VATAmount").val());
+    //        calculateVariousValue(totalDiscountAmount, vatAmount, totalAmount);
+    //    }
+    //});
+
+    function calculateVariousValue(totalAmount) {
+        var recieveAmount = getDefaultFloatIfEmpty($("#SalesOrder_RecieveAmount").val());
+        var adjAmount = getDefaultFloatIfEmpty($("#SalesOrder_AdjAmount").val());
+
+        $("#SalesOrder_TotalAmount").val(getDefaultFloatIfEmpty(totalAmount -adjAmount).toFixed(2));
+        $("#SalesOrder_PaymentDue").val(getDefaultFloatIfEmpty((totalAmount - adjAmount) - recieveAmount).toFixed(2));
+    }
+
+    $("#returnBtn").click(function () {
+        setTimeout(function () { disableButton(); }, 50);
+
+    });
+
+    function disableButton() {
+        $("#returnBtn").prop('disabled', true);
+    }
+
+    function ToggleCustomerPickerButton() {
+        var rowCounter = TableRowCount();
+        if (rowCounter > 0)
+            $("#CustomerPicker").attr('disabled', true);
+        else
+            $('#CustomerPicker').attr('disabled', false);
+    }
+
+    function TableRowCount() {
+        $("#productTable").find(".no-records-found").remove();
+        var rowCounter = parseFloat($('#productTable >tbody >tr').length);
+        return rowCounter;
+    }
+
+</script>

@@ -1,0 +1,62 @@
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.SystemInformations ADD
+	ApprovalSystemEnable int NOT NULL CONSTRAINT DF_SystemInformations_ApprovalSystemEnable DEFAULT 0
+GO
+ALTER TABLE dbo.SystemInformations SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+
+---------------------------------
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.BankTransactions ADD
+	WFStatus int NULL
+GO
+ALTER TABLE dbo.BankTransactions ADD CONSTRAINT
+	DF_BankTransactions_WFStatus DEFAULT ((2)) FOR WFStatus
+GO
+ALTER TABLE dbo.BankTransactions SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+---------------------------------------------------------
+
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.Expenditures ADD
+	WFStatus int NOT NULL CONSTRAINT DF_Expenditures_WFStatus DEFAULT ((2))
+GO
+ALTER TABLE dbo.Expenditures SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+------------------------------------------------------

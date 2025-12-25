@@ -1,0 +1,306 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.CreateCashCollectionViewModel
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Cash Delivery";
+}
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Html.BeginForm(actionName, "CashDelivery", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.CashCollectionID)
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <div class="panel">
+                <div class="panel-body" style="padding: 40px 30px;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ReceiptNo, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.ReceiptNo, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 1 } })
+                                    @Html.ValidationMessageFor(model => model.ReceiptNo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.SupplierID, new { @class = "control-label col-md-3", autofocus = "autofocus" })
+                                <div class="col-md-9">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Supplier, id = (Model != null && Model.SupplierID != null) ? Model.SupplierID : "0" });}
+                                    @Html.ValidationMessageFor(model => model.SupplierID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            @*<div class="form-group">
+                @Html.LabelFor(model => model.DeliveryType, htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    @Html.EnumDropDownListFor(model => model.DeliveryType, "--Select Trans. Type--", new { @class = "form-control input-sm" })
+                    @Html.ValidationMessageFor(model => model.DeliveryType, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+
+
+                            @*<div class="form-group">
+                @Html.LabelFor(model => model.DeliveryType, htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    @if (actionName.ToLower().Equals("create"))
+                    {
+                        @Html.EnumDropDownListFor(model => model.DeliveryType, "--Select Trans. Type--", new { @class = "form-control input-sm" })
+                    }
+                    else
+                    {
+                            @Html.EnumDropDownListFor(model => model.DeliveryType, "--Select Trans. Type--", new { @class = "form-control input-sm", @readonly = "readonly" });
+                    }
+
+                    @Html.ValidationMessageFor(model => model.DeliveryType, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DeliveryType, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @if (string.Equals(actionName, "create", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        @Html.EnumDropDownListFor(model => model.DeliveryType, "--Select Trans. Type--", new { @class = "form-control input-sm" })
+                                    }
+                                    else
+                                    {
+                                        @Html.EnumDropDownListFor(model => model.DeliveryType, "--Select Trans. Type--", new { @class = "form-control input-sm", @disabled = "disabled" })
+                                    }
+
+                                    @Html.ValidationMessageFor(model => model.DeliveryType, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+
+
+
+
+                            <div class="form-group" style="display: none;">
+                                @Html.LabelFor(model => model.PaymentType, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(model => model.PaymentType, new SelectList(Enum.GetValues(typeof(IMSWEB.Model.EnumPayType))), new { @class = "form-control input-sm", tabindex = 5 })
+                                    @Html.ValidationMessageFor(model => model.PaymentType, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", tabindex = 9 } })
+                                    @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                                    @Html.HiddenFor(model => model.TempAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", tabindex = 9 } })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.CurrentDue, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.CurrentDue, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.CurrentDue, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.AdjustAmt, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.AdjustAmt, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", tabindex = 10 } })
+                                    @Html.ValidationMessageFor(model => model.AdjustAmt, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.EntryDate, htmlAttributes: new { @class = "control-label col-md-3", autofocus = "autofocus" })
+                                <div class="col-md-9">
+                                    <div class='input-group date' id='EntryDate' tabindex="2">
+                                        <input type='text' class="input-sm form-control input-sm" name='EntryDate' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.EntryDate, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.AccountNo, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.AccountNo, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 4 } })
+                                    @Html.ValidationMessageFor(model => model.AccountNo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.InterestAmt, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.InterestAmt, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", tabindex = 9 } })
+                                    @Html.ValidationMessageFor(model => model.InterestAmt, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.BalanceDue, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.BalanceDue, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", tabindex = 11, @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.BalanceDue, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Remarks, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Remarks, new { htmlAttributes = new { @class = "input-sm form-control", tabindex = 10 } })
+                                    @Html.ValidationMessageFor(model => model.Remarks, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="pull-right mr-4">
+                                    <input type="submit" value="Add Payment Transaction" class="btn btn-sm btn-primary" id="AddPaymentTrans" tabindex="12" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+
+
+}
+
+<script>
+    $(document).ready(function () {
+        $('[id*="CurrentDue"]').val(@ViewBag.SuppliersCurrentDue);
+        //$('[id*="_CurrentDue"]').trigger("input");
+        disablepicker();
+
+        var typeVal = $('#DeliveryType').val();
+        if (typeVal == 2) {
+            $('#AdjustAmt').removeAttr("readonly");
+        } else {
+            $('#AdjustAmt').attr("readonly", true);
+        }
+
+        $('#DeliveryType').change(function () {
+            var selectedType = $(this).val();
+            if (selectedType == 2) {
+                $('#AdjustAmt').removeAttr("readonly");
+            } else {
+                $('#AdjustAmt').attr("readonly", true);
+            }
+        });
+    });
+    $(function () {
+        $("#PaymentTransaction").select2();
+        $('#EntryDate').datetimepicker({
+            @{
+                if (Model == null || Model.EntryDate == null)
+                {
+                    @:defaultDate: moment(),
+                                                                                        }
+                else
+                {
+            @:defaultDate: '@(Convert.ToDateTime(Model.EntryDate).ToString("dd-MMM-yyyy"))',
+                                                                                }
+            @:format: 'DD-MMM-YYYY'
+                                                                                        }
+        });
+
+    });
+    $("#CustomersModal").on("hidden.bs.modal", function () {
+        Calculation();
+    });
+    function Calculation() {
+        var totalDue = getDefaultIntIfEmpty($("#CurrentDue").val());
+        var amount = getDefaultFloatIfEmpty($("#Amount").val());
+        var InterestAmt = getDefaultFloatIfEmpty($("#InterestAmt").val());
+        var Tempamount = getDefaultFloatIfEmpty($("#TempAmount").val());
+        var AdjustAmt = getDefaultFloatIfEmpty($("#AdjustAmt").val());
+        var TempAdjustAmt = getDefaultFloatIfEmpty($("#TempAdjustAmt").val());
+
+
+
+
+
+        var t = $("#DeliveryType").val();
+        if (t !== "") {
+
+            if (t == "6") {
+                totalDue = totalDue + Tempamount + TempAdjustAmt;
+                var total = (totalDue + (amount + AdjustAmt - InterestAmt)).toFixed(2);
+                $("#BalanceDue").val(getDefaultFloatIfEmpty(total));
+            }
+            else if (t == "3") {
+                totalDue = totalDue + Tempamount + TempAdjustAmt;
+                var total = (totalDue + (amount + AdjustAmt - InterestAmt)).toFixed(2);
+                $("#BalanceDue").val(getDefaultFloatIfEmpty(total));
+            }
+
+            else {
+                totalDue = totalDue + Tempamount + TempAdjustAmt;
+                var total = (totalDue - (amount + AdjustAmt - InterestAmt)).toFixed(2);
+
+                $("#BalanceDue").val(getDefaultFloatIfEmpty(total));
+
+            }
+        }
+
+
+
+        //totalDue = totalDue + Tempamount + TempAdjustAmt;
+        //var total = (totalDue - (amount + AdjustAmt - InterestAmt)).toFixed(2);
+
+        //$("#BalanceDue").val(getDefaultFloatIfEmpty(total));
+    }
+
+    $("#Amount").on("input", function () {
+        Calculation();
+    });
+
+    $("#AdjustAmt").on("input", function () {
+        Calculation();
+    });
+    $("#InterestAmt").on("input", function () {
+        Calculation();
+    });
+
+    $("#TransactionType").on("change", disablepicker);
+
+    function disablepicker() {
+        var type = $("#TransactionType option:selected").text();
+        var customer = $("button[data-target = #CustomersModal]");
+        var supplier = $("button[data-target = #SuppliersModal]");
+
+        //if (type == "FromCustomer")
+        //{
+        //    customer.removeAttr('disabled');
+        //    supplier.attr('disabled', 'disabled');
+        //}
+        //else
+        //{
+        //    supplier.removeAttr('disabled');
+        //    customer.attr('disabled', 'disabled');
+        //}
+    }
+
+
+    $("#AddPaymentTrans").click(function () {
+        setTimeout(function () { disableButton(); }, 50);
+
+    });
+
+    function disableButton() {
+        $("#AddPaymentTrans").prop('disabled', true);
+    }
+</script>
+

@@ -1,0 +1,78 @@
+﻿@using IMSWEB.Model
+@{
+    ViewBag.Title = "Showroom Analysis Report";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("DistributorAnalysis", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+{
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <div class=form-group>
+
+                    </div>
+                    <div class="form-group">
+                        @*<div class="col-md-3">
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </div>*@
+                        @Html.Label("From Date", htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class='col-md-9 input-group date' id='FromDate'>
+                            <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @*<div class="col-md-3">
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </div>*@
+                        @Html.Label("To Date", htmlAttributes: new { @class = "control-label col-md-3" })
+
+                        <div class='col-md-9 input-group date' id='ToDate'>
+                            <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+                    @if (User.IsInRole(EnumUserRoles.superadmin.ToString()) || User.IsInRole(EnumUserRoles.Admin.ToString()) || User.IsInRole(EnumUserRoles.LocalAdmin.ToString()) || User.IsInRole(EnumUserRoles.hoqueLocalAdmin.ToString()) || User.IsInRole(EnumUserRoles.AdminReport.ToString()))
+                    {
+                        <div class=form-group>
+                            <label class="control-label col-md-3">Concern</label>
+                            <div class="col-md-9">
+                                @Html.DropDownList("ConcernID", @ViewBag.Concerns as SelectList, "--All Concerns--", new { @class = "form-control input-sm" })
+                            </div>
+                        </div>
+                    }
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                        </div>
+                        <div class="col-md-9">
+                            <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+   $('#FromDate').datetimepicker({
+    defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+    format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+    defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+    format: 'DD-MMM-YYYY'
+    });
+</script>

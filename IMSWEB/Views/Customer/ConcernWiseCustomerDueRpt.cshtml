@@ -1,0 +1,50 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.CreateCustomerViewModel
+
+@{
+    ViewBag.Title = "Category Wise Customer Due Report";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+@using (Ajax.BeginForm("ConcernWiseCustomerDueRpt", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form",@class="form-horizontal" }))
+{
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group">
+                    @Html.Label("Customer", new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Customer, id = 0 });}
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CustomerType, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class=" col-md-8">
+                        @Html.EnumDropDownListFor(model => model.CustomerType, "All Customer", new { @class = "form-control input-sm" })
+                        @Html.ValidationMessageFor(model => model.CustomerType, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                @*<div class="form-group">
+                    <div class='col-sm-8 input-group col-sm-offset-4' id='rbReportType'>
+                        <label><input id="rdoOnlyDue" title="Only Due" type="checkbox" value="1" name="DueType" />Only Due</label>
+                    </div>
+                </div>*@
+                <div class="form-group">
+                    <div class="col-sm-4">
+                        <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                    </div>
+                    <div class="col-sm-8">
+                        <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<script>
+    //$(document).ready(function () {
+    //    $("#CustomerType").select2();
+    //});
+</script>

@@ -1,0 +1,61 @@
+﻿@model IEnumerable<SMSStatusViewModel>
+@using IMSWEB.Model
+
+@{
+    ViewBag.Title = "Send SMS";
+}
+
+<h4 class="text-left inline-header">@ViewBag.Title</h4>
+<hr />
+<div class="row">
+    <div class="col-md-5 col-md-offset-3">
+        @using (Html.BeginForm("SendSMS", "SMSService", FormMethod.Post, new { @class = "form-horizontal", id = "myform" }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-group">
+                        @Html.Label("Select All", htmlAttributes: new { @class = "control-label  col-md-3" })
+                        <div class="col-md-9">
+                            <input type="checkbox" name="AllCustomer" value="1" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Customer Type", htmlAttributes: new { @class = "control-label  col-md-3" })
+                        <div class="col-md-9">
+                            @Html.DropDownList("CustomerType", EnumHelper.GetSelectList(typeof(EnumCustomerType)), "--Select Customer Type--", new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.Label("Customer", htmlAttributes: new { @class = "control-label  col-md-3" })
+                        <div class="col-md-9">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.MSCustomer, id = "0" });}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("SMS", htmlAttributes: new { @class = "control-label  col-md-3" })
+                        <div class="col-md-9">
+                            @Html.TextArea("SMS", new { @class = "form-control input-sm", required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                        <div class="col-md-9 col-md-offset-3">
+                            <div class="btn-group">
+                                <button id="btnPreview" type="submit" class="btn btn-sm btn-info mr-2">
+                                    <i class="fa fa-paper-plane" aria-hidden="true">&nbsp;send</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#myform").submit(function () {
+        $("#spinningIcon").show();
+    });
+</script>

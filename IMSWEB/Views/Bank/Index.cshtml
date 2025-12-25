@@ -1,0 +1,112 @@
+﻿@model IEnumerable<CreateBankViewModel>
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Banks";
+}
+
+<h4 class="text-left inline-header">Existing Banks</h4>
+@Html.ActionLink("Create new bank", "Create", "Bank", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+<hr />
+<table id="companyTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="AccountName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.AccountName)
+            </th>
+            <th data-field="AccountNo"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.AccountNo)
+            </th>
+            @*<th data-field="code"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.Code)
+                </th>*@
+            <th data-field="BankName"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.BankName)
+            </th>
+            <th data-field="BranchName"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.BranchName)
+            </th>
+            @if ((ViewBag.IsBankBalanceShow) && (!User.IsInRole(EnumUserRoles.Manager.ToString()) && !User.IsInRole(EnumUserRoles.MaaElectronicManager.ToString())))
+            {
+                <th data-field="TotalAmount"
+                    data-sorter="sorter"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.TotalAmount)
+                </th>
+            }
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountNo)
+                    </td>
+                    @*<td>
+                            @Html.DisplayFor(modelItem => item.Code)
+                        </td>*@
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BankName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BranchName)
+                    </td>
+                    @if ((ViewBag.IsBankBalanceShow) && (!User.IsInRole(EnumUserRoles.Manager.ToString()) && !User.IsInRole(EnumUserRoles.MaaElectronicManager.ToString())))
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TotalAmount)
+                        </td>
+                    }
+
+                <td>
+                    @if (!User.IsInRole(EnumUserRoles.MaaElectronicManager.ToString()))
+                    {
+                        @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                    }
+
+
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <span>|</span>
+                        @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { onclick = "if(!confirm('Do you want to delete this bank?')) return false;" })
+                    }
+                </td>
+                </tr>
+                count++;
+            }
+
+        }
+    </tbody>
+</table>

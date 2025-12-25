@@ -1,0 +1,115 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.CreateProductViewModel
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Product";
+}
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Html.BeginForm(actionName, "Product", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.ProductId);
+    @Html.HiddenFor(m => m.PicturePath);
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Code, new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(m => m.Code, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                @Html.ValidationMessageFor(m => m.Code, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.CategoryId, new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Category, id = (Model != null && Model.CategoryId != null) ? Model.CategoryId : "0" });}
+                @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ProductType, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @*"--Select a type--",*@
+                @Html.EnumDropDownListFor(model => model.ProductType, "--Select an unit--", new { @class = "form-control input-sm" })
+                @Html.ValidationMessageFor(model => model.ProductType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.CompressorWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @*"--Select a type--",*@
+                @Html.EditorFor(model => model.CompressorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                @Html.ValidationMessageFor(model => model.CompressorWarrentyMonth, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.PanelWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @*"--Select a type--",*@
+                @Html.EditorFor(model => model.PanelWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                @Html.ValidationMessageFor(model => model.PanelWarrentyMonth, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.PicturePath, new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                <input class="form-control input-sm" id="picture" name="picture" type="file" accept="image/*"
+                       onchange="document.getElementById('productPicture').src = window.URL.createObjectURL(this.files[0]);
+    document.getElementById('PicturePath').value = window.URL.createObjectURL(this.files[0]);">
+                @Html.ValidationMessageFor(m => m.PicturePath, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-3 col-md-9">
+                <img id="productPicture" src="/Content/photos/products/@(Model != null ? Model.PicturePath : string.Empty)" alt="Uploaded picture will appear here." height="200" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.ProductName, new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(m => m.ProductName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus"} })
+                @Html.ValidationMessageFor(m => m.ProductName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.CompanyId, new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Company, id = (Model != null && Model.CompanyId != null) ? Model.CompanyId : "0" });}
+                @Html.ValidationMessageFor(m => m.CompanyId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.UnitType, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @*"--Select a type--",*@ 
+                @Html.EnumDropDownListFor(model => model.UnitType, "--Select an unit--" , new { @class = "form-control input-sm" })
+                @Html.ValidationMessageFor(model => model.UnitType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.MotorWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @*"--Select a type--",*@
+                @Html.EditorFor(model => model.MotorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                @Html.ValidationMessageFor(model => model.MotorWarrentyMonth, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.SparePartsWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @*"--Select a type--",*@
+                @Html.EditorFor(model => model.SparePartsWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                @Html.ValidationMessageFor(model => model.SparePartsWarrentyMonth, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-3 col-md-9">
+                <input type="submit" class="btn btn-sm btn-primary" value="Add Product" />
+            </div>
+        </div>
+    </div>
+                    }

@@ -1,0 +1,206 @@
+﻿@model CreateAllowancesRuleSetupViewModel
+@using IMSWEB.Model
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + "";
+    int count = 1;
+    string GID = string.Empty;
+}
+
+<h4>Allowances Rule Setup as Per Grade</h4>
+<hr />
+
+@using (Html.BeginForm(actionName, "AllowancesRuleSetup", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "AllowanceForm" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.ADParameterBasicCreate.ADParameterID);
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            @Html.Label("Allowances", new { @class = "control-label col-md-3" })
+                            <div class="col-md-9">
+                                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Allowance, id = (Model != null && !string.IsNullOrEmpty(Model.ADParameterBasicCreate.AllowDeductID)) ? Model.ADParameterBasicCreate.AllowDeductID : "0" });}
+                                @Html.ValidationMessageFor(model => model.ADParameterBasicCreate.AllowDeductID, "", new { @class = "text-danger" })
+                            </div>
+                            @*@Html.DropDownListFor(model => model.ADParameterBasicCreate.AllowDeductID, ViewBag.Allowances as SelectList, new { @class = "form-control  input-sm" })*@
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.ADParameterBasicCreate.Periodicity, new { @class = "control-label col-md-3" })
+                            <div class="col-md-9">
+                                @Html.EnumDropDownListFor(model => model.ADParameterBasicCreate.Periodicity, new { @class = "form-control  input-sm" })
+                                @Html.ValidationMessageFor(model => model.ADParameterBasicCreate.Periodicity, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="AppliedtoIndividual" class="col-md-3">Applied to Individual</label>
+                            <div class="col-sm-9">
+                                @Html.EditorFor(model => model.ADParameterBasicCreate.IsIndividual)
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <table id="GradesTable"
+                               data-toolbar="#"
+                               data-toggle="table"
+                               data-height="200"
+                               class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Sl
+                                    </th>
+                                    <th data-field="code"
+                                        data-sortable="true">
+                                        Code
+                                    </th>
+                                    <th data-field="name"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        Name
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Grades != null)
+                                {
+                                    foreach (var item in Model.Grades)
+                                    {
+                                        GID = "GID" + count.ToString();
+
+                                        <tr>
+                                            <td>
+                                                @count.ToString()
+                                                @if (item.IsSelected)
+                                                {
+                                                    <input type="checkbox" checked value=@item.GradeID name=@GID />
+                                                }
+                                                else
+                                                {
+                                                    <input type="checkbox" value=@item.GradeID name=@GID />
+                                                }
+                                            </td>
+                                            <td>
+                                                @item.Code
+                                            </td>
+                                            <td>
+                                                @item.Description
+                                            </td>
+                                        </tr>
+                                        count++;
+                                        GID = "";
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-10">
+                                <input type="submit" value="Save" name="submitButton" class="btn btn-sm btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ADParameterBasicCreate.FlatAmount, new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.ADParameterBasicCreate.FlatAmount, new { htmlAttributes = new { @class = "form-control input-sm text-right", autofocus = "autofocus" } })
+                        @Html.ValidationMessageFor(model => model.ADParameterBasicCreate.FlatAmount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ADParameterBasicCreate.PercentOfBasic, new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.ADParameterBasicCreate.PercentOfBasic, new { htmlAttributes = new { @class = "form-control input-sm text-right", autofocus = "autofocus" } })
+                        @Html.ValidationMessageFor(model => model.ADParameterBasicCreate.PercentOfBasic, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ADParameterBasicCreate.PercentOfGross, new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.ADParameterBasicCreate.PercentOfGross, new { htmlAttributes = new { @class = "form-control input-sm text-right", autofocus = "autofocus" } })
+                        @Html.ValidationMessageFor(model => model.ADParameterBasicCreate.PercentOfGross, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#ADParameterBasicCreate_AllowDeductID").select2();
+        $("#ADParameterBasicCreate_Periodicity").select2();
+    });
+
+
+    function GetUnassignGradesByAllowanceID() {
+        var AllownceID = $("#AllowancesId").val();
+        if (AllownceID == NaN || AllownceID == "")
+            return;
+
+        var newRow = '';
+        var cols = '';
+        var index = 0;
+
+        $("#GradesTable > tbody").empty();
+
+        $.ajax({
+            url: "/AllowancesRuleSetup/GetUnassignGradesByAllowanceID",
+            type: "GET",
+            data: { 'AllowanceDeductID': AllownceID },
+            dataType: "json",
+            success: function (data) {
+                if (data.Status == true) {
+                    for (var counter = 0; counter < data.Grades.length; counter++) {
+                        newRow = $("<tr>");
+                        index++;
+                        cols = "";
+                        cols += '<td width="9.97%"> <input type="checkbox" name="GID' + index + '" value="' + data.Grades[counter].GradeID + '"  />  ' + index + '</td>';
+                        cols += '<td width="26.84%">' + data.Grades[counter].Code + '</td>';
+                        cols += '<td width="26.84%">' + data.Grades[counter].Description + '</td>';
+                        newRow.append(cols);
+                        $("#GradesTable").append(newRow);
+                    }
+                }
+            },
+            error: function (err) {
+                console.error(JSON.stringify(err));
+            }
+        });
+    }
+
+    $('#AllowancesModal').on('hidden.bs.modal', function (e) {
+        //$("#AllowanceForm").submit();
+        GetUnassignGradesByAllowanceID();
+    });
+
+</script>
+
+

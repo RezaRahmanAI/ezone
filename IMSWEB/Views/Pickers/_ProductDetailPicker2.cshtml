@@ -1,0 +1,164 @@
+﻿@model IEnumerable<GetProductViewModel>
+<div class="input-group">
+    <input type="text" class="input-sm form-control input-sm" id="ProductDetailsCode" name="ProductDetailsCode" value="@ViewBag.PDetailsCode" readonly="readonly">
+    <span class="input-group-btn">
+        <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#ProductDetailsModal"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Pick</button>
+    </span>
+    <input type="text" class="input-sm form-control input-sm" id="ProductDetailsName" name="ProductDetailsName" value="@ViewBag.PDetailsName" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="ProductDetailsId" name="ProductDetailsId" value="@ViewBag.PDetailsId" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="PDetailsGodownID" name="PDetailsGodownID" value="@ViewBag.PDetailsGodownID" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="PDetailsSalesRate" name="PDetailsSalesRate" value="@ViewBag.PDetailsSalesRate" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="PDetailsPreStock" name="PDetailsPreStock" value="@ViewBag.PDetailsPreStock" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="PDetailsPacket" name="PDetailsPacket" value="@ViewBag.PDetailsPacket" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="PDetailsCategoryName" name="PDetailsCategoryName" value="@ViewBag.PDetailsCategoryName" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="PDetailsPKTSheet" name="PDetailsPKTSheet" value="@ViewBag.PDetailsPKTSheet" readonly="readonly">
+    @*<input type="hidden" class="input-sm form-control input-sm" id="Offer" name="OfferDescription" value="@ViewBag.OfferDescription" readonly="readonly">*@
+</div>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-lg" id="ProductDetailsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="myModalLabel">Existing ProductDetails</h5>
+            </div>
+            <div class="modal-body">
+                <div id="ProductDetailstoolbar">
+                    @Html.ActionLink("Create new", "Create", "Product", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm", target = "_blank" })
+                    <span class="text-warning">&nbsp;(Requires reload current page to get new item)</span>
+                </div>
+                <table id="ProductDetailsTable"
+                       data-toolbar="#ProductDetailstoolbar"
+                       data-toggle="table"
+                       data-search="true"
+                       data-click-to-select="true"
+                       data-single-select="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="6"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th data-field="id" class="hidden">
+                            </th>
+                            <th data-field="ProductCode" class="hidden">
+                            </th>
+                          
+                          
+                           
+                            <th data-field="godownid" class="hidden">
+                            </th>
+                           
+                          
+                            <th data-checkbox="true">
+                            </th>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="Godown"
+                                data-sortable="true">
+                                Godown
+                            </th>
+                            <th data-field="productname"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Product Name
+                            </th>
+                            <th data-field="category"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Category
+                            </th>
+                            <th data-field="model"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Size
+                            </th>
+                            <th data-field="qty"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Qty
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="hidden">
+                                        @item.ProductId
+                                    </td>
+                                    <td class="hidden">
+                                        @item.ProductCode
+                                    </td>
+                                  
+                                    <td class="hidden">
+                                        @item.GodownID
+                                    </td>
+                                    
+                                   
+                                    <td></td>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @item.GodownName
+                                    </td>
+                                    <td>
+                                        @item.ProductName
+                                    </td>
+                                    <td>
+                                        @item.CategoryName
+                                    </td>
+                                    <td>
+                                        @item.ModelName
+                                    </td>
+                                    <td>
+                                        @item.PreStock
+                                    </td>
+                                
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //$('[id*="_OfferDescription"]').text(@ViewBag.OfferDescription);
+        //$('[id*="_CurrentDue"]').trigger("input");
+    });
+    var $table = $('#ProductDetailsTable');
+    $table.on('check.bs.table', function (e, row) {
+        $('#ProductDetailsCode').val($.trim(row.ProductCode));
+        $('#ProductDetailsName').val($.trim(row.productname));
+        $('#ProductDetailsId').val($.trim(row.id));
+        $('#PDetailsGodownID').val($.trim(row.godownid));
+        $('#PDetailsSalesRate').val($.trim(row.salesrate));
+        $('[id*="_PreviousStock"]').val($.trim(row.qty));
+        $('[id*="_CategoryName"]').val($.trim(row.category));
+        $('[id*="_GodownID"]').val($.trim(row.godownid)); 
+        $('[id*="_UnitPrice"]').val($.trim(row.salesrate)).trigger("input");    
+        $('[id*="_MPRate"]').val($.trim(row.mrprate)).trigger("input");
+    });
+    $table.on('uncheck.bs.table', function (e, row) {
+        $('#ProductDetailsCode').val('');
+        $('#ProductDetailsName').val('');
+        $('#ProductDetailsId').val('');
+        $('[id*="_PreviousStock"]').val('');
+        $('[id*="_MRPRate"]').val('').trigger("input");
+        $('[id*="_Quantity"]').val('');
+    });
+</script>

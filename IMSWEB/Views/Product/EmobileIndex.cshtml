@@ -1,0 +1,356 @@
+﻿@using IMSWEB.Model
+
+
+@{
+    ViewBag.Title = "Products";
+}
+
+
+
+@{
+    ViewBag.Title = "Products";
+    var sysInfo = Session["SystemInfo"] as CreateSystemInformationViewModel;
+    bool isMRPUpdateNotApplicable = (bool)ViewBag.IsMRPUpdateNotApplicable;
+}
+
+<style>
+
+    #myTable thead th {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #myTable tbody td {
+        text-align: center;
+        vertical-align: middle;
+        /*min-height: 30px;*/
+        max-height: 30px;
+    }
+
+    #myTable tbody > tr > td:last-child {
+        white-space: nowrap;
+    }
+
+    #myTable {
+        border-collapse: collapse;
+    }
+
+
+        #myTable thead tr {
+            background-color: #0d85bb !important;
+            color: white !important;
+        }
+
+    .dt-search {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+        .dt-search label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .dt-search .dt-input {
+            width: 175px;
+            height: 30px;
+            font-size: 12px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+
+    .dt-paging .dt-paging-button {
+        background-color: lightgray !important;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        margin: 0 5px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .dataTable, .dataTable th, .dataTable td {
+        border-color: #0fa0e1 !important;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+
+    .dt-paging .dt-paging-button.current {
+        background-color: #0fa0e1 !important;
+        color: white;
+        font-weight: bold;
+    }
+
+    .dt-paging .dt-paging-button.disabled {
+        background-color: lightgray !important;
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+
+
+    .dt-paging .dt-paging-button:not(.disabled):hover {
+        background-color: #0fa0e1 !important;
+        color: white;
+    }
+
+    .dt-length select {
+        margin-right: 5px;
+    }
+</style>
+
+<h4 class="text-left inline-header">Existing products.</h4>
+<hr />
+
+
+<div class="panel">
+    <div class="panel-body">
+        @Html.ActionLink("Create new product", "Create", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right m-2", id = "toolbar" })
+
+        <div style="width: 100%; padding: 5px">
+            <table id="myTable" class="display cell-border hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Sl</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Company</th>
+                        <th>MRP Rate</th>
+                        <th>Rp Rate</th>
+                        <th>Update MRP</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+            @Html.Partial("_EmobileMRPUpdate")
+        </div>
+    </div>
+</div>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" />
+
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+
+
+<script>
+    //var sysInfo = JSON.stringify(sysInfo);
+
+    var userRolesAdmin = '@User.IsInRole(EnumUserRoles.Admin.ToString())'; // for Admin role
+    var userRolesManager = '@User.IsInRole(EnumUserRoles.Manager.ToString())'; // for Manager role
+    var isUpdateForManager = @Html.Raw(Json.Encode(ViewBag.IsMRPUpdateForManager)); // for Manager role
+    var userRolesMaaManager = '@User.IsInRole(EnumUserRoles.MaaElectronicManager.ToString())'; // for Manager role
+    var userRolesLocalAdmin = '@User.IsInRole(EnumUserRoles.LocalAdmin.ToString())'; // for LocalAdmin role
+    var isMRPUpdateNotApplicable = @Html.Raw(Json.Encode(ViewBag.IsMRPUpdateNotApplicable)); // sysinfo mrp disable
+
+    //alert(
+    //    "Manager: " + userRolesManager +
+    //    " sys disable: " + isUpdateForManager +
+    //    " Maa Manager: " + userRolesMaaManager +
+    //    " Admin: " + userRolesAdmin +
+    //    " LocalAdmin: " + userRolesLocalAdmin +
+    //    " MRP: " + isMRPUpdateNotApplicable
+    //);
+
+
+    $(document).ready(function () {
+
+        var table = $('#myTable').DataTable({
+            processing: true,
+            ajax: {
+                url: '@Url.Action("GetEmobileProducts", "Product")',
+                dataSrc: 'data'
+            },
+            columns: [
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        return meta.row + 1;
+                    }
+                },
+                { data: 'ProductCode', 'searchable': false },
+                { data: 'ProductName' },
+                { data: 'CategoryName' },
+                { data: 'CompanyName' },
+                { data: 'MRPRate', 'searchable': false },
+                { data: 'RP', 'searchable': false },
+                { data: null,
+                    render: function (data, type, row) {
+
+                        if (isUpdateForManager) {
+                            if (userRolesManager || userRolesAdmin || userRolesLocalAdmin) {
+                                if (!isMRPUpdateNotApplicable) {
+                                    return `
+                                         <input type="button" class="btn btn-info btn-xs" title="Update Sales Rate"
+                                         id="showmodalbtn" value="Update"
+                                         data-productname="${row.ProductName}"
+                                         data-productid="${row.ProductId}"
+                                         data-mrp="${row.MRPRate}"
+                                         data-salesrate="${row.RP}"
+                                         data-creditsalesrate3="${row.CreditSalesRate3}"
+                                         data-creditsalesrate6="${row.CreditSalesRate6}"
+                                         data-creditsalesrate12="${row.CreditSalesRate12}" />
+                                    `;
+                                }
+
+                                }
+
+                            }
+
+                            else {
+                                    return `
+                                        <input type="button" class="btn btn-info btn-xs disabled" title="Update Sales Rate"
+                                        id="showmodalbtn" value="Update" disabled
+                                        data-productname="${row.ProductName}"
+                                        data-productid="${row.ProductId}"
+                                        data-mrp="${row.MRPRate}"
+                                        data-salesrate="${row.RP}"
+                                        data-creditsalesrate3="${row.CreditSalesRate3}"
+                                        data-creditsalesrate6="${row.CreditSalesRate6}"
+                                        data-creditsalesrate12="${row.CreditSalesRate12}" />
+                                    `;
+                                }
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+
+                        if (userRolesMaaManager != 'True') {
+                            const editUrl = '@Url.Action("Edit", "Product")' + `?id=${row.ProductId}`;
+                            const deleteUrl = '@Url.Action("Delete", "Product")' + `?id=${row.ProductId}`;
+                            return `
+                                 <a href="${editUrl}" class="btn btn-xs btn-info">Edit</a>
+                                 <span>|</span>
+                                 <a href="${deleteUrl}" class="btn btn-xs btn-danger"
+                                 onclick="return confirm('Do you want to delete this product?');">Delete</a>
+                             `;
+                        } else {
+                            const editUrl = '@Url.Action("Edit", "Product")' + `?id=${row.ProductId}`;
+                            const deleteUrl = '@Url.Action("Delete", "Product")' + `?id=${row.ProductId}`;
+                            return `
+                                 <a href="${editUrl}" class="btn btn-xs btn-info disabled">Edit</a>
+                                 <span>|</span>
+                                 <a href="${deleteUrl}" class="btn btn-xs btn-danger disabled"
+                                 onclick="return confirm('Do you want to delete this product?');">Delete</a>
+                             `;
+                        }
+                    }
+                }
+            ],
+            layout: {
+                topStart: 'info',
+                topEnd: 'search',
+                bottomStart: 'pageLength',
+                bottomEnd: 'paging'
+            }
+        });
+        $(document).on("click", "#showmodalbtn", function (event) {
+            if ($(this).prop("disabled")) {
+                //alert('Button is disabled');
+                // Prevent default behavior for disabled button
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            var ProductID = $(this).data("productid");
+            var colorid = $(this).data("colorid");
+            var RP = $(this).data("salesrate");//RP
+            var mrp = $(this).data("mrp");//MRP
+            var creditsalesrate3 = $(this).data("creditsalesrate3");
+            var creditsalesrate6 = $(this).data("creditsalesrate6");
+            var creditsalesrate12 = $(this).data("creditsalesrate12");
+            var productname = $(this).data("productname");
+
+            $("#CashSalesRate").val(RP);
+            $("#MRP").val(mrp);
+            $("#CreditSalesRate3").val(creditsalesrate3);
+            $("#CreditSalesRate6").val(creditsalesrate6);
+            $("#CreditSalesRate12").val(creditsalesrate12);
+            $("#ProductID").val(ProductID);
+            $("#ColorID").val(colorid);
+            $("#ProductName").val(productname);
+
+            $("#myModal").modal("show");
+        });
+
+
+        // When "Submit" button is clicked in the modal
+        $(document).on("click", "#Submitbtn", function () {
+            var RP = $("#CashSalesRate").val(); //RP
+            var MRP = $("#MRP").val();
+            var creditsalesrate3 = $("#CreditSalesRate3").val();
+            var creditsalesrate6 = $("#CreditSalesRate6").val();
+            var creditsalesrate12 = $("#CreditSalesRate12").val();
+
+            var ProductID = getDefaultIntIfEmpty($("#ProductID").val());
+            var ColorID = getDefaultIntIfEmpty($("#ColorID").val());
+
+            var ConcernID = $(this).data("concernid");
+
+            if ((RP == "" || RP == 0)) {
+                toastr.error("Please Enter RP.");
+                return;
+            }
+            if ((MRP == "" || MRP == 0)) {
+                toastr.error("Please Enter MRP.");
+                return;
+            }
+
+            if (creditsalesrate3 == "" || creditsalesrate3 == undefined) {
+                creditsalesrate3 = cashsalesRate;
+            }
+            if (creditsalesrate6 == "" || creditsalesrate6 == undefined) {
+                creditsalesrate6 = cashsalesRate;
+            }
+            if (creditsalesrate12 == "" || creditsalesrate12 == undefined) {
+                creditsalesrate12 = cashsalesRate;
+            }
+
+
+            var SalesRateModel = {
+                'ProductID': ProductID,
+                'ColorID': ColorID,
+                'SalesRate': MRP,
+                'CreditSalesRate3': creditsalesrate3,
+                'CreditSalesRate6': creditsalesrate6,
+                'CreditSalesRate12': creditsalesrate12,
+                'MRP': RP
+            };
+
+            $.ajax({
+                url: "/Stock/UpdateEmobileSalesRate/",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(SalesRateModel),
+                success: function (data) {
+                    if (data == true) {
+                        $("#myModal").modal('hide');
+                        toastr.success('Sales Rate updated successfully.');
+                        $("#myTable").DataTable().ajax.reload();
+                    } else {
+                        toastr.error("Failed to update Sales Rate.");
+                    }
+                }
+            });
+        });
+    });
+
+    function getDefaultIntIfEmpty(value) {
+        return value == "" || value == undefined ? 0 : value;
+    }
+</script>
+
+

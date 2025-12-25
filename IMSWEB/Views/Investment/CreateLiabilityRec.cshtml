@@ -1,0 +1,143 @@
+﻿@model ShareInvestmentViewModel
+@using IMSWEB.Model
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+    ViewBag.Title = "Create Liability Rec";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Html.BeginForm("CreateLiabilityRec", controllerName, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.SIID)
+                    @Html.HiddenFor(m => m.ParentID)
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EntryDate, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            <div class='input-group date' id='EntryDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='EntryDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.EntryDate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SIHID, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.DropDownListFor(i => i.SIHID, new SelectList(Model.Heads, "SIHID", "Name"), "Select Head", new { @class = "form-control input-sm" })
+                            @Html.ValidationMessageFor(model => model.SIHID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Balance, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Balance, new { htmlAttributes = new { @class = "form-control input-sm text-right", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.Balance, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LiabilityRecType, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EnumDropDownListFor(model => model.LiabilityRecType, "Select Type", new { @class = "form-control input-sm" })
+                            @Html.ValidationMessageFor(model => model.LiabilityRecType, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Purpose, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Purpose, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                            @Html.ValidationMessageFor(model => model.Purpose, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number" } })
+                            @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-check col-md-offset-4">
+                        @Html.EditorFor(model => model.CashInHandReportStatus, new { htmlAttributes = new { @class = "form-check-input" } })
+                        @Html.LabelFor(model => model.CashInHandReportStatus, htmlAttributes: new { @class = "form-check-label" })
+                        @Html.ValidationMessageFor(model => model.CashInHandReportStatus, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-9">
+                            <input type="submit" id="liaRebtn" value="Add" class="btn btn-sm btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    $(document).ready(function () {
+
+        $('#EntryDate').datetimepicker({
+    @{
+        if (Model == null || Model.EntryDate == DateTime.MinValue)
+        {
+                @:defaultDate: moment(),
+        }
+    else
+    {
+    @:defaultDate:'@(Convert.ToDateTime(Model.EntryDate).ToString("dd-MMM-yyyy"))',
+    }
+    @:format: 'DD-MMM-YYYY'
+    }
+        });
+
+        $("#SIHID").select2();
+
+    });
+
+    $(document).on('submit', function (e) {
+        var type = $("#LiabilityRecType").val();
+        if (type == "0") {
+            e.preventDefault();
+            toastr.error("Type is required");
+            $("#LiabilityRecType").focus();
+        }
+    });
+
+
+        $(document).on('change', '#SIHID', function () {
+        $.ajax(
+            {
+                url: "@Url.Action("GetBalanceByHeadID","Investment")",
+                method: "GET",
+                data: { headID:$(this).val()},
+                contentType: "application/json",
+                success: function (data) {
+                    if (data.result === true)
+                        $("#Balance").val(data.data);
+                    else
+                        $("#Balance").val("");
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            }
+        );
+        });
+
+
+    $("#liaRebtn").click(function () {
+        setTimeout(function () { disableButton(); }, 90);
+
+    });
+
+    function disableButton() {
+        $("#liaRebtn").prop('disabled', true);
+    }
+</script>

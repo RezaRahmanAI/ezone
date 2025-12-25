@@ -1,0 +1,98 @@
+﻿@model IEnumerable<AllowanceDeductionViewModel>
+@{
+    ViewBag.Title = "Allowances";
+}
+<h4 class="text-left inline-header">Existing Allowances</h4>
+@Html.ActionLink("Create new Allowances", "Create", "AllowanceDeduction", routeValues: new { IsAllowance = true }, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+<hr />
+<table id="cashcollectionTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="code"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Code)
+            </th>
+
+            <th data-field="Name"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+
+            <th data-field="Status"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+
+            <th>
+
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Code)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+
+                    <td>
+                        @if (item.Status == 1)
+                        {
+                            <span class="label label-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="label label-danger">
+                                Inactive
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.Status == 1)
+                        {
+                            @Html.ActionLink("Inactive", "Inactive", new { id = item.AllowDeductID, IsAllowance = true })
+                            <span>|</span>
+                        }
+                        else
+                        {
+                            @Html.ActionLink("Active", "Active", new { id = item.AllowDeductID, IsAllowance = true })
+                            <span>|</span>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            @Html.ActionLink("Edit", "Edit", new { id = item.AllowDeductID, IsAllowance = true })
+                            <span>|</span>
+                            @Html.ActionLink("Delete", "Delete", new { id = item.AllowDeductID, IsAllowance = true }, new { onclick = "if(!confirm('Do you want to delete this Transaction?')) return false;" })
+                        }
+                    </td>
+                </tr>
+                count++;
+            }
+        }
+    </tbody>
+</table>

@@ -1,0 +1,222 @@
+﻿@model IEnumerable<GetProductViewModel>
+<div class="input-group">
+    <input type="text" class="input-sm form-control input-sm" id="dProductCode" name="dProductCode" readonly="readonly">
+    <span class="input-group-btn">
+        <button type="button" class="btn btn-sm btn-info" onclick="GetSalesProductByCustomerID()"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Pick</button>
+    </span>
+    <input type="text" class="input-sm form-control input-sm" id="dProductDetailsName" name="dProductDetailsName" readonly="readonly">
+    <input type="hidden" id="dProductDetailsId" name="dProductDetailsId" readonly="readonly">
+    <input type="hidden" id="dStockDetailsId" name="dStockDetailsId" readonly="readonly">
+    <input type="hidden" id="dRStockDetailsId" name="dRStockDetailsId" readonly="readonly">
+    <input type="hidden" id="dColorsId" name="dColorsId" readonly="readonly">
+    <input type="hidden" id="dOffer" name="dOfferDescription" readonly="readonly">
+    <input type="hidden" id="SODetail_Quantity" name="SODetail_Quantity" readonly="readonly">
+    <input type="hidden" id="ProductTypes" name="ProductTypes">
+</div>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-lg" id="DamageProductDetailsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="myModalLabel">Sales ProductDetails</h5>
+            </div>
+            <div class="modal-body">
+                <div id="ProductDetailstoolbar">
+                    @Html.ActionLink("Create new", "Create", "Product", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm", target = "_blank" })
+                    <span class="text-warning">&nbsp;(Requires reload current page to get new item)</span>
+                </div>
+                <div class="table-responsive" style="max-height:200px">
+                    <table id="DamageProductDetailsTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-click-to-select="true"
+                           data-single-select="true"
+                           data-detail-view="true"
+                           data-pagination="true"
+                           data-id-field="name"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="6"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th data-checkbox="true">
+                                </th>
+                                <th data-field="ProductId" class="hidden">
+                                </th>
+                                <th data-field="ColorId" class="hidden">
+                                </th>
+                                <th data-field="StockDetailsId" class="hidden">
+                                </th>
+                                <th data-field="ProductType" class="hidden"></th>
+                                <th data-field="ProductMemo"
+                                    data-sortable="true">
+                                    Invoice
+                                </th>
+                                <th data-field="ProductCode"
+                                    data-sortable="true">
+                                    Code
+                                </th>
+                                <th data-field="ProductName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Name
+                                </th>
+                                <th data-field="GodownName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Godown Name
+                                </th>
+                                <th data-field="CompanyName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Company
+                                </th>
+                                <th data-field="CategoryName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Category
+                                </th>
+
+                                <th data-field="IMENo">
+                                    IMEI
+                                </th>
+                                <th data-field="ColorName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Color
+                                </th>
+                                <th data-field="MRPRate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    MRP Rate
+                                </th>
+                                <th data-field="PreStock"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Sales Qty
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('[id*="_OfferDescription"]').text(@ViewBag.OfferDescription);
+        //$('[id*="_CurrentDue"]').trigger("input");
+        var ProductType = $("#ProductType").val();
+        if (ProductType == "2") {
+            $('[id*="_Quantity"]').attr("readonly", false);
+        }
+    });
+
+    var $table = $('#DamageProductDetailsModal');
+
+    $table.on('check.bs.table', function (e, row) {
+        $('#dCreditSalesDetailId').val(getDefaultIntIfEmpty(row.CreditSaleDetailsId));
+        $('#dProductCode').val(row.ProductCode);
+        $('#dProductDetailsName').val(row.ProductName);
+        $('#ProductTypes').val(row.ProductType);
+        $('#SODetail_ProductId').val(row.ProductId);
+        $('#dColorsId').val(row.ColorId);
+        $('#dColorName').val(row.ColorName);
+        $('#SODetail_DamageIMEINO').val(row.IMENo);
+        $('#SODetail_Quantity').val(row.PreStock);
+        $('#dUnitPrice').val(row.MRPRate);
+        $('#SODetail_MRPRate').val(row.MRPRate);
+        $('#dProductDetailsId').val(row.ProductId);
+        $('#dStockDetailsId').val(row.StockDetailsId);
+        $('#dQuantity').val(row.PreStock);
+        $('#dHireSalesId').val(row.HireSalesId).trigger('change');
+        if ($.trim(row.IMENo) == "No Barcode") {
+            $('[id*="_Quantity"]').attr("readonly", false);
+            $('#dQuantity').prop("readonly", false);
+        }
+        else {
+            $('[id*="_Quantity"]').attr("readonly", true);
+            $('#dQuantity').prop("readonly", true);
+        }
+        GetCreditSalesRemainingDueByCustomer(row.HireSalesId);
+    });
+    $table.on('uncheck.bs.table', function (e, row) {
+        $('#dProductCode').val("");
+        $('#dProductDetailsName').val("");
+        $('#dSODetail_ProductId').val("");
+        $('#dColorsId').val("");
+        $('#dColorName').val("");
+        $('#SODetail_DamageIMEINO').val("");
+        $('#dUnitPrice').val("");
+        $('#SODetail_MRPRate').val("");
+        $('#dProductDetailsId').val("");
+        $('#dStockDetailsId').val("");
+        $('#dQuantity').val("1");
+    });
+
+    //************************************************************
+    //Get All Sales Product by Customer  to generate Damage Picker
+    //************************************************************
+    function GetSalesProductByCustomerID() {
+        $("#externalDamageIMEINOError").hide();
+        var CustomerID = getDefaultFloatIfEmpty($("#CustomersId").val());
+        if (CustomerID == 0) {
+            toastr.error('Select Customer');
+            return;
+        }
+        $.ajax({
+            url: "/HireSalesReturn/GetCreditSalesProductDetailByCustomerID",
+            type: "GET",
+            data: { 'CustomerID': CustomerID },
+            dataType: "json",
+            success: function (data) {
+                _ProductDetails = data;
+                PopulateDamageProductDetailsTable(data);
+            },
+            error: function (err) {
+
+            }
+        });
+    }
+    //Generate damage product picker
+    function PopulateDamageProductDetailsTable(data) {
+
+        var $table = $("#DamageProductDetailsTable");
+        $table.bootstrapTable('removeAll')
+        $table.bootstrapTable('load', data);
+        $('#DamageProductDetailsModal').modal('toggle');
+    }
+
+
+    function GetCreditSalesRemainingDueByCustomer(hireSalesId) {
+        $("#externalDamageIMEINOError").hide();
+        var CustomerID = getDefaultFloatIfEmpty($("#CustomersId").val());
+        if (CustomerID == 0) {
+            toastr.error('Select Customer');
+            return;
+        }
+        $.ajax({
+            url: "/HireSalesReturn/GetCreditSalesRemainingDueByCustomer",
+            type: "GET",
+            data: { 'hireSaslesId': hireSalesId },
+            dataType: "json",
+            success: function (data) {
+                $('#txtCreditRemainingDue').val(getDefaultFloatIfEmpty(data));
+                $('#txtPrevCreditRemainingDue').val(getDefaultFloatIfEmpty(data));
+            },
+            error: function (err) {
+
+            }
+        });
+    }
+
+</script>

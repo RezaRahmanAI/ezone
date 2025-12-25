@@ -1,0 +1,81 @@
+﻿@using IMSWEB.Model
+@{
+    ViewBag.Title = " Concern Wise Stock Forecasting Report";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("StockForcastingReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form", @class = "form-horizontal" }))
+{
+    <input type="hidden" name="ClientDateTime" id="ClientDateTime" />
+    <div class="col-md-5 col-sm-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @if (User.IsInRole(EnumUserRoles.superadmin.ToString()) || User.IsInRole(EnumUserRoles.Admin.ToString()))
+                {
+                    <div class="form-group">
+                        @Html.Label(" Select Concern", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("ConcernID", ViewBag.Concerns as SelectList, "--Select Concern--", new { @Class = "form-control" })
+                        </div>
+                    </div>
+                }
+                @*<div class="form-group">
+                        @Html.Label("Year", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            <div class='input-group date' id='FromDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="form-group">
+                    @Html.Label("Month", htmlAttributes: new { @class = "control-label col-sm-4" })
+                    <div class="col-md-8">
+                        <div class='input-group date' id='FromDate'>
+                            <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-4">
+                        <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                    </div>
+                    <div class="col-sm-4">
+                        <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+
+<script>
+
+    $(document).ready(function () {
+        //$('#FromDate').datetimepicker({
+        //    defaultDate: moment(),
+        //    format: 'YYYY'
+        //});
+        $('#FromDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'MMM-YYYY'
+        });
+        $('[name="ConcernID"]').select2();
+
+        $("#ClientDateTime").val(moment().format('DD MMM YYYY hh:mm:ss A'));
+
+
+        $('form').submit(function () {
+            $("#ClientDateTime").val(moment().format('DD MMM YYYY hh:mm:ss A'));
+        });
+    });
+
+
+</script>

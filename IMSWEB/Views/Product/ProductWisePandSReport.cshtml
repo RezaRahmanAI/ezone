@@ -1,0 +1,74 @@
+﻿@using IMSWEB.Model
+@model PurchaseOrderViewModel
+@{
+    ViewBag.Title = "Product Wise Purchase and Sales Report";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("ProductWisePandSReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report" }, htmlAttributes: new { role = "form" }))
+{
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    @Html.Label("Product", htmlAttributes: new { @class = "control-label" })
+                    </div>
+                <div class="col-sm-4 input-group">
+                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Product, id = (Model != null && !string.IsNullOrEmpty(Model.PODetail.ProductId)) ? Model.PODetail.ProductId : "0" });}
+                    @Html.ValidationMessageFor(m => m.PODetail.ProductId, "", new { @class = "text-danger" })
+                </div>
+                </div>
+        </div>
+
+      
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                </div>
+                <div class='col-sm-4 input-group date' id='FromDate'>
+                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                    <span class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </span>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                </div>
+                <div class='col-sm-4 input-group date' id='ToDate'>
+                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                    <span class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info pull-right" />
+                </div>
+            </div>
+        </div>        
+    </div>
+}
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+</script>

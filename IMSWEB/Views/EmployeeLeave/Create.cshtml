@@ -1,0 +1,120 @@
+﻿@model EmployeeLeaveViewModel
+@using IMSWEB.Model
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["Controller"].ToString();
+    ViewBag.Title = "Emplyee Leave";
+}
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Html.BeginForm(actionName, controllerName, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.EmployeeLeaveID)
+                    @Html.HiddenFor(model => model.Status)
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeID, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && !string.IsNullOrEmpty(Model.EmployeeID)) ? Model.EmployeeID : "0" });}
+                            @Html.ValidationMessageFor(model => model.EmployeeID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LeaveDate, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            <div class='input-group date' id='LeaveDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='LeaveDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.LeaveDate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Description, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "input-sm form-control" } })
+                            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-9 col-md-offset-3">
+                            <label>@Html.EditorFor(model => model.IsPaidLeave) Paid Leave</label>
+                            @Html.ValidationMessageFor(model => model.IsPaidLeave, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LeaveType, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EnumDropDownListFor(model => model.LeaveType, "--Select Leave Type--", new { @class = "input-sm form-control" })
+                            @Html.ValidationMessageFor(model => model.LeaveType, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="IDShortLeaveHour">
+                        @Html.LabelFor(model => model.ShortLeaveHour, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.ShortLeaveHour, new { htmlAttributes = new { @class = "input-sm form-control text-right", type = "number", step = "1" } })
+                            @Html.ValidationMessageFor(model => model.ShortLeaveHour, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-offset-3 col-md-9">
+                            <input type="submit" value="Create" class="btn btn-primary btn-sm" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        if ($("#LeaveType").val() == 1) {
+            $("#IDShortLeaveHour").hide();
+        }
+        else if ($("#LeaveType").val() == 2) {
+            $("#IDShortLeaveHour").show();
+        }
+    });
+
+    $('#LeaveDate').datetimepicker({
+        @{
+        if (Model == null || Model.LeaveDate == DateTime.MinValue)
+        {
+        @:defaultDate: moment(),
+                                                                }
+        else
+        {
+        @:defaultDate: '@(Convert.ToDateTime(Model.LeaveDate).ToString("dd-MMM-yyyy"))',
+                                                                }
+        @:format: 'DD-MMM-YYYY'
+                                                            }
+    });
+
+    $("#LeaveType").on("change", function () {
+        //alert(this.value);
+        if (this.value == 1)
+        {
+            $("#IDShortLeaveHour").hide();
+        }
+        else if (this.value == 2)
+        {
+            $("#IDShortLeaveHour").show();
+        }
+    });
+
+</script>

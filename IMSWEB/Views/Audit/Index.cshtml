@@ -1,0 +1,976 @@
+﻿@model AuditViewModel
+@{
+    ViewBag.Title = "Audit Approval";
+    int count = 1;
+}
+<h4 class="inline-header">@ViewBag.Title</h4>
+@if (Model.SOrderList.Count() > 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel">
+                <h5 id="sotoolabar" class="panel-heading">
+                    Sales Order
+                </h5>
+                <div class="panel-body">
+                    <table id="salesOrderTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-show-refresh="true"
+                           data-show-toggle="true"
+                           data-show-columns="true"
+                           data-show-export="false"
+                           data-detail-view="false"
+                           data-pagination="true"
+                           data-id-field="customerName"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="15"
+                           data-toolbar="#sotoolabar"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th>Actions</th>
+                                <th data-field="invoiceNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.SOrderList.FirstOrDefault().InvoiceNo)
+                                </th>
+                                <th data-field="orderDate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.SOrderList.FirstOrDefault().OrderDate)
+                                </th>
+                               
+                                <th data-field="CustomerName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.SOrderList.FirstOrDefault().CustomerName)
+                                </th>
+                                <th data-field="ContactNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.SOrderList.FirstOrDefault().ContactNo)
+                                </th>
+                                <th data-field="TotalAmount"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.SOrderList.FirstOrDefault().DueAmount)
+                                </th>
+                                
+                                <th data-field="UserName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.SOrderList.FirstOrDefault().UserName)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in Model.SOrderList)
+                                {
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @{
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="Approved(this)" data-salesid="@item.SalesOrderId" data-salestype="1">
+                                                    Approved
+                                                </button>
+                                                <span>|</span>
+                                                <button type="button" id="btnSalesInvoiceForm" class="btn btn-primary btn-xs mr-1" onclick="AuditInvoice(this)" data-salesid="@item.SalesOrderId" data-salestype="1">Invoice</button>
+                                                }
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.InvoiceNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.OrderDate)
+                                        </td>
+                                        
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.CustomerName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ContactNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.DueAmount)
+                                        </td>
+                                        
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.UserName)
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@if (Model.HireSaleList.Count() > 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel">
+                <h5 id="cstoolbar" class="panel-heading">
+                    Credit Sales Order
+                </h5>
+                <div class="panel-body">
+                    <table id="hiresalesTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-show-refresh="true"
+                           data-show-toggle="true"
+                           data-show-columns="true"
+                           data-show-export="false"
+                           data-detail-view="false"
+                           data-pagination="true"
+                           data-id-field="customerName"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="15"
+                           data-toolbar="#cstoolbar"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th>Actions</th>
+                                <th data-field="invoiceNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.HireSaleList.FirstOrDefault().InvoiceNo)
+                                </th>
+                                <th data-field="orderDate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.HireSaleList.FirstOrDefault().OrderDate)
+                                </th>
+                                
+                                <th data-field="CustomerName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.HireSaleList.FirstOrDefault().CustomerName)
+                                </th>
+                                <th data-field="ContactNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.HireSaleList.FirstOrDefault().ContactNo)
+                                </th>
+                                <th data-field="TotalAmount"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.HireSaleList.FirstOrDefault().DueAmount)
+                                </th>
+                                
+                                <th data-field="UserName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.HireSaleList.FirstOrDefault().UserName)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in Model.HireSaleList)
+                                {
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @{
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="Approved(this)" data-salesid="@item.SalesOrderId" data-salestype="2">
+                                                    Approved
+                                                </button>
+                                                <span>|</span>
+                                                <button type="button" id="btnSalesInvoiceForm" class="btn btn-primary btn-xs mr-1" onclick="AuditInvoice(this)" data-salesid="@item.SalesOrderId" data-salestype="2">Invoice</button>
+                                            }
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.InvoiceNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.OrderDate)
+                                        </td>
+                                        
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.CustomerName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ContactNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.DueAmount)
+                                        </td>
+                                        
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.UserName)
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.Schedules.Count() > 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel">
+                <h5 id="installtoolbar" class="panel-heading">
+                    Installments
+                </h5>
+                <div class="panel-body">
+                    <table id="hiresalesTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-show-refresh="true"
+                           data-show-toggle="true"
+                           data-show-columns="true"
+                           data-show-export="false"
+                           data-detail-view="false"
+                           data-pagination="true"
+                           data-id-field="customerName"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="15"
+                           data-toolbar="#installtoolbar"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th>Actions</th>
+                                <th data-field="invoiceNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Schedules.FirstOrDefault().InvoiceNo)
+                                </th>
+                                <th data-field="orderDate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Schedules.FirstOrDefault().SalesDate)
+                                </th>
+                                <th data-field="LedgerNo"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Schedules.FirstOrDefault().ScheduleDate)
+                                </th>
+                                <th data-field="CustomerName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Schedules.FirstOrDefault().CustomerName)
+                                </th>
+                                <th data-field="ContactNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Schedules.FirstOrDefault().CustomerConctact)
+                                </th>
+                                <th data-field="TotalAmount"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Schedules.FirstOrDefault().InstallmentAmount)
+
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in Model.Schedules)
+                                {
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @{
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="Approved(this)" data-salesid="@item.CSScheduleID" data-salestype="3">
+                                                    Approved
+                                                </button>
+                                                @*<span>|</span>
+                                                    <button type="button" class="btn btn-primary btn-xs mr-1" onclick="AuditInvoice(this)" data-salesid="@item.CSScheduleID" data-salestype="3">Invoice</button>*@
+                                            }
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.InvoiceNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.SalesDate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ScheduleDate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.CustomerName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.CustomerConctact)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.InstallmentAmount)
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.CashCollectionList.Count() > 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel">
+                <h5 id="cctoolbar" class="panel-heading">
+                    Cash Collections
+                </h5>
+                <div class="panel-body">
+                    <table id="cashCollectionTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-show-refresh="true"
+                           data-show-toggle="true"
+                           data-show-columns="true"
+                           data-show-export="false"
+                           data-detail-view="false"
+                           data-pagination="true"
+                           data-id-field="customerName"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="15"
+                           data-toolbar="#cctoolbar"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th>Actions</th>
+                                <th data-field="ReceiptNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashCollectionList.FirstOrDefault().ReceiptNo)
+                                </th>
+                                <th data-field="EntryDate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashCollectionList.FirstOrDefault().EntryDate)
+                                </th>
+                                <th data-field="Code"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashCollectionList.FirstOrDefault().Code)
+                                </th>
+                                <th data-field="Name"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashCollectionList.FirstOrDefault().Name)
+                                </th>
+                                <th data-field="AccountNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashCollectionList.FirstOrDefault().AccountNo)
+                                </th>
+                                <th data-field="Amount"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashCollectionList.FirstOrDefault().Amount)
+
+                                </th>
+                                <th data-field="Remarks"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashCollectionList.FirstOrDefault().Remarks)
+                                </th>
+                               
+                                <th data-field="UserName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashCollectionList.FirstOrDefault().UserName)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in Model.CashCollectionList)
+                                {
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @{
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="Approved(this)" data-salesid="@item.Id" data-salestype="4">
+                                                    Approved
+                                                </button>
+                                                <span>|</span>
+                                                <button type="button" id="btnSalesInvoiceForm" class="btn btn-primary btn-xs mr-1" onclick="AuditInvoice(this)" data-salesid="@item.Id" data-salestype="4">Invoice</button>
+                                            }
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ReceiptNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.EntryDate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Code)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AccountNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Amount)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Remarks)
+                                        </td>
+                                        
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.UserName)
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.CashDeliveryList.Count() > 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel">
+                <h5 id="cdtoolbar" class="panel-heading">
+                    Cash delivery
+                </h5>
+                <div class="panel-body">
+                    <table id="cashCollectionTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-show-refresh="true"
+                           data-show-toggle="true"
+                           data-show-columns="true"
+                           data-show-export="false"
+                           data-detail-view="false"
+                           data-pagination="true"
+                           data-id-field="customerName"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="15"
+                           data-toolbar="#cdtoolbar"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th>Actions</th>
+                                <th data-field="ReceiptNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashDeliveryList.FirstOrDefault().ReceiptNo)
+                                </th>
+                                <th data-field="EntryDate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashDeliveryList.FirstOrDefault().EntryDate)
+                                </th>
+                                @*<th data-field="Code"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        @Html.DisplayNameFor(model => model.CashDeliveryList.FirstOrDefault().Code)
+                                    </th>*@
+                                <th data-field="Name"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashDeliveryList.FirstOrDefault().Name)
+                                </th>
+                                <th data-field="AccountNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashDeliveryList.FirstOrDefault().AccountNo)
+                                </th>
+                                <th data-field="Amount"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashDeliveryList.FirstOrDefault().Amount)
+
+                                </th>
+                                <th data-field="Remarks"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.CashDeliveryList.FirstOrDefault().Remarks)
+                                </th>
+                                @*<th data-field="UserName"
+                                        data-sortable="true">
+                                        @Html.DisplayNameFor(model => model.CashDeliveryList.FirstOrDefault().UserName)
+                                    </th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in Model.CashDeliveryList)
+                                {
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @{
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="Approved(this)" data-salesid="@item.Id" data-salestype="7">
+                                                    Approved
+                                                </button>
+                                                <span>|</span>
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="AuditInvoice(this)" data-salesid="@item.Id" data-salestype="7">Invoice</button>
+                                            }
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ReceiptNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.EntryDate)
+                                        </td>
+                                        @*<td>
+                                                @Html.DisplayFor(modelItem => item.Code)
+                                            </td>*@
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AccountNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Amount)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Remarks)
+                                        </td>
+                                        @*<td>
+                                                @Html.DisplayFor(modelItem => item.UserName)
+                                            </td>*@
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@if (Model.Incomes.Count() > 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel">
+                <h5 id="incometoolbar" class="panel-heading">
+                    Incomes
+                </h5>
+                <div class="panel-body">
+                    <table id="IncomesTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-show-refresh="true"
+                           data-show-toggle="true"
+                           data-show-columns="true"
+                           data-show-export="false"
+                           data-detail-view="false"
+                           data-pagination="true"
+                           data-id-field="customerName"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="15"
+                           data-toolbar="#incometoolbar"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th>Actions</th>
+                                <th data-field="ReceiptNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Incomes.FirstOrDefault().EntryDate)
+                                </th>
+                                <th data-field="EntryDate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Incomes.FirstOrDefault().VoucherNo)
+                                </th>
+                                <th data-field="Name"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Incomes.FirstOrDefault().ExpenseItemName)
+                                </th>
+                                <th data-field="Amount"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Incomes.FirstOrDefault().Amount)
+
+                                </th>
+                                <th data-field="Remarks"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Incomes.FirstOrDefault().Purpose)
+                                </th>
+                                <th data-field="UserName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Incomes.FirstOrDefault().UserName)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in Model.Incomes)
+                                {
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @{
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="Approved(this)" data-salesid="@item.Id" data-salestype="5">
+                                                    Approved
+                                                </button>
+                                                <span>|</span>
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="AuditInvoice(this)" data-salesid="@item.Id" data-salestype="5">Invoice</button>
+                                            }
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.EntryDate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.VoucherNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ExpenseItemName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Amount)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Purpose)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.CreatedBy)
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.Expenses.Count() > 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel">
+                <h5 id="exptoolbar" class="panel-heading">
+                    Expenses
+                </h5>
+                <div class="panel-body">
+                    <table id="IncomesTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-show-refresh="true"
+                           data-show-toggle="true"
+                           data-show-columns="true"
+                           data-show-export="false"
+                           data-detail-view="false"
+                           data-pagination="true"
+                           data-id-field="customerName"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="15"
+                           data-toolbar="#exptoolbar"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th>Actions</th>
+                                <th data-field="ReceiptNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Expenses.FirstOrDefault().EntryDate)
+                                </th>
+                                <th data-field="EntryDate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Expenses.FirstOrDefault().VoucherNo)
+                                </th>
+                                <th data-field="Name"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Expenses.FirstOrDefault().ExpenseItemName)
+                                </th>
+                                <th data-field="Amount"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Expenses.FirstOrDefault().Amount)
+
+                                </th>
+                                <th data-field="Remarks"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Expenses.FirstOrDefault().Purpose)
+
+                                </th>
+                                <th data-field="UserName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Incomes.FirstOrDefault().UserName)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in Model.Expenses)
+                                {
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @{
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="Approved(this)" data-salesid="@item.Id" data-salestype="5">
+                                                    Approved
+                                                </button>
+                                                <span>|</span>
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="AuditInvoice(this)" data-salesid="@item.Id" data-salestype="6">Invoice</button>
+
+                                            }
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.EntryDate)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.VoucherNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ExpenseItemName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Amount)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Purpose)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.CreatedBy)
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.bankTransactions.Count() > 0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel">
+                <h5 id="bttoolbar" class="panel-heading">
+                    Bank Transations
+                </h5>
+                <div class="panel-body">
+                    <table id="productTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-show-refresh="true"
+                           data-show-toggle="true"
+                           data-show-columns="true"
+                           data-show-export="true"
+                           data-detail-view="false"
+                           data-pagination="true"
+                           data-id-field="productName"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="10"
+                           data-toolbar="#bttoolbar"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th>Action</th>
+                                <th data-field="TranDate"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.bankTransactions.FirstOrDefault().TranDate)
+                                </th>
+                                <th data-field="TransactionNo"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.bankTransactions.FirstOrDefault().TransactionNo)
+                                </th>
+                                <th data-field="BankName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.bankTransactions.FirstOrDefault().BankName)
+                                </th>
+                                <th data-field="AccountName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.bankTransactions.FirstOrDefault().AccountName)
+                                </th>
+                                <th data-field="AccountNo"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.bankTransactions.FirstOrDefault().AccountNo)
+                                </th>
+                                <th data-field="TransactionType"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.bankTransactions.FirstOrDefault().TransactionType)
+                                </th>
+                                <th data-field="Amount"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.bankTransactions.FirstOrDefault().Amount)
+                                </th>
+
+                                <th data-field="Remarks"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.bankTransactions.FirstOrDefault().Remarks)
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in Model.bankTransactions)
+                                {
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @{
+                                                <button type="button" class="btn btn-primary btn-xs mr-1" onclick="Approved(this)" data-salesid="@item.BankTranID" data-salestype="8">
+                                                    Approved
+                                                </button>
+                                            }
+                                        </td>
+                                        <td>
+                                            @item.TranDate.ToString("dd MMM yyyy")
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TransactionNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.BankName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AccountName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.AccountNo)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TransactionType)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Amount)
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-info btn-remarks btn-xs" title="@item.Remarks" data-remarks="@item.Remarks" data-header="Remarks"><i class="fa fa-info"></i></button>
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+<script type="text/javascript">
+
+    function Approved(e) {
+        if (!confirm("Do you want to approve this transaction?")) {
+            return false;
+        }
+        var OrderID = $(e).data("salesid");
+        var salestype = $(e).data("salestype");
+
+        const BASE_URL = "/";
+
+        var URL = "";
+
+        if (salestype === 1) //sales
+            URL = "SalesOrder/Approved";
+        else if (salestype === 2) //hire sales
+            URL = "CreditSalesOrder/Approved";
+        else if (salestype === 3) // installment
+            URL = "CreditSalesOrder/ScheduleApproved";
+        else if (salestype === 4) // cash collection
+            URL = "CashCollection/Approved";
+        else if (salestype === 5 || salestype === 6) // Income or  Expenditure
+            URL = "Income/Approved";
+        else if (salestype === 7) // cash delivery
+            URL = "CashDelivery/Approved";
+        else if (salestype === 8) // bank transactions
+            URL = "BankTransaction/Approved";
+
+        $.ajax({
+            url: BASE_URL + URL,
+            type: "GET",
+            data: { orderId: OrderID },
+            contentType: "application/json",
+            success: function (data) {
+                if (data === true)
+                    location.reload();
+                else
+                    toastr.error("Approved failed.");
+            },
+            error: function (err) {
+                toastr.error(JSON.stringify(err));
+                console.error(JSON.stringify(err));
+            }
+        })
+
+    }
+
+
+
+    function AuditInvoice(e) {
+        var OrderID = $(e).data("salesid");
+        var salestype = $(e).data("salestype");
+        if (OrderID === "") {
+            toastr.error("Invoice is not found");
+            return false;
+        }
+        if (salestype === "") {
+            toastr.error("Sales Type is not found");
+            return false;
+        }
+
+        $('#spinner').show();
+        $.ajax({
+            url: "/Report/AuditInvoice",
+            type: "GET",
+            dataType: "html",
+            data: { OrderID: OrderID, salestype: salestype },
+            success: function (data) {
+                $('#report').html(data);
+                $('#spinner').hide();
+            },
+            error: function (err) {
+                console.error(JSON.stringify(err));
+                $('#spinner').hide();
+            }
+        });
+    }
+</script>

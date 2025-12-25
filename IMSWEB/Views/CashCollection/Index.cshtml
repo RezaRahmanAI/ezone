@@ -1,0 +1,244 @@
+﻿@*@model IEnumerable<CreateCashCollectionViewModel>*@
+@model IEnumerable<GetCashCollectionViewModel>
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Cash Collection";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+}
+<h4 class="text-left inline-header">Existing Cash Collection</h4>
+<hr />
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        @using (Html.BeginForm(actionName, controllerName, FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                    @Html.ActionLink("Create new", "Create", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<table id="cashcollectionTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="ReceiptNo"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.ReceiptNo)
+            </th>
+            <th data-field="code"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.EntryDate)
+            </th>
+            <th data-field="Code"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Code)
+            </th>
+            <th data-field="TransactionType"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.TransactionType)
+            </th>
+            <th data-field="name"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th data-field="AccountNo"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.AccountNo)
+            </th>
+            <th data-field="amount"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            @*<th data-field="transactionType"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.TransactionType)
+                </th>*@
+            <th data-field="Remarks"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Remarks)
+            </th>
+            <th>
+                Actions
+            </th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ReceiptNo)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EntryDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Code)
+                    </td>
+                    <td>
+                        @if (item.TransactionType == EnumTranType.FromCustomer)
+                        {
+                            <span class="label label-success">Collection</span>
+                        }
+                        else if (item.TransactionType == EnumTranType.CollectionPending)
+                        {
+                            <span class="label label-success">Collection Pending</span>
+                        }
+                        else if (item.TransactionType == EnumTranType.DebitAdjustment)
+                        {
+                            <span class="label label-success">Debit Adjustment</span>
+                        }
+                        else if (item.TransactionType == EnumTranType.CreditAdjustment)
+                        {
+                            <span class="label label-success">Credit Adjustment</span>
+                        }
+                       
+                        else
+                        {
+                            <span class="label label-danger">Collection Return</span>
+                        }
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Amount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Remarks)
+                    </td>
+                    @*<td>
+                            @Html.DisplayFor(modelItem => item.TransactionType)
+                        </td>*@
+                    <td>
+                        @Html.ActionLink("Money Receipt", "MoneyReceipt", new { id = item.Id }, new { @class = "btn btn-xs btn-primary" })
+                        @if (User.IsInRole(EnumUserRoles.Admin.ToString()) || User.IsInRole(EnumUserRoles.LocalAdmin.ToString()))
+                        {
+                            <span>|</span>
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-xs btn-success" })
+                            <span>|</span>
+                            @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { onclick = "if(!confirm('Do you want to delete this Transaction?')) return false;", @class = "btn btn-xs btn-danger" })
+                        }
+                    </td>
+                </tr>
+                count++;
+            }
+        }
+    </tbody>
+</table>
+
+<script>
+        $(document).ready(function () {
+
+            $('#FromDate').datetimepicker({
+                defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+                format: 'DD-MMM-YYYY'
+            });
+
+            $('#ToDate').datetimepicker({
+                defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+                format: 'DD-MMM-YYYY'
+            });
+
+            @{
+    if (TempData.ContainsKey("IsMoneyReceiptReady") && Convert.ToBoolean(TempData["IsMoneyReceiptReady"]) == true)
+    {
+        @:$.ajax({
+                    @:url: "/Report/MoneyReceipt",
+                    @:type: "GET",
+                    @:dataType: "html",
+                    @:success: function (data) {
+                        @:$('#report').html(data);
+                        @:},
+                    @:error: function (err) {
+                        @:console.error(JSON.stringify(err));
+                        @:}
+                    @:});
+                 }
+
+    if (TempData.ContainsKey("IsMoneyReceiptById") && Convert.ToBoolean(TempData["IsMoneyReceiptById"]) == true)
+    {
+        @:$.ajax({
+                @:url: "/Report/MoneyReceiptByID",
+                @:type: "GET",
+                @:dataType: "html",
+                @:success: function (data) {
+                    @:$('#report').html(data);
+                    @:},
+                @:error: function (err) {
+                    @:console.error(JSON.stringify(err));
+                    @:}
+                @:});
+     }
+}
+        });
+
+
+
+</script>

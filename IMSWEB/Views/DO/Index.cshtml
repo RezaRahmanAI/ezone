@@ -1,0 +1,186 @@
+﻿@model IEnumerable<DOViewModel>
+
+@{
+    ViewBag.Title = "Customer Sales OS";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+}
+
+<h4 class="text-left inline-header">Existing  @ViewBag.Title</h4>
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        @using (Html.BeginForm(actionName, controllerName, FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                    @Html.ActionLink("Create new", "Create", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<table id="companyTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="false"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       data-toolbar="#toolbarDiv"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="Date"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th data-field="DONo"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.DONo)
+            </th>
+            <th data-field="CustomerName"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.CustomerName)
+            </th>
+            <th data-field="TotalAmt"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.TotalAmt)
+            </th>
+            <th data-field="Remarks"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Remarks)
+            </th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @item.Date.ToString("dd MMM yyyy")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DONo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CustomerName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TotalAmt)
+                    </td>
+                    <td>
+                        <button type="button" data-remarks="@item.Remarks" data-head="Remarks" class="btn btn-info btn-remarks btn-xs">Remarks</button>
+                    </td>
+                    <td>
+                        @Html.ActionLink("Invoice", "GetInvoice", new { id = item.DOID }) |
+                        @*@Html.ActionLink("InvoiceExcel", "GetInvoiceExcel", new { id = item.DOID }) |*@
+                        @Html.ActionLink("Edit", "Edit", new { id = item.DOID }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.DOID }, new { onclick = "if(!confirm('Do you want to delete this?')) return false;" })
+                    </td>
+                </tr>
+                count++;
+            }
+
+        }
+    </tbody>
+</table>
+
+
+<script type="text/javascript">
+@{
+    if (TempData.ContainsKey("ISDOReady") && Convert.ToBoolean(TempData["ISDOReady"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/DOInvoiceReport",
+        @:type: "POST",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+      }
+}
+@{
+    if (TempData.ContainsKey("ISDOReady2") && Convert.ToBoolean(TempData["ISDOReady2"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/DOInvoiceReportExcel",
+        @:type: "POST",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+      }
+}
+
+
+    $('#FromDate').datetimepicker({
+        defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+        format: 'DD-MMM-YYYY'
+    });
+</script>

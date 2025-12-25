@@ -1,0 +1,401 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.CreateCustomerViewModel
+
+@{
+    ViewBag.Title = "SR Visit Return";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-5 col-md-offset-3">
+        <div class="panel panel-info">
+            <div class="panel-heading">Search</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-sm-4">
+                        SR Name
+                    </div>
+                    <div class="col-sm-6">
+                        @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && Model.EmployeeId != null) ? Model.EmployeeId : "0" });}
+                        @Html.ValidationMessageFor(model => model.EmployeeId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-4">
+                        <br />
+                        <img id="spinningIcon" height="45" width="45" style="display:none" src="~/Content/images/Spinner.gif" />
+                        <input type="button" class="btn btn-primary btn-sm" value="Search" id="btnSearch" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-success">
+            <div class="panel-heading">SR Visit Stocks</div>
+            <div class="panel-body">
+                <div class="table-responsive" style="max-height:300px">
+                    <table id="Salestable"
+                           class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                        <thead>
+                            <tr style="border-top:1px solid #ff6a00">
+                                <th>
+                                    Sl
+                                </th>
+                                <th data-field="ProductCode"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Code
+                                </th>
+                                <th data-field="ProductName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Product
+                                </th>
+                                <th data-field="IMEI"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    IMEI
+                                </th>
+                                <th data-field="Category"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Category
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-success">
+            <div class="panel-heading">SR Visit Return</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table>
+                            <tr>
+                                <td>
+                                    @Html.Label("Search By IMEI:", new { @class = "control-label col-sm-12" })
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <input type="text" id="SearchIMEI" class="form-control input-sm" autofocus placeholder="Enter IMEI" />
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="col-sm-8 col-sm-offset-4">
+                                            <img id="spinningIconRemove" height="45" width="45" style="display:none" src="~/Content/images/Spinner.gif" />
+                                            <input type="button" class="btn btn-primary btn-sm" value="Search" id="btnSearchRemove" />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br />
+                    <br />
+                    <hr />
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive" style="max-height:300px">
+                            <table id="SRVisitReturntable"
+                                   class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr style="border-top:1px solid #ff6a00">
+                                        <th>
+                                            Sl
+                                        </th>
+                                        <th data-field="ProductCode"
+                                            data-sorter="sorter"
+                                            data-sortable="true">
+                                            Code
+                                        </th>
+                                        <th data-field="ProductName"
+                                            data-sorter="sorter"
+                                            data-sortable="true">
+                                            Product
+                                        </th>
+                                        <th data-field="IMEI"
+                                            data-sorter="sorter"
+                                            data-sortable="true">
+                                            IMEI
+                                        </th>
+                                        <th data-field="Category"
+                                            data-sorter="sorter"
+                                            data-sortable="true">
+                                            Category
+                                        </th>
+                                        <th data-field="Remove"
+                                            data-sorter="sorter"
+                                            data-sortable="true">
+                                            Remove
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-4">
+                                <img id="spinningIconReturn" height="45" width="45" style="display:none" src="~/Content/images/Spinner.gif" />
+                                <input type="button" class="btn btn-info btn-sm" value="Return" id="btnReturn" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    //************************
+    //Searh for Showing start
+    //************************
+
+    $("#btnSearch").on('click', function () {
+        var EID = $("#EmployeesId").val();
+        if (EID == '' || EID == undefined) {
+            toastr.info("Please Select Employee.");
+            return;
+        }
+        ClearData();
+        $("#spinningIcon").show();
+        $.ajax({
+            url: "/SRVisit/GetAllIssuedIMEIBySRID",
+            type: "GET",
+            data: { 'EmployeeID': EID },
+            dataType: "json",
+            success: function (data) {
+                SetData(data);
+                //if (data.length != 0 || data.length != 0)
+                //    $("#SearchIMEI").val('');
+                //$("#SearchIMEI").attr('autofocus', 'autofocus');
+            },
+            error: function (err) {
+                ClearData();
+                console.error(JSON.stringify(err));
+            }
+        });
+    });
+
+    function ClearData() {
+        $("#spinningIcon").hide();
+        $table = $("#Salestable >tbody");
+        $table.empty();
+    }
+
+    function SetData(data) {
+
+        $("#spinningIcon").hide();
+
+        var counter = 1;
+        var $table = $("#Salestable >tbody");
+        $table.empty();
+        if (data.length != 0) {
+
+            data.forEach(function (item) {
+                var $row = $('<tr/>');
+                $row.append('<td>' + counter + '</td>' + '<td>' + item.ProductCode + '</td><td>' + item.ProductName + '</td><td>' + item.IMEI + '</td><td>' + item.CategoryName + '</td>');
+                $table.append($row);
+                counter++;
+            });
+        }
+        else {
+            var $row = $('<tr/>');
+            $row.append('<td colspan="6" ><text class="alert-danger">Data not found.</text></td>');
+            $table.append($row);
+        }
+
+    }
+
+
+    //************************
+    //Searh for Showing end
+    //************************
+
+
+    //************************
+    //Searh IMEI for removing start
+    //************************
+
+    $("#btnSearchRemove").on('click', function () {
+        var EID = $("#EmployeesId").val();
+        var IMEI = $("#SearchIMEI").val();
+        if (EID == '' || EID == undefined) {
+            toastr.info("Please Select Employee.");
+            return;
+        }
+        if (IMEI == '' || IMEI == undefined) {
+            toastr.info("Please input IMEI.");
+            $("#SearchIMEI").focus();
+            return;
+        }
+
+        $("#spinningIconRemove").show();
+
+        $.ajax({
+            url: "/SRVisit/GetStockIMEIBySRIDAndIMEI",
+            type: "GET",
+            data: { 'EmployeeID': EID, 'IMEI': IMEI },
+            dataType: "json",
+            success: function (data) {
+                SetDataForReturn(data);
+                if (data.Status == true)
+                    $("#SearchIMEI").val('');
+                $("#SearchIMEI").attr('autofocus', 'autofocus');
+            },
+            error: function (err) {
+                ClearDataForReturn();
+                //console.error(JSON.stringify(err));
+            }
+        });
+    });
+
+    function ClearDataForReturn() {
+        $("#spinningIconRemove").hide();
+        $table = $("#SRVisitReturntable >tbody");
+        $table.empty();
+    }
+
+    var RemoveIMEIList = [];
+
+    function SetDataForReturn(data) {
+        var result = false;
+        $("#spinningIconRemove").hide();
+        var counter = 1;
+        //var $table = $("#SRVisitReturntable >tbody");
+        if (data.Status == true) {
+
+            //$table.empty();
+
+            if (RemoveIMEIList.length != 0)
+            {
+                //checking duplicate
+                RemoveIMEIList.forEach(function (item) {
+                    if (item.ID != data.Data.ID) {
+                        RemoveIMEIList.push(data.Data);
+                    }
+                    else
+                        result = true;
+                });
+            }
+            else
+                RemoveIMEIList.push(data.Data);
+           
+            if (result == true)
+            {
+                toastr.error("This IMEI already added.");
+            }
+
+            //RemoveIMEIList.forEach(function (item) {
+            //    var $row = $('<tr/>');
+            //    $row.append('<td>' + counter + '</td>' + '<td>' + item.ProductCode + '</td><td>' + item.ProductName + '</td><td>' + item.IMEI + '</td><td>' + item.CategoryName + '</td><td><input type="button" class="btn btn-danger btn-sm" value="Remove" id="btnRemove" data-value="' + item.ID + '" /></td>');
+            //    $table.append($row);
+            //    counter++;
+            //});
+            GenerateReturnTable();
+        }
+        else {
+           toastr.error("IMEI not Found.")
+        }
+
+    }
+
+    function GenerateReturnTable()
+    {
+        var counter = 1;
+        var $table = $("#SRVisitReturntable >tbody");
+        $table.empty();
+
+        RemoveIMEIList.forEach(function (item) {
+            var $row = $('<tr/>');
+            $row.append('<td>' + counter + '</td>' + '<td>' + item.ProductCode + '</td><td>' + item.ProductName + '</td><td>' + item.IMEI + '</td><td>' + item.CategoryName + '</td><td><input type="button" class="btn btn-danger btn-sm" value="Remove" id="btnRemove" data-value="' + item.ID + '" /></td>');
+            $table.append($row);
+            counter++;
+        });
+    }
+
+    $(document).on('click', '#btnRemove', function () {
+        funRemove($(this).attr("data-value"));
+    });
+
+    function funRemove(ID) {
+        var Index = -1, Counter = 0;
+        RemoveIMEIList.forEach(function (item) {
+            if (item.ID == ID)
+                Index = Counter;
+
+            Counter++;
+
+        });
+
+        if (Index >= 0)
+        {
+            RemoveIMEIList.splice(Index, 1);
+            GenerateReturnTable();
+        }
+           
+    }
+
+
+    //************************
+    //Searh for removing end
+    //************************
+
+
+    //SR visit return event
+    $("#btnReturn").on('click', function () {
+
+        var EID = $("#EmployeesId").val();
+        if (EID == '' || EID == undefined) {
+            toastr.info("Please Select Employee.");
+            return;
+        }
+
+        if (RemoveIMEIList.length == 0)
+        {
+            toastr.info("Please Select IMEI First.");
+            return;
+        }
+
+        $("#spinningIconReturn").show();
+        $.ajax({
+            url: "/SRVisit/ReturnIMEIByEmployeeID",
+            type: "POST",
+            data: { 'EmployeeID': EID, 'RemoveIMEIList': RemoveIMEIList },
+            dataType: "json",
+            success: function (data) {
+                if (data == true)
+                {
+                    location.reload();
+                }
+                else
+                    toastr.info("Remove Failded.")
+                $("#spinningIconReturn").hide();
+            },
+            error: function (err) {
+                $("#spinningIconReturn").hide();
+                console.error(JSON.stringify(err));
+            }
+        });
+    });
+
+</script>

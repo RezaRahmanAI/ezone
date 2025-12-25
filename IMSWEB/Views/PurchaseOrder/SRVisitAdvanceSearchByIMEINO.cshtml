@@ -1,0 +1,281 @@
+﻿@{
+    ViewBag.Title = "SR Visit Advance Search";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group">
+                </div>
+                <div class="form-group">
+                    @Html.Label("Search By IMEI:", new { @class = "control-label col-sm-3" })
+                    <div class="col-sm-8">
+                        <input type="text" id="SearchIMEI" class="form-control input-sm" autofocus placeholder="Enter IMEI" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-3">
+                        <br />
+                        <img id="spinningIcon" height="45" width="45" style="display:none" src="~/Content/images/Spinner.gif" />
+                        <input type="button" class="btn btn-info btn-sm" value="Search" id="btnSearch" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-info">
+            <div class="panel-heading">Purchase Details</div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:bold">Challan Date: </td>
+                            <td class="text-left"><p id="ChallanDate"></p></td>
+                            <td style="font-weight:bold">Challan No: </td>
+                            <td class="text-left"><p id="ChallanNo"></p></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:bold">Supplier Code: </td>
+                            <td class="text-left"><p id="SupplierCode"></p></td>
+                            <td style="font-weight:bold">Supplier Name: </td>
+                            <td class="text-left"><p id="SupplierName"></p></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="table-responsive" style="max-height:300px">
+                    <table id="Purchasetable"
+                           class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                        <thead>
+                            <tr style="border-top:1px solid #ff6a00">
+                                <th>
+                                    Sl
+                                </th>
+                                <th data-field="ProductCode"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Code
+                                </th>
+                                <th data-field="ProductName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Product
+                                </th>
+                                <th data-field="IMEI"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    IMEI
+                                </th>
+                                <th data-field="PurchaseRate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Purchase Rate
+                                </th>
+                                <th data-field="Quantity"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    QTY
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-warning">
+            <div class="panel-heading">SR Visit Details</div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:bold">Issue Date: </td>
+                            <td><p id="InvoiceDate"></p></td>
+                            <td style="font-weight:bold">Challan No: </td>
+                            <td><p id="InvoiceNo"></p></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:bold">SR Code: </td>
+                            <td><p id="CustomerCode"></p></td>
+                            <td style="font-weight:bold">SR Name: </td>
+                            <td><p id="CustomerName"></p></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="table-responsive" style="max-height:300px">
+                    <table id="Salestable"
+                           class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                        <thead>
+                            <tr style="border-top:1px solid #ff6a00">
+                                <th>
+                                    Sl
+                                </th>
+                                <th data-field="ProductCode"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Code
+                                </th>
+                                <th data-field="ProductName"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Product
+                                </th>
+                                <th data-field="IMEI"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    IMEI
+                                </th>
+                                <th data-field="SalesRate"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Status
+                                </th>
+                                <th data-field="Quantity"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    QTY
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $("#btnSearch").on('click', function () {
+        var IMEI = $("#SearchIMEI").val();
+        if (IMEI == '' || IMEI == undefined) {
+            toastr.info("Enter IMEI");
+            return;
+        }
+        ClearData();
+        $("#spinningIcon").show();
+        $.ajax({
+            url: "/PurchaseOrder/SRVisitAdvanceSearchByIMEI",
+            type: "GET",
+            data: { 'IMEI': IMEI },
+            dataType: "json",
+            success: function (data) {
+                SetData(data);
+                if (data.AdvancePODetails.length != 0 || data.AdvanceSOrderDetails.length != 0)
+                    $("#SearchIMEI").val('');
+                $("#SearchIMEI").attr('autofocus', 'autofocus');
+            },
+            error: function (err) {
+                ClearData();
+                console.error(JSON.stringify(err));
+            }
+        });
+    });
+
+    function ClearData() {
+        $("#spinningIcon").hide();
+        var $table = $("#Purchasetable >tbody");
+        $table.empty();
+        $table = $("#Salestable >tbody");
+        $table.empty();
+    }
+
+    function ConvertToDate(date) {
+        var date = new Date(parseInt(date.substr(6)));
+        //var date = new Date(data);
+        var month = date.getMonth() + 1;
+        return date.getDate() + "/" + (month.length > 1 ? month : "0" + month) + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    }
+
+    function SetData(data) {
+
+        $("#spinningIcon").hide();
+
+        var ChallanDate = ConvertToDate(data.PurchaseDate);
+
+        var InvoiceDate = ConvertToDate(data.SalesDate);
+
+
+        var IMEI = $("#SearchIMEI").val();
+
+        var $table = $("#Purchasetable >tbody");
+        $table.empty();
+        var counter = 1;
+        if (data.AdvancePODetails.length != 0) {
+
+            $("#ChallanDate").text(ChallanDate);
+            $("#ChallanNo").text(data.ChallanNo);
+            $("#SupplierCode").text(data.SupplierCode);
+            $("#SupplierName").text(data.SupplierName);
+
+            data.AdvancePODetails.forEach(function (item) {
+
+                var $row = $('<tr/>');
+                if (IMEI == item.IMEI) {
+                    $row.append('<td>' + counter + '</td><td>' + item.ProductCode + '</td><td>' + item.ProductName + '</td><td><text class="label label-info">' + item.IMEI + '</text></td><td>' + item.PurchaseRate + '</td><td>' + item.Quantity + '</td>');
+                }
+                else
+                    $row.append('<td>' + counter + '</td><td>' + item.ProductCode + '</td><td>' + item.ProductName + '</td><td>' + item.IMEI + '</td><td>' + item.PurchaseRate + '</td><td>' + item.Quantity + '</td>');
+                $table.append($row);
+                counter++;
+            });
+        }
+        else {
+            var $row = $('<tr/>');
+            $row.append('<td colspan="6" ><text class="alert-danger">Data not found.</text></td>');
+            $table.append($row);
+            $("#ChallanDate").text('');
+            $("#ChallanNo").text('');
+            $("#SupplierCode").text('');
+            $("#SupplierName").text('');
+        }
+
+        var $table = $("#Salestable >tbody");
+        $table.empty();
+        counter = 1;
+        if (data.AdvanceSOrderDetails.length != 0) {
+
+            $("#InvoiceDate").text(InvoiceDate);
+            $("#InvoiceNo").text(data.InvoiceNo);
+            $("#CustomerCode").text(data.CustomerCode);
+            $("#CustomerName").text(data.CustomerName);
+
+            data.AdvanceSOrderDetails.forEach(function (item) {
+                var $row = $('<tr/>');
+                var Status = "";
+                if(item.Status==1)
+                    Status = '<text class="label label-info">Stock</text>';
+                else if(item.Status==2)
+                    Status = '<text class="label label-danger">Sold</text>';
+
+                if (IMEI == item.IMEI) {
+                    $row.append('<td>' + counter + '</td>' + '<td>' + item.ProductCode + '</td><td>' + item.ProductName + '</td><td><text class="label label-info">' + item.IMEI + '</text></td><td>' + Status + '</td><td>' + item.Quantity + '</td>');
+                }
+                else
+                    $row.append('<td>' + counter + '</td>' + '<td>' + item.ProductCode + '</td><td>' + item.ProductName + '</td><td>' + item.IMEI + '</td><td>' + Status + '</td><td>' + item.Quantity + '</td>');
+                $table.append($row);
+                counter++;
+            });
+        }
+        else {
+            var $row = $('<tr/>');
+            $row.append('<td colspan="6" ><text class="alert-danger">Data not found.</text></td>');
+            $table.append($row);
+            $("#InvoiceDate").text('');
+            $("#InvoiceNo").text('');
+            $("#CustomerCode").text('');
+            $("#CustomerName").text('');
+        }
+
+    }
+
+</script>

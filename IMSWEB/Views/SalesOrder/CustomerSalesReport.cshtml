@@ -1,0 +1,121 @@
+﻿@using IMSWEB.Model
+@model SalesOrderViewModel
+
+@{
+    ViewBag.Title = "Customer Wise Sales Report";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("CustomerSalesReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon",OnBegin="return ValidationFunc()" }, htmlAttributes: new { role = "form" }))
+{    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="form-group">
+                            <div class=" col-md-2">
+                                @Html.LabelFor(m => m.SalesOrder.CustomerId, new { @class = "control-label" })
+                            </div>
+                            <div class="col-md-3">
+                                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Customer, id = (Model != null && Model.SalesOrder.CustomerId != null) ? Model.SalesOrder.CustomerId : "0" });}
+                                @Html.ValidationMessageFor(m => m.SalesOrder.CustomerId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+
+                            <div class="col-md-2">
+                                @Html.Label("From Date :", htmlAttributes: new { @class = "control-label" })
+                            </div>
+                            <div class='col-md-3 input-group date' id='FromDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-2">
+                                @Html.Label("To Date :", htmlAttributes: new { @class = "control-label" })
+                            </div>
+                            <div class='col-md-3 input-group date' id='ToDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-2">
+
+                            </div>
+                            <div class='col-md-4 input-group' id='rbReportType'>
+                                @*<input id="rdoSummary" type="radio" title="Summary" value="1" name="ReportType" checked />Summary &nbsp;&nbsp;*@
+                                <input id="rdioDetail" title="Detail" type="radio" value="2" name="ReportType" checked />Detail
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-sm-4">
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </div>
+                            <div class="col-sm-4">
+                                <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+   </div>
+     
+}
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    //$(function () {
+    //    $("input#btnPreview").on('click', function () {
+    //        var CustomerId = getDefaultFloatIfEmpty($("#CustomersId").val());
+    //        if(CustomerId==0)
+    //        {
+    //            alert("Please at first select Customer");
+    //            return;
+    //        }
+    //        // Do what you want.
+    //    });
+    //});
+
+    function ValidationFunc() {
+        var CID = $("#CustomersId").val();
+        if(CID=='' || CID==undefined)
+        {
+            toastr.info("Please Select Customer.");
+            return false;
+        }
+
+        return true;
+    }
+</script>

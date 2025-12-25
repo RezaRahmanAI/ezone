@@ -1,0 +1,123 @@
+﻿.text-uppercase {
+    text-transform: uppercase !important;
+    color: #404E67;
+}
+
+.container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    width: 100%;
+}
+/*design of card*/
+.card {
+    position: relative;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    background-clip: border-box;
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 0.25rem;
+    background-color: #FFF;
+    -ms-word-wrap: break-word;
+    word-wrap: break-word;
+    margin-bottom: 1.875rem;
+    box-shadow: 0 10px 40px 0 rgb(62 57 107 / 7%), 0 2px 9px 0 rgb(62 57 107 / 6%);
+}
+
+.card-body {
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 auto;
+    min-height: 1px;
+    padding: 1.5rem;
+}
+
+/*section#minimal-statistics .d-flex {
+        display: -webkit-box !important;
+        display: -webkit-flex !important;
+        display: -ms-flexbox !important;
+        display: flex !important;
+    }
+
+
+    section#minimal-statistics .media {
+        display: flex;
+        -webkit-box-align: start;
+        -webkit-align-items: flex-start;
+        -ms-flex-align: start;
+        align-items: flex-start;
+    }*/
+
+section#minimal-statistics .align-self-center {
+    -webkit-align-self: center !important;
+    -ms-flex-item-align: center !important;
+    align-self: center !important;
+}
+
+.float-left {
+    float: left !important;
+}
+
+.primary {
+    color: #00B5B8 !important;
+}
+
+.icon-pencil {
+    font-family: Simple-Line-Icons;
+    speak: none;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+}
+
+.font-large-2 {
+    font-size: 5rem !important;
+}
+
+.warning {
+    color: #FFA87D !important;
+}
+
+.success {
+    color: #16D39A !important;
+}
+
+.danger {
+    color: #FF7588 !important;
+}
+
+h4.text-uppercase {
+    cursor: pointer
+}
+
+
+/*end design of card*/
+
+
+
+/*media quert*/
+
+@media (min-width: 1200px) {
+    section#minimal-statistics .col-xl-3 {
+        -webkit-box-flex: 0;
+        -webkit-flex: 0 0 25%;
+        -ms-flex: 0 0 25%;
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+}
+
+
+@media (min-width: 576px) {
+}

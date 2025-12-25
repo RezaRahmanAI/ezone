@@ -1,0 +1,76 @@
+﻿@model IMSWEB.CreateSisterConcernViewModel
+
+@{
+    ViewBag.Title = "VAT Report Percent Setup";
+}
+
+<h4 class="inline-header">@ViewBag.Title</h4>
+<div class="row">
+    <div class="col-md-6 col-lg-6 col-xs-12 col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="form-horizontal">
+                        @Html.ValidationSummary(true)
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Name, new { @class = "control-label col-md-4" })
+                            <div class="col-md-8">
+                                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control input-sm", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.Name)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Address, new { @class = "control-label col-md-4" })
+                            <div class="col-md-8">
+                                @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control input-sm", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.Address)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.ContactNo, new { @class = "control-label col-md-4" })
+                            <div class="col-md-8">
+                                @Html.EditorFor(model => model.ContactNo, new { htmlAttributes = new { @class = "form-control input-sm", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.ContactNo)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.SalesShowPercent, new { @class = "control-label col-md-4" })
+                            <div class="col-md-8">
+                                @Html.EditorFor(model => model.SalesShowPercent, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number" } })
+                                @Html.ValidationMessageFor(model => model.SalesShowPercent)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PurchaseShowPercent, new { @class = "control-label col-md-4" })
+                            <div class="col-md-8">
+                                @Html.EditorFor(model => model.PurchaseShowPercent, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number" } })
+                                @Html.ValidationMessageFor(model => model.PurchaseShowPercent)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.StockShowPercent, new { @class = "control-label col-md-4" })
+                            <div class="col-md-8">
+                                @Html.EditorFor(model => model.StockShowPercent, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number" } })
+                                @Html.ValidationMessageFor(model => model.StockShowPercent)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-4 col-md-8">
+                                <input type="submit" value="Update Info" class="btn btn-info btn-xs" />
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>

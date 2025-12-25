@@ -1,0 +1,124 @@
+﻿@model IMSWEB.CreateExpenditureViewModel
+@{
+    ViewBag.Title = "Customer Type Wise Cash In Hand";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<div class="row">
+    <div class="col-lg-5 col-md-5  col-sm-12 col-lg-offset-3 col-md-offset-3">
+        @using (Ajax.BeginForm("CashInHandReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                <input id="ReportType" type="radio" title="Day" value="1" name="ReportType" checked />
+                                @Html.Label("Day", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+
+                                </div>
+                            </td>
+                        </tr>
+                        @*<tr>
+                            <td>
+                                <input id="ReportType" type="radio" title="Month" value="2" name="ReportType" />
+                                @Html.Label("Month", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='Month'>
+                                    <input type='text' class="input-sm form-control" name='Month' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input id="ReportType" type="radio" title="Year" value="3" name="ReportType" />
+                                @Html.Label("Year", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='Year'>
+                                    <input type='text' class="input-sm form-control" name='Year' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>*@
+                        <tr>
+                            <td>
+                                @Html.LabelFor(model => model.CustomerType, htmlAttributes: new { @class = "control-label col-md-12" })
+                            </td>
+                            <td>
+                                @Html.EnumDropDownListFor(model => model.CustomerType, "--Select Customer Type--", new { @class = "form-control input-sm" })
+                                @Html.ValidationMessageFor(model => model.CustomerType, "", new { @class = "text-danger" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                            </td>
+                        </tr>
+                    </table>
+                    @*<div class="form-group">
+                            <div class='col-sm-10 input-group col-sm-offset-2' id='rbCustomerType'>
+                                <input id="rdoAll" type="radio" title="All" value="0" name="CustomerType" checked />All Customer &nbsp;&nbsp;
+                                <input id="rdoRetail" title="Retail" type="radio" value="1" name="CustomerType" />Retail &nbsp;&nbsp;
+                                <input id="rdoDealer" title="Dealer" type="radio" value="2" name="CustomerType" />Dealer &nbsp;&nbsp;
+                                <input id="rdoCredit" title="Credit" type="radio" value="3" name="CustomerType" />Credit
+                            </div>
+                        </div>*@
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        //$('#Month').datetimepicker({
+        //    defaultDate: moment(),
+        //    format: 'MMM-YYYY',
+        //    viewMode: "months",
+        //    toolbarPlacement: "top",
+        //    allowInputToggle: true,
+        //});
+
+        $('#FromDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY',
+        });
+
+
+        //$('#Year').datetimepicker({
+        //    defaultDate: moment(),
+        //    format: 'YYYY',
+        //    viewMode: "years",
+        //});
+
+        $("form").submit(function (e) {
+            //alert("Submitted.");
+            var Type = $("#CustomerType").val();
+            if(Type==undefined||Type=="0")
+            {
+                toastr.error("Please select customer type.");
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+
+</script>

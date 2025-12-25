@@ -1,0 +1,126 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.GetCustomerViewModel
+
+@{
+    ViewBag.Title = "Cash Collection Report";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Ajax.BeginForm("CashCollectionReportNew", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+                {
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                <label>Customer Name</label>
+                            </td>
+                            <td>
+                                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Customer, id = "0" });}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <div class='col-md-7 input-group col-md-offset-3' id='rbReportType'>
+                                <label>
+                                    <input id="rdoAll" type="radio" title="All" value="0" name="ReportType" checked />All &nbsp;&nbsp;
+                                </label>
+                                <label>
+                                    <input id="rdoRetail" title="Retail" type="radio" value="1" name="ReportType" />Cash Collection &nbsp;&nbsp;
+                                </label>
+                                <label>
+                                    <input id="rdoDealer" title="Dealer" type="radio" value="2" name="ReportType" />Cash Sales &nbsp;&nbsp;
+                                </label>
+                                <label>
+                                    <input id="rdoCredit" title="Credit" type="radio" value="3" name="ReportType" />Credit Sales &nbsp;&nbsp;
+                                </label>
+                                <label>
+                                    <input id="rdoCredit" title="Credit" type="radio" value="4" name="ReportType" />Installment Collection
+                                </label>
+                                <label>
+                                    <input id="rdoRetail" title="BankCollection" type="radio" value="5" name="ReportType" />Bank Collection &nbsp;&nbsp;
+                                </label>
+                            </div>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="col-sm-4">
+                                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                </div>
+                                <div class="col-sm-4">
+                                    <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    //$(function () {
+    //    $(".rdoAll").prop("checked", "checked");
+    //    prop
+    //});
+
+    //$('form').submit(function () {
+
+    //    var name = $.trim($('#CustomersId').val());
+    //    var chk = $('#rdoAll').prop("checked");
+
+    //    if (name === '' && !chk) {
+    //        toastr.info('No Customer Selected .');
+    //        return false;
+    //    }
+    //    if (name != '') {
+    //        $('#rdoAll').val = false;
+    //    }
+
+    //    if (chk) {
+    //        $.trim($('#CustomersId').val()) = '';
+    //    }
+
+    //});
+</script>

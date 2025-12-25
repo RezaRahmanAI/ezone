@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "Purchase Return Report";
+}
+@using IMSWEB.Model
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("DailyPurchaseReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+{
+    <input type="hidden" name="PurchaseType" value="@EnumPurchaseType.ProductReturn" />
+    <div class="col-sm-12">
+        <div class="form-group">
+            <div class="col-sm-2">
+                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+            </div>
+            <div class='col-sm-4 input-group date' id='FromDate'>
+                <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                <span class="input-group-addon">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+            </div>
+            <div class='col-sm-4 input-group date' id='ToDate'>
+                <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                <span class="input-group-addon">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </span>
+            </div>
+        </div>
+        <div class="form-group" hidden>
+            <div class="col-sm-2">
+            </div>
+            <div class='col-sm-4 input-group date' id='FromDate'>
+                <input id="rdoSummary" type="radio" title="Summary" value="1" name="ReportType" checked />Summary &nbsp;&nbsp;
+                <input id="rdioDetail" title="Detail" type="radio" value="2" name="ReportType" />Detail
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-4">
+                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+            </div>
+            <div class="col-sm-4">
+                <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+</script>

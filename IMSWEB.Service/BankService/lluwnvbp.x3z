@@ -1,0 +1,20 @@
+﻿using IMSWEB.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace IMSWEB.Service
+{
+    public interface IBankService
+    {
+        void AddBank(Bank Bank);
+        void UpdateBank(Bank Bank);
+        void SaveBank();
+        IEnumerable<Bank> GetAllBank();
+        Task<IEnumerable<Bank>> GetAllBanksync();
+        Bank GetBankById(int id);
+        void DeleteBank(int id);
+    }
+}

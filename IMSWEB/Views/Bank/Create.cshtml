@@ -1,0 +1,137 @@
+﻿@model IMSWEB.CreateBankViewModel
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Bank";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+
+@using (Html.BeginForm(actionName, "Bank", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id);
+    <div class="col-md-offset-3 col-md-5">
+        <div class="form-group">
+            @Html.LabelFor(model => model.Code, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.BankName, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.BankName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                @Html.ValidationMessageFor(model => model.BankName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.AccountNo, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.AccountNo, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                @Html.ValidationMessageFor(model => model.AccountNo, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.BranchName, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.BranchName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                @Html.ValidationMessageFor(model => model.BranchName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.AccountName, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.AccountName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                @Html.ValidationMessageFor(model => model.AccountName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.OpeningBalance, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+
+                @if (actionName.ToLower().Equals("create"))
+                {
+                    @Html.EditorFor(model => model.OpeningBalance, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", type = "number" } })
+                    @Html.ValidationMessageFor(model => model.OpeningBalance, "", new { @class = "text-danger" })
+
+                }
+                else
+                {
+                    @Html.EditorFor(model => model.OpeningBalance, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", type = "number", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(model => model.OpeningBalance, "", new { @class = "text-danger" })
+
+                }
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.TotalAmount, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.TotalAmount, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", type = "number", @readonly = "readonly" } })
+                @Html.ValidationMessageFor(model => model.TotalAmount, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-check ">
+            @Html.EditorFor(model => model.IsAdvancedDueLimitApplicable, new { htmlAttributes = new { @class = "form-check-input" } })
+            @Html.LabelFor(model => model.IsAdvancedDueLimitApplicable, htmlAttributes: new { @class = "form-check-label" })
+            @Html.ValidationMessageFor(model => model.IsAdvancedDueLimitApplicable, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.AdvancedAmountLimit, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.AdvancedAmountLimit, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", type = "number" } })
+                @Html.ValidationMessageFor(model => model.AdvancedAmountLimit, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+                <input type="submit" value="Add Bank" class="btn btn-sm btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+
+<script>
+
+    $("#OpeningBalance").on("input", function () {
+        var amount = getDefaultFloatIfEmpty($(this).val()).toFixed(2);
+        $("#TotalAmount").val(amount);
+    });
+
+    //$(function () {
+    //    $("#IsAdvancedDueLimitApplicable").change(function () {
+    //        var IsAdvancedCheack = $("#IsApplicable").is(':checked');
+    //        Visable(IsAdvancedCheack);
+    //    });
+    //});
+    //function Visable(IsAdvancedCheack) {
+
+    //    if (IsAdvancedCheack == true) {
+    //        $("#IsAdvanced").show();
+    //    }
+    //    else
+    //        $("#IsAdvanced").hide();
+
+
+    //}
+    //$(document).ready(function () {
+    //    var IsAdvancedCheack = $("#IsApplicable").is(':checked');
+    //    if (IsAdvancedCheack == true) {
+    //        Visable(IsAdvancedCheack);
+    //    }
+    //});
+
+
+
+
+</script>

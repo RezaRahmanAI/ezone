@@ -1,0 +1,126 @@
+﻿@model List<HolidayCalenderViewModel>
+    @{
+        ViewBag.Title = "Holiday Calender";
+        string actionName = ViewContext.RouteData.Values["action"].ToString();
+        int count = 1;
+    }
+
+    <h4 class="text-left inline-header">Holiday Calender.</h4>
+            @using (Html.BeginForm("Create", "HolidayCalender", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                <div class="row">
+                    <div class="col-md-8  col-md-offset-2">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <div class="col-md-6 mt-3">
+                                        <div class='input-group date' id='FromDate'>
+                                            <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="btn btn-group">
+                                            <input type="submit" value="Search" class="btn btn-info btn-sm" name="btnSearch" />
+                                            <input type="submit" value="Save" class="btn btn-primary btn-sm ml-2" name="btnSave" />
+                                            <input type="submit" value="Remove" class="btn btn-danger btn-sm ml-2" name="btnRemove" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <table id="cashcollectionTable"
+                               data-toggle="table"
+                               data-search="true"
+                               data-show-refresh="true"
+                               data-show-toggle="true"
+                               data-show-columns="true"
+                               data-show-export="true"
+                               data-detail-view="true"
+                               data-pagination="false"
+                               data-id-field="name"
+                               data-page-list="[10, 25, 50, 100, ALL]"
+                               data-page-size="31"
+                               class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Sl
+                                    </th>
+                                    <th data-field="select"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        Select
+                                    </th>
+                                    <th data-field="Date"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        Date
+                                    </th>
+                                    <th data-field="Status"
+                                        data-sortable="true">
+                                        Type
+                                    </th>
+                                    <th data-field="IsAssigned"
+                                        data-sortable="true">
+                                        Is Assigned
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var i = 0; i < Model.Count(); i++)
+                                {
+
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @Html.EditorFor(item => item[i].IsSelect)
+                                        </td>
+                                        <td>
+                                            @Html.EditorFor(item => item[i].Date, new { htmlAttributes = new { @class = "form-control input-sm", @readonly = "readonly" } })
+                                        </td>
+                                        <td>
+                                            @Html.EnumDropDownListFor(item => item[i].Type, new { @class = "form-control input-sm" })
+                                        </td>
+                                        <td>
+                                            @if (Model[i].IsAssigned == true)
+                                            {
+                                                <span class="label label-danger">Assigned</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="label label-success">Not Assigned</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                            count++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+    <script>
+        $('#FromDate').datetimepicker({
+          @{
+              if (ViewBag.SearchDate == null)
+              {
+                    @:defaultDate: moment(),
+              }
+              else
+              {
+                  @:defaultDate: '@(Convert.ToDateTime(ViewBag.SearchDate).ToString("MMMM-yyyy"))',
+              }
+            @:format: 'MMMM-YYYY'
+           }
+        });
+    </script>

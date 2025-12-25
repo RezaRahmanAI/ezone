@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1B217255-FD03-453E-AF87-33856EF2A1E4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>IMSWEB.Data</RootNamespace>
+    <AssemblyName>IMSWEB.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.1\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConstantData.cs" />
+    <Compile Include="Extentions\ADParameterBasicExtension.cs" />
+    <Compile Include="Extentions\ADParameterGradeExtension.cs" />
+    <Compile Include="Extentions\AdvanceSalaryExtensions.cs" />
+    <Compile Include="Extentions\AllAsyncForIndex.cs" />
+    <Compile Include="Extentions\AllowanceDeductionExtension.cs" />
+    <Compile Include="Extentions\AttendenceMonthExtension.cs" />
+    <Compile Include="Extentions\BankExtensions.cs" />
+    <Compile Include="Extentions\BankTransactionExtensions.cs" />
+    <Compile Include="Extentions\CardTypeSetupExtensions.cs" />
+    <Compile Include="Extentions\CashCollectionsExtensions.cs" />
+    <Compile Include="Extentions\CommissionSetupExtensions.cs" />
+    <Compile Include="Extentions\CreditInterestPercentageExtensions.cs" />
+    <Compile Include="Extentions\DOExtensions.cs" />
+    <Compile Include="Extentions\GodownExtensions.cs" />
+    <Compile Include="Extentions\DepartmentExtensions.cs" />
+    <Compile Include="Extentions\DesWiseCommissionExtensions.cs" />
+    <Compile Include="Extentions\EmpGradeSalaryAssignmentExtension.cs" />
+    <Compile Include="Extentions\EmployeeLeaveExtensions.cs" />
+    <Compile Include="Extentions\GradeExtension.cs" />
+    <Compile Include="Extentions\GradeSalaryAssignmentExtensions.cs" />
+    <Compile Include="Extentions\HolidayCalenderExtensions.cs" />
+    <Compile Include="Extentions\IdentityExtensions.cs" />
+    <Compile Include="Extentions\InvestmentExtension.cs" />
+    <Compile Include="Extentions\InvestmentHeadExtension.cs" />
+    <Compile Include="Extentions\LocationExtensions.cs" />
+    <Compile Include="Extentions\PrevBalanceExtension.cs" />
+    <Compile Include="Extentions\ReplacementExtensions.cs" />
+    <Compile Include="Extentions\ROrderExtensions.cs" />
+    <Compile Include="Extentions\SalaryMonthlyExtensions.cs" />
+    <Compile Include="Extentions\SalaryProcessorExtensions.cs" />
+    <Compile Include="Extentions\SaleOfferExtensions.cs" />
+    <Compile Include="Extentions\SMSStatusExtensions.cs" />
+    <Compile Include="Extentions\SRVisitExtensions.cs" />
+    <Compile Include="Extentions\StockExtensions.cs" />
+    <Compile Include="Extentions\EmployeeExtensions.cs" />
+    <Compile Include="Extentions\ExpenditureExtensions.cs" />
+    <Compile Include="Extentions\CreditSalesOrderExtensions.cs" />
+    <Compile Include="Extentions\SalesOrderExtensions.cs" />
+    <Compile Include="Extentions\PurchaseOrderExtensions.cs" />
+    <Compile Include="Extentions\SystemInformationExtensions.cs" />
+    <Compile Include="Extentions\SisterConcernExtensions.cs" />
+    <Compile Include="Extentions\SupplierExtensions.cs" />
+    <Compile Include="Extentions\ExpenseItemExtensions.cs" />
+    <Compile Include="Extentions\DesignationExtensions.cs" />
+    <Compile Include="Extentions\ColorExtensions.cs" />
+    <Compile Include="Extentions\CategoryExtensions.cs" />
+    <Compile Include="Extentions\CompanyExtensions.cs" />
+    <Compile Include="Extentions\CustomerExtensions.cs" />
+    <Compile Include="Extentions\MenuExtensions.cs" />
+    <Compile Include="Extentions\TargetSetupExtensions.cs" />
+    <Compile Include="Extentions\TransferExtensions.cs" />
+    <Compile Include="Extentions\UserAuditExtension.cs" />
+    <Compile Include="Extentions\UserExtensions.cs" />
+    <Compile Include="Extentions\ProductExtensions.cs" />
+    <Compile Include="IMSWEBContext.cs" />
+    <Compile Include="Infrastructure\DbFactory\DbFactory.cs" />
+    <Compile Include="Infrastructure\Disposable.cs" />
+    <Compile Include="Infrastructure\DbFactory\IDbFactory.cs" />
+    <Compile Include="Infrastructure\ExpressionBuilder.cs" />
+    <Compile Include="Infrastructure\UnitOfWork\IUnitOfWork.cs" />
+    <Compile Include="Infrastructure\UnitOfWork\UnitOfWork.cs" />
+    <Compile Include="Migrations\201708180645490_Create Identity Tables.cs" />
+    <Compile Include="Migrations\201708180645490_Create Identity Tables.Designer.cs">
+      <DependentUpon>201708180645490_Create Identity Tables.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201708180916285_Drop Role and Old User.cs" />
+    <Compile Include="Migrations\201708180916285_Drop Role and Old User.Designer.cs">
+      <DependentUpon>201708180916285_Drop Role and Old User.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201708181357188_Add Error.cs" />
+    <Compile Include="Migrations\201708181357188_Add Error.Designer.cs">
+      <DependentUpon>201708181357188_Add Error.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709080036530_Change Identity Tables Primary key.cs" />
+    <Compile Include="Migrations\201709080036530_Change Identity Tables Primary key.Designer.cs">
+      <DependentUpon>201709080036530_Change Identity Tables Primary key.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709121557432_Add Audit Trail Properties.cs" />
+    <Compile Include="Migrations\201709121557432_Add Audit Trail Properties.Designer.cs">
+      <DependentUpon>201709121557432_Add Audit Trail Properties.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709230552156_Rename CreditSalesDetails to CreditSalesSchedules.cs" />
+    <Compile Include="Migrations\201709230552156_Rename CreditSalesDetails to CreditSalesSchedules.Designer.cs">
+      <DependentUpon>201709230552156_Rename CreditSalesDetails to CreditSalesSchedules.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709230622042_Rename CreditSaleProducts to CreditSaleDetails.cs" />
+    <Compile Include="Migrations\201709230622042_Rename CreditSaleProducts to CreditSaleDetails.Designer.cs">
+      <DependentUpon>201709230622042_Rename CreditSaleProducts to CreditSaleDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\AccountingRepository\AccountingRepository.cs" />
+    <Compile Include="Repositories\AccountingRepository\IAccountingRepository.cs" />
+    <Compile Include="Repositories\AttendenceRepository\AttendenceRepository.cs" />
+    <Compile Include="Repositories\AttendenceRepository\IAttendenceRepository.cs" />
+    <Compile Include="Repositories\BankLoanCollectionRepository\BankLoanCollectionRepository.cs" />
+    <Compile Include="Repositories\BankLoanCollectionRepository\IBankLoanCollectionRepository.cs" />
+    <Compile Include="Repositories\BankTransactionRepository\BankTransactionRepository.cs" />
+    <Compile Include="Repositories\BankTransactionRepository\IBankTransactionRepository.cs" />
+    <Compile Include="Repositories\CashCollectionRepository\CashCollectionRepository.cs" />
+    <Compile Include="Repositories\CashCollectionRepository\ICashCollectionRepository.cs" />
+    <Compile Include="Repositories\CreditSalesOrderRepository\ICreditSalesOrderRepository.cs" />
+    <Compile Include="Repositories\CreditSalesOrderRepository\CreditSalesOrderRepository.cs" />
+    <Compile Include="Repositories\DORepository\DORepository.cs" />
+    <Compile Include="Repositories\DORepository\IDORepository.cs" />
+    <Compile Include="Repositories\ReturnOrderRepository\IROrderRepository.cs" />
+    <Compile Include="Repositories\ReturnOrderRepository\ROrderRepository.cs" />
+    <Compile Include="Repositories\SalaryProcessRepository\ISalaryProcessRepository.cs" />
+    <Compile Include="Repositories\SalaryProcessRepository\SalaryProcessRepository.cs" />
+    <Compile Include="Repositories\SalesOrderRepository\ISalesOrderRepository.cs" />
+    <Compile Include="Repositories\SalesOrderRepository\SalesOrderRepository.cs" />
+    <Compile Include="Repositories\PurchaseOrderRepository\PurchaseOrderRepository.cs" />
+    <Compile Include="Repositories\PurchaseOrderRepository\IPurchaseOrderRepository.cs" />
+    <Compile Include="Repositories\BaseRepository\BaseRepository.cs" />
+    <Compile Include="Repositories\BaseRepository\IBaseRepository.cs" />
+    <Compile Include="Repositories\SRVisitRepository\ISRVisitRepository.cs" />
+    <Compile Include="Repositories\SRVisitRepository\SRVisitRepository.cs" />
+    <Compile Include="Repositories\StockRepository\IStockRepository.cs" />
+    <Compile Include="Repositories\StockRepository\StockRepository.cs" />
+    <Compile Include="Repositories\TargetSetupRepository\ITargetSetupRepository.cs" />
+    <Compile Include="Repositories\TargetSetupRepository\TargetSetupRepository.cs" />
+    <Compile Include="Repositories\TransferRepository\ITransferRepository.cs" />
+    <Compile Include="Repositories\TransferRepository\TransferRepository.cs" />
+    <Compile Include="Repositories\TransferHistoryRepository\ITransferHistoryRepository.cs" />
+    <Compile Include="Repositories\TransferHistoryRepository\TransferHistoryRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="packages.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IMSWEB.Model\IMSWEB.Model.csproj">
+      <Project>{043ce8dc-b7d9-4e99-8759-408f61f2ea9e}</Project>
+      <Name>IMSWEB.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201708180645490_Create Identity Tables.resx">
+      <DependentUpon>201708180645490_Create Identity Tables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708180916285_Drop Role and Old User.resx">
+      <DependentUpon>201708180916285_Drop Role and Old User.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708181357188_Add Error.resx">
+      <DependentUpon>201708181357188_Add Error.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709080036530_Change Identity Tables Primary key.resx">
+      <DependentUpon>201709080036530_Change Identity Tables Primary key.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709121557432_Add Audit Trail Properties.resx">
+      <DependentUpon>201709121557432_Add Audit Trail Properties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709230552156_Rename CreditSalesDetails to CreditSalesSchedules.resx">
+      <DependentUpon>201709230552156_Rename CreditSalesDetails to CreditSalesSchedules.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709230622042_Rename CreditSaleProducts to CreditSaleDetails.resx">
+      <DependentUpon>201709230622042_Rename CreditSaleProducts to CreditSaleDetails.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
+</Project>

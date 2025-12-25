@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - IMS</title>
+    @Styles.Render("~/IMSStyles")
+</head>
+@Scripts.Render("~/IMSPreDOMScripts")
+<body>
+    <nav id="navbar" class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <span><img src="~/Content/images/logo.png" alt="Alternate Text" /></span>
+                    IMS
+                </a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </nav>
+    <!-- #region Breadcrumb -->
+    @Html.Raw(Html.BuildBreadcrumbNavigation())
+    <!-- #endregion -->
+    @Html.Partial("~/Views/ToastrBuilder/_Toastr.cshtml")
+    <div class="container" style="min-height: 75vh;">
+        <div id="report"></div>
+        @RenderBody()
+    </div>
+    <footer>
+        <div class="footer-bottom" id="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-5">
+                        <p class="pull-left">IMS @DateTime.Today.Year All rights reserved</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>
+                            Copyright © Object Canvas Technology
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="pull-right">
+                            <ul class="nav nav-pills payments">
+                                <li><i class="fa fa-cc-visa"></i></li>
+                                <li><i class="fa fa-cc-mastercard"></i></li>
+                                <li><i class="fa fa-cc-amex"></i></li>
+                                <li><i class="fa fa-cc-paypal"></i></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    @Scripts.Render("~/IMSPostDOMScripts")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

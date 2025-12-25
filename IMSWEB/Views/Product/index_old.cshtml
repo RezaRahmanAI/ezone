@@ -1,0 +1,164 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@model IPagedList<IMSWEB.GetProductViewModel>
+@using IMSWEB.Model
+
+
+@{
+    ViewBag.Title = "Products";
+    var sysInfo = Session["SystemInfo"] as CreateSystemInformationViewModel;
+    bool isMRPUpdateNotApplicable = (bool)ViewBag.IsMRPUpdateNotApplicable;
+}
+
+<h4 class="text-left inline-header">Existing products.</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <div class="search-pName">
+            @using (Html.BeginForm("Index", "Product", FormMethod.Post, new { }))
+            {
+                <div class="panel">
+                    <div class="panel-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="mt-3">Enter Product Name : </label>
+                                </div>
+                                <div class="col-md-7">
+                                    <input type='text' class="input-sm form-control input-sm" name='ProductName' placeholder="Enter Product Name" />
+                                </div>
+                                <div class="col-md-2">
+                                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-body">
+        @Html.ActionLink("Create new product", "Create", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right", id = "toolbar" })
+        <table id="productTable"
+               data-toggle="table"
+               data-show-refresh="true"
+               data-show-toggle="true"
+               data-show-columns="true"
+               data-show-export="true"
+               data-detail-view="true"
+               data-pagination="true"
+               data-id-field="productName"
+               data-page-list="[10, 25, 50, 100, ALL]"
+               data-page-size="15"
+               data-toolbar="#toolbar"
+               class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>
+                        Sl
+                    </th>
+                    <th data-field="code"
+                        data-sortable="true">
+                        @Html.DisplayNameFor(model => model.First().ProductCode)
+                    </th>
+                    <th data-field="productName"
+                        data-sorter="sorter"
+                        data-sortable="true">
+                        @Html.DisplayNameFor(model => model.First().ProductName)
+                    </th>
+                    <th data-field="categoryName"
+                        data-sortable="true">
+                        @Html.DisplayNameFor(model => model.First().CategoryName)
+                    </th>
+                    <th data-field="companyName"
+                        data-sortable="true">
+                        @Html.DisplayNameFor(model => model.First().CompanyName)
+                    </th>
+                    <th data-field="MRPRate"
+                        data-sortable="true">
+                        @Html.DisplayNameFor(model => model.First().MRPRate)
+                    </th>
+                   
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int count = 1;
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @count
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ProductCode)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ProductName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CategoryName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CompanyName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MRPRate)
+                            </td>
+                            @if (ViewBag.IsRPRateShow)
+                            {
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.RP)
+                                </td>
+                            }
+
+                            @*<td>
+                                @Html.DisplayFor(modelItem => item.PRate)
+                            </td>*@
+                            @if (sysInfo != null && sysInfo.IsMrpUpdateShowForManager)
+                            {
+                                if (User.IsInRole(EnumUserRoles.Admin.ToString()) || (User.IsInRole(EnumUserRoles.LocalAdmin.ToString()) || (User.IsInRole(EnumUserRoles.Manager.ToString()))))
+                                {
+                                    if (!isMRPUpdateNotApplicable)
+                                    {
+                                        <td>
+                                            <input type="button" class="btn btn-info btn-xs" title="Update Sales Rate" id="showmodalbtn" value="Update"
+                                                   data-productname="@item.ProductName" data-productid=@item.ProductId data-salesrate="@item.MRPRate" />
+                                        </td>
+                                    }
+                                }
+                            }
+
+                            <td>
+                                @if (!User.IsInRole(EnumUserRoles.MaaElectronicManager.ToString()))
+                                {
+                                    @Html.ActionLink("Edit", "Edit", new { id = item.ProductId }, new { @class = "btn btn-xs btn-info" }) <span>|</span>
+                                    @Html.ActionLink("Delete", "Delete", new { id = item.ProductId }, new { onclick = "if(!confirm('Do you want to delete this product?')) return false;", @class = "btn btn-xs btn-danger" })
+                                }
+
+
+                            </td>
+
+                        </tr>
+                        count++;
+                    }
+                }
+            </tbody>
+        </table>
+
+        @Html.PagedListPager(Model, page => Url.Action("Index", new { page }), new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayItemSliceAndTotal = true })
+
+        @Html.Partial("_MRPUpdate")
+    </div>
+</div>
+
+
+
+
+
+

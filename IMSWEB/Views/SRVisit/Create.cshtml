@@ -1,0 +1,379 @@
+﻿
+<style>
+    .col-md-4 {
+        padding-right: 0px !important;
+    }
+
+    .col-md-8 {
+        padding-left: 0px !important;
+    }
+</style>
+@using IMSWEB.Model
+@model SRVisitViewModel
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " SR Visit";
+}
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Html.BeginForm(actionName, "SRVisit", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SRVisit.ChallanNo, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.SRVisit.ChallanNo, new { htmlAttributes = new { @class = "input-sm form-control input-sm" } })
+                                    @Html.ValidationMessageFor(m => m.SRVisit.ChallanNo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SRVisit.EmployeeID, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && !string.IsNullOrEmpty(Model.SRVisit.EmployeeID)) ? Model.SRVisit.EmployeeID : "0" });}
+                                    @Html.ValidationMessageFor(m => m.SRVisit.EmployeeID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SRVisit.VisitDate, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <div class='input-group date' id='VisitDate'>
+                                        <input type='text' class="input-sm form-control input-sm" name='VisitDate' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.SRVisit.VisitDate, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SRVDetail.ProductID, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.StockProduct, id = (Model != null && !string.IsNullOrEmpty(Model.SRVDetail.ProductID)) ? Model.SRVDetail.ProductID : "0" });}
+                                    @Html.ValidationMessageFor(m => m.SRVDetail.ProductID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SRVDetail.ColorID, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Color, id = (Model != null && !string.IsNullOrEmpty(Model.SRVDetail.ColorID)) ? Model.SRVDetail.ColorID : "0" });}
+                                    @Html.ValidationMessageFor(m => m.SRVDetail.ColorID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.SRVDetail.Quantity, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.SRVDetail.Quantity, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number" } })
+                                    @Html.ValidationMessageFor(m => m.SRVDetail.Quantity, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table id="productTable"
+                   data-toggle="table"
+                   data-height="280"
+                   class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>
+                            Sl
+                        </th>
+                        <th data-field="name"
+                            data-sortable="true">
+                            @Html.DisplayNameFor(model => model.SRVDetail.ProductName)
+                        </th>
+                        <th data-field="color"
+                            data-sortable="true">
+                            @Html.DisplayNameFor(model => model.SRVDetail.ColorName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.SRVDetail.Quantity)
+                        </th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                                    int c = 1;
+                                    foreach (var item in Model.SRVDetails)
+                                    {
+                                        if (item.Status == EnumStatus.Updated || item.Status == EnumStatus.Deleted) { continue; }
+                                        <tr>
+                                            <td>
+                                                @c
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ProductName)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ColorName)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Quantity)
+                                            </td>
+                                            <td>
+                                                @Html.ActionLink("Edit", "EditFromView", new { id = item.ProductID, cid = item.ColorID, previousAction = actionName.ToLower() }, new { @class = "btn btn-xs btn-info" })
+                                            </td>
+                                            <td>
+                                                @Html.ActionLink("Delete", "DeleteFromView", new { id = item.ProductID, cid = item.ColorID, previousAction = actionName.ToLower() }, new { onclick = "if(!confirm('Do you want to delete this item?')) return false;" })
+                                            </td>
+                                        </tr>
+                                        c++;
+                                    }
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <div class="alert alert-danger" style="display:none" id="IsIMEIExistsInstockMSG"></div>
+            <table id="productIdentifierTable"
+                   data-toggle="table"
+                   data-height="255"
+                   class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>
+                            Sl
+                        </th>
+                        <th data-field="code">
+                            Name
+                        </th>
+                        <th data-field="iemi">
+                            IMEI /Barcode
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                                    int i = 1;
+                                    if (TempData["SRVProductDetails"] != null)
+                                    {
+                                        foreach (var item in (List<SRVProductDetail>)TempData["SRVProductDetails"])
+                                        {
+                                            <tr>
+                                                <td width="9.97%">@i</td>
+                                                <td width="26.84%">@Model.SRVDetail.ProductName</td>
+                                                <td width="63.18%">
+                                                    <input type="text" class="form-control input-sm input-sm" onblur="checkDuplicateIMEINo()" oninput="moveCursorToNextInput(this)" value="@item.IMENO" name="@("IMEINo" +  i.ToString())" />
+                                                </td>
+                                            </tr>
+                                            i++;
+                                        }
+                                    }
+                    }
+                </tbody>
+            </table>
+            <br />
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="pull-right">
+                        <input type="submit" class="btn btn-sm btn-primary" name="addButton" value="Add to order" />
+                        <button type="reset" class="btn btn-sm btn-danger">Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="pull-right">
+                        <input type="submit" class="btn btn-sm btn-primary pull-right" name="submitButton" value="Save order" />
+                    </div>
+                </div>
+            </div>
+            @*<div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <div class="col-md-offset-4 col-md-10">
+                                        <button type="button" class="btn btn-sm btn-info pull-right">Preview</button>
+                                        <input type="submit" class="btn btn-sm btn-primary pull-right" name="submitButton" value="Save order" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+
+        </div>
+    </div>
+}
+<script>
+    $(document).ready(function () {
+        $(window).keydown(function (event) {
+            if (event.keyCode == 10 || event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+    });
+
+    $('#VisitDate').datetimepicker({
+        @{
+                if (Model == null || Model.SRVisit.VisitDate == null)
+                {
+                    @:defaultDate: moment(),
+                                                                        }
+                else
+                {
+            @:defaultDate:'@(Convert.ToDateTime(Model.SRVisit.VisitDate).ToString("dd-MMM-yyyy"))',
+                                                                    }
+            @:format: 'DD-MMM-YYYY'
+                                                                            }
+    });
+
+    $("#SRVDetail_Quantity").on("input", function () {
+
+        var productName = $('#ProductsName').val();
+        if (productName == '') {
+            toastr['error']('Please pick a product first.');
+            return;
+        }
+
+        $("#productIdentifierTable > tbody > tr.no-records-found").html('');
+        createProductIdentifierTableRows($("#SRVDetail_Quantity").val());
+    });
+
+    function createProductIdentifierTableRows(quantity) {
+
+        var counterLimit = parseInt(quantity);
+        var preCount = 0;
+        var productName = $('#ProductsName').val();
+        var newRow = '';
+        var cols = '';
+
+        $("#productIdentifierTable tr").each(function (count, row) {
+            var $row = $(row);
+            if (!$row) return;
+            var $inputs = $row.find('input[name*="IMEINo"]');
+            if (!$inputs) return;
+            $inputs.each(function (count, input) {
+                var val = $(input).val();
+                if (val == '') {
+                    $(this).parents('tr').remove();
+                }
+                else {
+                    preCount = parseInt($(this).parent().siblings(":first").text());
+                }
+            });
+        });
+
+        for (var counter = (preCount+1); counter <= counterLimit; counter++) {
+            newRow = $("<tr>");
+            cols = "";
+            cols += '<td width="9.97%">' + counter + '</td>';
+            cols += '<td width="26.84%">' + productName + '</td>';
+            cols += '<td width="63.18%"><input type="text" class="form-control input-sm input-sm" onblur="checkDuplicateIMEINo()" oninput="moveCursorToNextInput(this)" name="IMEINo' + counter + '" id="IMEINo' + counter + '"/></td>';
+            newRow.append(cols);
+            $("#productIdentifierTable").append(newRow);
+        }
+    }
+
+
+    var timer;
+
+    function moveCursorToNextInput(txtIMEI) {
+
+        clearTimeout(timer); //cancel the previous timer.
+        timer=setTimeout(function () {
+             IsIMEIExistsInStock(txtIMEI);
+            //$inputs = $(txtIMEI).parents('tr').next('tr').find('input[name*="IMEINo"]');
+            //$inputs.each(function (count, input) {
+            //    $(input).focus();
+            //});
+
+        }, @((User.Identity.GetConcernId() == 5 || User.Identity.GetConcernId() == 6 || User.Identity.GetConcernId() == 1) ? 6000 : 500));
+    }
+
+    function IsIMEIExistsInStock(txtIMEI)
+    {
+        $("#IsIMEIExistsInstockMSG").hide();
+        var ProductID = $("#ProductsId").val();
+        var ColorID = $("#ColorsId").val();
+        if(ProductID=='')
+        {
+            toastr.info("Please Select Product.");
+            return;
+        }
+        if(ColorID=='')
+        {
+            toastr.info("Please Select Color.");
+            return;
+        }
+        if(txtIMEI.value=='')
+        {
+            toastr.info("Please Input IMEI.");
+            return;
+        }
+        $.ajax({
+            url: "/SRVisit/IsIMEIExistInStock",
+            type: "GET",
+            data: { 'ProductID':ProductID,'ColorID':ColorID,'IMEINO':txtIMEI.value },
+            dataType: "json",
+            success: function (data) {
+                if(data.Status==false)
+                {
+                    $("#IsIMEIExistsInstockMSG").show();
+                    $("#IsIMEIExistsInstockMSG").html(data.Message);
+                    $("#"+txtIMEI.id).val('');
+                }
+                else
+                {
+                    $("#IsIMEIExistsInstockMSG").hide();
+
+                    $inputs = $(txtIMEI).parents('tr').next('tr').find('input[name*="IMEINo"]');
+                    $inputs.each(function (count, input) {
+                        $(input).focus();
+                    });
+
+                }
+
+            },
+            error: function (err) {
+                console.error(JSON.stringify(err));
+                $("#"+txtIMEI.id).val('');
+            }
+        });
+    }
+
+
+    function checkDuplicateIMEINo() {
+        var previousVal = '';
+        $inputs = $('#productIdentifierTable').find('input[name*="IMEINo"]');
+        $inputs.each(function (count, input) {
+            if ($(input).val() != '' && $(input).val().toLowerCase() == previousVal.toLowerCase()) {
+                toastr['error']('Duplicate IMEI/Barcode found');
+                $(input).val('');
+                $(input).focus();
+                return;
+            }
+            previousVal = $(input).val();
+        });
+
+
+    }
+
+
+</script>

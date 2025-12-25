@@ -1,0 +1,105 @@
+﻿@model IEnumerable<IMSWEB.SMSBillPaymentViewModel>
+@using IMSWEB.Model
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+    ViewBag.Title = "SMS Bill Payment";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @Html.ActionLink("Create new", "Create", controllerName, routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm",id="toolbar" })
+                <br />
+                <table billpayid="BillTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-billpayid-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="15"
+                       data-toolbar="#toolbar"
+                       class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                Sl
+                            </th>
+                            @if (User.IsInRole(EnumUserRoles.Admin.ToString()))
+                            {
+                                <th>
+                                    Action
+                                </th>
+                            }
+                            <th data-field="ReceiptNo"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.ReceiptNo)
+                            </th>
+                            <th data-field="PaidFromDate"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.PaidFromDate)
+                            </th>
+                            <th data-field="PaidToDate"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.PaidToDate)
+                            </th>
+                            <th data-field="Amount"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Amount)
+                            </th>
+                            <th data-field="Remarks"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Remarks)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @count
+                                    </td>
+                                    @if (User.IsInRole(EnumUserRoles.Admin.ToString()))
+                                    {
+                                        <td>
+                                            @Html.ActionLink("Edit", "Edit", new { id = item.BillPayID }, new { @class = "btn btn-xs btn-success" }) |
+                                            @Html.ActionLink("Delete", "Delete", new { id = item.BillPayID }, new { onclick = "if(!confirm('Do you want to delete this color?')) return false;", @class = "btn btn-xs btn-danger" })
+                                        </td>
+                                    }
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ReceiptNo)
+                                    </td>
+                                    <td>
+                                        @item.PaidFromDate.ToString("dd MMM yyyy")
+                                    </td>
+                                    <td>
+                                        @item.PaidToDate.ToString("dd MMM yyyy")
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Amount)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Remarks)
+                                    </td>
+                                </tr>
+                                    count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

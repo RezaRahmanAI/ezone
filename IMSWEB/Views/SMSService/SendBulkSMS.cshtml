@@ -1,0 +1,84 @@
+﻿@model IEnumerable<SMSStatusViewModel>
+@using IMSWEB.Model
+
+@{
+    ViewBag.Title = "Bulk SMS";
+}
+
+<style>
+    .panel-heading {
+        padding: 5px 20px;
+    }
+
+    .panel-info {
+        border-color: #bce8f1;
+    }
+
+        .panel-info > .panel-heading {
+            color: #31708f;
+            background-color: #d9edf7;
+            border-color: #bce8f1;
+        }
+
+    .btn-info {
+        background-color: #337ab7;
+        border-color: #337ab7;
+    }
+</style>
+
+<h4 class="text-left inline-header">@ViewBag.Title</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        @using (Html.BeginForm("SendBulkSMS", "SMSService", FormMethod.Post, new { @class = "form-horizontal", id = "myform", @enctype = "multipart/form-data" }))
+        {
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div class="row">
+                        <h3 class="panel-title pull-left">Send Many SMS</h3>
+                        @Html.ActionLink("Download Template", "DownloadExcel", null, new { @class = "btn btn-info pull-right btn-sm" })
+                    </div>
+
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        @Html.Label("Upload Excel", htmlAttributes: new { @class = "control-label  col-md-3" })
+                        <div class="col-md-9">
+                            <input type="file" class="form-control-file" id="exampleFormControlFile1" name="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Message", htmlAttributes: new { @class = "control-label  col-md-3" })
+                        <div class="col-md-9">
+                            @Html.TextArea("SMS", new { id = "SMS", @class = "form-control input-sm", required = "required", @rows = "5" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                        <div class="col-md-9 col-md-offset-3">
+                            <div class="btn-group">
+                                <button id="btnPreview" type="submit" class="btn btn-sm btn-info mr-2">
+                                    <i class="fa fa-paper-plane" aria-hidden="true">&nbsp;send</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#myform").submit(function () {
+        $("#spinningIcon").show();
+    });
+</script>
+
+<script>
+
+    $(document).ready(function () {
+        $("textarea[name='SMS']").val(""); 
+    });
+
+</script>

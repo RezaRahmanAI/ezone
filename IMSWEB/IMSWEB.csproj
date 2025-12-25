@@ -1,0 +1,1046 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5AE70B52-F6E6-49B3-8FB3-26A42081D6EF}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>IMSWEB</RootNamespace>
+    <AssemblyName>IMSWEB</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac, Version=4.9.2.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.9.2\lib\net45\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Integration.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.Mvc5.4.0.2\lib\net45\Autofac.Integration.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Integration.Owin, Version=4.2.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.Owin.4.2.0\lib\net45\Autofac.Integration.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Integration.WebApi, Version=4.2.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.WebApi2.4.2.0\lib\net45\Autofac.Integration.WebApi.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper, Version=6.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\AutoMapper.6.1.1\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus, Version=5.3.2.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.5.3.2\lib\net45\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelDataReader, Version=3.4.2.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.3.4.2\lib\net45\ExcelDataReader.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentValidation">
+      <HintPath>..\packages\FluentValidation.7.1.1\lib\net45\FluentValidation.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net.Ext.Json, Version=2.0.8.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.Ext.Json.2.0.8.3\lib\net40\log4net.Ext.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.3\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.3\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Owin, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.2.1\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin, Version=3.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.3.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=3.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security, Version=3.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.3.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=3.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.3.1.0\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.OAuth, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.2.1.0\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Common, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.140.1.291.2731477-rc\lib\net40\Microsoft.ReportViewer.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.DataVisualization, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.140.1.291.2731477-rc\lib\net40\Microsoft.ReportViewer.DataVisualization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Design, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.140.1.291.2731477-rc\lib\net40\Microsoft.ReportViewer.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.140.1.291.2731477-rc\lib\net40\Microsoft.ReportViewer.ProcessingObjectModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebDesign, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.140.1.291.2731477-rc\lib\net40\Microsoft.ReportViewer.WebDesign.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebForms, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.140.1.291.2731477-rc\lib\net40\Microsoft.ReportViewer.WebForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WinForms, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.140.1.291.2731477-rc\lib\net40\Microsoft.ReportViewer.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportingServices.ReportViewerControl.WebForms.140.1.291.2731477-rc\lib\net40\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=3.2.1.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.3.2.1\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="PagedList, Version=1.17.0.0, Culture=neutral, PublicKeyToken=abbb863e9397c5e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\PagedList.1.17.0.0\lib\net40\PagedList.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PagedList.Mvc, Version=4.5.0.0, Culture=neutral, PublicKeyToken=abbb863e9397c5e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\PagedList.Mvc.4.5.0.0\lib\net40\PagedList.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="Purplelight.Framework.Autofac.Integration.WebApi, Version=0.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Purplelight.Framework.Autofac.Integration.WebApi.0.2.2\lib\net45\Purplelight.Framework.Autofac.Integration.WebApi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RestSharp, Version=104.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.104.0\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebGrease">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.5.2\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <Private>True</Private>
+      <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ApplicationInsights">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.2.2.0\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.Agent.Intercept">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.0.6\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.DependencyCollector">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.2.0\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.PerfCounterCollector">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.2.0\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.2.0\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.WindowsServer">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.2.0\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AI.Web">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.2.0\lib\net45\Microsoft.AI.Web.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="APIController\AttendenceController.cs" />
+    <Compile Include="AppData\ConstantData.cs" />
+    <Compile Include="App_Start\AuthConfig.cs" />
+    <Compile Include="App_Start\AutofacConfig.cs" />
+    <Compile Include="App_Start\AutoMapperConfiguration.cs" />
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Barcode\Code128Content.cs" />
+    <Compile Include="Barcode\Code128Rendering.cs" />
+    <Compile Include="Barcode\PrintInvoice.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AdvanceSalaryController.cs" />
+    <Compile Include="Controllers\AllowanceDeductionController.cs" />
+    <Compile Include="Controllers\AllowancesRuleSetupController.cs" />
+    <Compile Include="Controllers\AuditController.cs" />
+    <Compile Include="Controllers\AutoPurchaseOrderController.cs" />
+    <Compile Include="Controllers\BankController.cs" />
+    <Compile Include="Controllers\BankLoanCollectionController.cs" />
+    <Compile Include="Controllers\BankLoanController.cs" />
+    <Compile Include="Controllers\BankTransactionController.cs" />
+    <Compile Include="Controllers\BarcodeCreditSalesOrderController.cs" />
+    <Compile Include="Controllers\BarcodeSalesOrderController.cs" />
+    <Compile Include="Controllers\CardTypeController.cs" />
+    <Compile Include="Controllers\CardTypeSetupController.cs" />
+    <Compile Include="Controllers\CashCollectionController.cs" />
+    <Compile Include="Controllers\CashDeliveryController.cs" />
+    <Compile Include="Controllers\CategoryController.cs" />
+    <Compile Include="Controllers\CommisssionSetupController.cs" />
+    <Compile Include="Controllers\CreditInterestPercentageController.cs" />
+    <Compile Include="Controllers\DamagePOReturnController.cs" />
+    <Compile Include="Controllers\DamagePurchaseOrderController.cs" />
+    <Compile Include="Controllers\DOController.cs" />
+    <Compile Include="Controllers\ECOMPurchaseOrderController.cs" />
+    <Compile Include="Controllers\ECOMSalesOrderController.cs" />
+    <Compile Include="Controllers\EmobileCashCollectionController.cs" />
+    <Compile Include="Controllers\EmobileCashDeliveryController.cs" />
+    <Compile Include="Controllers\EmobileCreditSalesOrderController.cs" />
+    <Compile Include="Controllers\EmobilePurchaseOrderController.cs" />
+    <Compile Include="Controllers\EmobileSalesOrderController.cs" />
+    <Compile Include="Controllers\EmployeeCommisionController.cs" />
+    <Compile Include="Controllers\GodownController.cs" />
+    <Compile Include="Controllers\DeductionsRuleSetupController.cs" />
+    <Compile Include="Controllers\DepartmentController.cs" />
+    <Compile Include="Controllers\EmployeeLeaveController.cs" />
+    <Compile Include="Controllers\GodownToGodownTransController.cs" />
+    <Compile Include="Controllers\GradeController.cs" />
+    <Compile Include="Controllers\GradeSalaryAssignmentController.cs" />
+    <Compile Include="Controllers\HireSalesReturnController.cs" />
+    <Compile Include="Controllers\HolidayCalenderController.cs" />
+    <Compile Include="Controllers\IncomeController.cs" />
+    <Compile Include="Controllers\InvestmentController.cs" />
+    <Compile Include="Controllers\InvestmentHeadController.cs" />
+    <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\ExpenditureController.cs" />
+    <Compile Include="Controllers\ManualAttendenceController.cs" />
+    <Compile Include="Controllers\MonthlyAttendController.cs" />
+    <Compile Include="Controllers\NewPickerController.cs" />
+    <Compile Include="Controllers\ParentCategoryController.cs" />
+    <Compile Include="Controllers\PaymentController.cs" />
+    <Compile Include="Controllers\PickerController.cs" />
+    <Compile Include="Controllers\CreditSalesOrderController.cs" />
+    <Compile Include="Controllers\POReturnController.cs" />
+    <Compile Include="Controllers\PurchaseDOController.cs" />
+    <Compile Include="Controllers\SOReplacementOrderController.cs" />
+    <Compile Include="Controllers\ReplacementOrderController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\MenuController.cs" />
+    <Compile Include="Controllers\ReturnController.cs" />
+    <Compile Include="Controllers\ReturnOrderController.cs" />
+    <Compile Include="Controllers\SalaryProcessController.cs" />
+    <Compile Include="Controllers\SaleOfferController.cs" />
+    <Compile Include="Controllers\SalesOrderController.cs" />
+    <Compile Include="Controllers\PurchaseOrderController.cs" />
+    <Compile Include="Controllers\SMSBillPaymentController.cs" />
+    <Compile Include="Controllers\SMSServiceController.cs" />
+    <Compile Include="Controllers\SRVisitController.cs" />
+    <Compile Include="Controllers\StockController.cs" />
+    <Compile Include="Controllers\SisterConcernController.cs" />
+    <Compile Include="Controllers\EmployeeController.cs" />
+    <Compile Include="Controllers\SupplierController.cs" />
+    <Compile Include="Controllers\ExpenseItemController.cs" />
+    <Compile Include="Controllers\DesignationController.cs" />
+    <Compile Include="Controllers\ColorController.cs" />
+    <Compile Include="Controllers\CompanyController.cs" />
+    <Compile Include="Controllers\CustomerController.cs" />
+    <Compile Include="Controllers\RoleController.cs" />
+    <Compile Include="Controllers\SystemInformationController.cs" />
+    <Compile Include="Controllers\TargetSetupController.cs" />
+    <Compile Include="Controllers\TransferController.cs" />
+    <Compile Include="Controllers\UploadAttendenceController.cs" />
+    <Compile Include="Controllers\UserAuditController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\ProductController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\VATSetupController.cs" />
+    <Compile Include="Extensions\HtmlNavigationMenuExtension.cs" />
+    <Compile Include="Extensions\HtmlNavigationMenuExtensionOld.cs" />
+    <Compile Include="Extensions\HtmlBreadCrumbExtension.cs" />
+    <Compile Include="Extensions\IdentityExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\PaymentHelper.cs" />
+    <Compile Include="Infrastructure\ApplicationClaimType.cs" />
+    <Compile Include="Infrastructure\AuthFilter.cs" />
+    <Compile Include="Infrastructure\Core\CoreController.cs" />
+    <Compile Include="Infrastructure\Identity\ApplicationSignInManager.cs" />
+    <Compile Include="Infrastructure\Identity\EmailService.cs" />
+    <Compile Include="Infrastructure\Identity\SmsService.cs" />
+    <Compile Include="Infrastructure\Identity\ApplicationUserManager.cs" />
+    <Compile Include="Infrastructure\Toastr\ToastMessage.cs" />
+    <Compile Include="Infrastructure\Toastr\Toastr.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\AccountViewModels.cs" />
+    <Compile Include="ViewModels\AdvanceSalaryViewModel.cs" />
+    <Compile Include="ViewModels\AllowanceDeductionViewModel.cs" />
+    <Compile Include="ViewModels\AllowancesRuleSetupViewModel.cs" />
+    <Compile Include="ViewModels\AttendenceMonthViewModel.cs" />
+    <Compile Include="ViewModels\AttendenceViewModel.cs" />
+    <Compile Include="ViewModels\AuditViewModel.cs" />
+    <Compile Include="ViewModels\BankLoanCollectionVM.cs" />
+    <Compile Include="ViewModels\BankTransactionViewModels.cs" />
+    <Compile Include="ViewModels\CardTypeSetupViewModel.cs" />
+    <Compile Include="ViewModels\CardTypeViewModel.cs" />
+    <Compile Include="ViewModels\CashCollectionViewModels.cs" />
+    <Compile Include="ViewModels\CategoryViewModels.cs" />
+    <Compile Include="ViewModels\CommissionSetupViewModel.cs" />
+    <Compile Include="ViewModels\CreateBankLoanVM.cs" />
+    <Compile Include="ViewModels\CreditInterestPercentageViewModel.cs" />
+    <Compile Include="ViewModels\DOViewModel.cs" />
+    <Compile Include="ViewModels\DueSalaryViewModel.cs" />
+    <Compile Include="ViewModels\EmpCommissionVM.cs" />
+    <Compile Include="ViewModels\GodownViewModels.cs" />
+    <Compile Include="ViewModels\CreateBankViewModel.cs" />
+    <Compile Include="ViewModels\DepartmentViewModel.cs" />
+    <Compile Include="ViewModels\DesWiseCommissionViewModel.cs" />
+    <Compile Include="ViewModels\EmpGradeSalaryAssignmentViewModel.cs" />
+    <Compile Include="ViewModels\EmployeeLeaveViewModel.cs" />
+    <Compile Include="ViewModels\GetSalarySheetViewModel.cs" />
+    <Compile Include="ViewModels\GradeViewModel.cs" />
+    <Compile Include="ViewModels\HolidayCalenderViewModel.cs" />
+    <Compile Include="ViewModels\InvestmentheadViewModel.cs" />
+    <Compile Include="ViewModels\LocationViewModels.cs" />
+    <Compile Include="ViewModels\ManageViewModel.cs" />
+    <Compile Include="ViewModels\ManualAttendenceVM.cs" />
+    <Compile Include="ViewModels\MonthlyAttendenceVM.cs" />
+    <Compile Include="ViewModels\ParentCategoryViewModel.cs" />
+    <Compile Include="ViewModels\ReplacementOrderListVM.cs" />
+    <Compile Include="ViewModels\ROrderViewModels.cs" />
+    <Compile Include="ViewModels\SalaryMonthlyViewModels.cs" />
+    <Compile Include="ViewModels\SalaryProcessErrorVM.cs" />
+    <Compile Include="ViewModels\SalaryProcessViewModel.cs" />
+    <Compile Include="ViewModels\SaleOfferViewModels.cs" />
+    <Compile Include="ViewModels\CreditSalesOrderViewModels.cs" />
+    <Compile Include="ViewModels\ShareInvestmentViewModel.cs" />
+    <Compile Include="ViewModels\SisterConcernPayVM.cs" />
+    <Compile Include="ViewModels\SMSBillPaymentViewModel.cs" />
+    <Compile Include="ViewModels\SMSStatusViewModel.cs" />
+    <Compile Include="ViewModels\SRVisitViewModels.cs" />
+    <Compile Include="ViewModels\StockViewModels.cs" />
+    <Compile Include="ViewModels\ExpenditureViewModels.cs" />
+    <Compile Include="ViewModels\SalesOrderViewModels.cs" />
+    <Compile Include="ViewModels\PurchaseOrderViewModels.cs" />
+    <Compile Include="ViewModels\SisterConcernViewModels.cs" />
+    <Compile Include="ViewModels\EmployeeViewModels.cs" />
+    <Compile Include="ViewModels\SupplierViewModels.cs" />
+    <Compile Include="ViewModels\ExpenseItemViewModels.cs" />
+    <Compile Include="ViewModels\DesignationViewModels.cs" />
+    <Compile Include="ViewModels\CompanyViewModels.cs" />
+    <Compile Include="ViewModels\CustomerViewModels.cs" />
+    <Compile Include="ViewModels\Mappings\DomainToViewModelMappingProfile.cs" />
+    <Compile Include="ViewModels\Mappings\ViewModelToDomainMappingProfile.cs" />
+    <Compile Include="ViewModels\ColorViewModels.cs" />
+    <Compile Include="ViewModels\ProductViewModels.cs" />
+    <Compile Include="ViewModels\RoleViewModels.cs" />
+    <Compile Include="ViewModels\SystemInformationViewModels.cs" />
+    <Compile Include="ViewModels\MenuViewModels.cs" />
+    <Compile Include="ViewModels\TargetSetupViewModel.cs" />
+    <Compile Include="ViewModels\TransferHistoryViewModel.cs" />
+    <Compile Include="ViewModels\TransferViewModel.cs" />
+    <Compile Include="ViewModels\UserViewModels.cs" />
+    <Compile Include="ViewModels\Validators\AccountViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\BankTransactionViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\BankViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\CashCollectionViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\CategoryViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\GodownViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\LocationViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\ReturnOrderViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\ExpenditureViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\PurchaseOrderViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\SaleOfferViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\SisterConcernViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\EmployeeViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\SupplierViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\ExpenseItemViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\DesignationViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\CompanyViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\CustomerViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\ColorViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\ProductViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\RoleViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\SystemInformationViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\MenuViewModelValidator.cs" />
+    <Compile Include="ViewModels\Validators\UserViewModelValidator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\data-table\bootstrap-table.min.css" />
+    <Content Include="Content\datetime-picker\bootstrap-datetimepicker.min.css" />
+    <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\home-dashboard.css" />
+    <Content Include="Content\images\404-NotFound.jpg" />
+    <Content Include="Content\images\accounting-700x550.jpg" />
+    <Content Include="Content\images\amounts.png" />
+    <Content Include="Content\images\company-logo.jpg" />
+    <Content Include="Content\images\cs.jpg" />
+    <Content Include="Content\images\cs2.jpg" />
+    <Content Include="Content\images\dashboard.jpg" />
+    <Content Include="Content\images\dms.jpg" />
+    <Content Include="Content\images\ebike.jpg" />
+    <Content Include="Content\images\Error-Page.png" />
+    <Content Include="Content\images\login_bg.jpg" />
+    <Content Include="Content\images\logo.png" />
+    <Content Include="Content\images\Mask-group.png" />
+    <Content Include="Content\images\navbar-bg.jpg" />
+    <Content Include="Content\images\realstate.jpg" />
+    <Content Include="Content\images\Spinner.gif" />
+    <Content Include="Content\images\tk_icon.png" />
+    <Content Include="Content\images\ui-icons_444444_256x240.png" />
+    <Content Include="Content\images\ui-icons_555555_256x240.png" />
+    <Content Include="Content\images\ui-icons_777620_256x240.png" />
+    <Content Include="Content\images\ui-icons_777777_256x240.png" />
+    <Content Include="Content\images\ui-icons_cc0000_256x240.png" />
+    <Content Include="Content\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Content\jquery-ui.css" />
+    <Content Include="Content\jquery-ui.structure.css" />
+    <Content Include="Content\jquery-ui.theme.css" />
+    <Content Include="Content\PagedList.css" />
+    <Content Include="Content\select2\select2-bootstrap.min.css" />
+    <Content Include="Content\select2\select2.min.css" />
+    <Content Include="Content\site.css" />
+    <Content Include="Content\toastr\toastr.css" />
+    <Content Include="favicon.ico" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Global.asax" />
+    <Content Include="log4net.Ext.Json.LICENSE.txt" />
+    <Content Include="log4net.Ext.Json.README.txt" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="ApplicationInsights.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\fonts\fontawesome-webfont.eot" />
+    <Content Include="Content\fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\fonts\fontawesome-webfont.woff2" />
+    <Content Include="Content\fonts\FontAwesome.otf" />
+    <Content Include="libman.json" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="AppData\templates\PO_EXCEL_TEMPLATE.xlsx" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\data-table\bootstrap-table-export.js" />
+    <Content Include="Scripts\data-table\bootstrap-table.min.js" />
+    <Content Include="Scripts\data-table\tableExport.js" />
+    <Content Include="Scripts\datetime-picker\bootstrap-datetimepicker.min.js" />
+    <Content Include="Scripts\datetime-picker\moment-with-locales.min.js" />
+    <Content Include="Scripts\emobilemrpupdate.js" />
+    <Content Include="Scripts\fusion-chart\fusioncharts-jquery-plugin.js" />
+    <Content Include="Scripts\fusion-chart\fusioncharts.charts.js" />
+    <Content Include="Scripts\fusion-chart\fusioncharts.js" />
+    <Content Include="Scripts\fusion-chart\fusioncharts.theme.fint.js" />
+    <Content Include="Scripts\fusion-chart\transcoder-htmltable\transcoder-htmltable.js" />
+    <None Include="Scripts\jquery-1.12.4.intellisense.js" />
+    <Content Include="Scripts\jquery-1.12.4.js" />
+    <Content Include="Scripts\jquery-1.12.4.min.js" />
+    <Content Include="Scripts\jquery-ui.js" />
+    <Content Include="Scripts\jquery.js" />
+    <Content Include="Scripts\jquery-1.12.4.min.map" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.ui.autocomplete.scroll.js" />
+    <Content Include="Scripts\jquery.ui.autocomplete.scroll.min.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\mrpupdate.js" />
+    <Content Include="Scripts\productConfig.js" />
+    <Content Include="Scripts\respond.js" />
+    <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\select2\select2.min.js" />
+    <Content Include="Scripts\site.js" />
+    <Content Include="Scripts\toastr\toastr.js" />
+    <Content Include="SideBar\css\SideBar.css" />
+    <Content Include="SideBar\js\SideBar.js" />
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Account\ConfirmEmail.cshtml" />
+    <Content Include="Views\Account\ForgotPassword.cshtml" />
+    <Content Include="Views\Account\ForgotPasswordConfirmation.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Account\ResetPassword.cshtml" />
+    <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
+    <Content Include="Views\Shared\Lockout.cshtml" />
+    <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\ToastrBuilder\_Toastr.cshtml" />
+    <Content Include="Views\Product\Create.cshtml" />
+    <Content Include="Views\Product\index_old.cshtml" />
+    <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\Role\Index.cshtml" />
+    <Content Include="Views\Customer\Index.cshtml" />
+    <Content Include="Views\Customer\Create.cshtml" />
+    <Content Include="Views\Company\Index.cshtml" />
+    <Content Include="Views\Company\Create.cshtml" />
+    <Content Include="Views\Category\Index.cshtml" />
+    <Content Include="Views\Category\Create.cshtml" />
+    <Content Include="Views\Color\Index.cshtml" />
+    <Content Include="Views\Color\Create.cshtml" />
+    <Content Include="Views\Role\Create.cshtml" />
+    <Content Include="Views\Designation\Create.cshtml" />
+    <Content Include="Views\Designation\Index.cshtml" />
+    <Content Include="Views\ExpenseItem\Create.cshtml" />
+    <Content Include="Views\ExpenseItem\Index.cshtml" />
+    <Content Include="Views\Supplier\Create.cshtml" />
+    <Content Include="Views\Supplier\Index.cshtml" />
+    <Content Include="Views\Employee\Create.cshtml" />
+    <Content Include="Views\Employee\Index.cshtml" />
+    <Content Include="Views\SisterConcern\Index.cshtml" />
+    <Content Include="Views\Pickers\_CompanyPicker.cshtml" />
+    <Content Include="Views\Pickers\_ProductPicker.cshtml" />
+    <Content Include="Views\PurchaseOrder\Create.cshtml" />
+    <Content Include="Views\PurchaseOrder\Index.cshtml" />
+    <Content Include="Views\SystemInformation\Index.cshtml" />
+    <Content Include="Views\SisterConcern\Create.cshtml" />
+    <Content Include="Views\SalesOrder\Index.cshtml" />
+    <Content Include="Views\SalesOrder\Create.cshtml" />
+    <Content Include="Views\Expenditure\Index.cshtml" />
+    <Content Include="Views\Expenditure\Create.cshtml" />
+    <Content Include="Views\CreditSalesOrder\Create.cshtml" />
+    <Content Include="Views\CreditSalesOrder\Index.cshtml" />
+    <Content Include="Views\Expenditure\MiscellaneousReport.cshtml" />
+    <Content Include="Views\Shared\_ReportViewer.cshtml" />
+    <Content Include="Views\Stock\Index.cshtml" />
+    <Content Include="Views\CashCollection\Index.cshtml" />
+    <Content Include="Views\CashCollection\Create.cshtml" />
+    <Content Include="web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\SalesOrder\DailySalesReport.cshtml" />
+    <Content Include="Views\PurchaseOrder\DailyPurchaseReport.cshtml" />
+    <Content Include="Views\Pickers\_ColorPicker.cshtml" />
+    <Content Include="Views\Pickers\_CategoryPicker.cshtml" />
+    <Content Include="Views\Pickers\_CustomerPicker.cshtml" />
+    <Content Include="Views\Pickers\_SupplierPicker.cshtml" />
+    <Content Include="Views\Pickers\_EmployeePicker.cshtml" />
+    <Content Include="Views\Pickers\_ProductDetailPicker.cshtml" />
+    <Content Include="Views\SalesOrder\YearlySalesReport.cshtml" />
+    <Content Include="Views\SalesOrder\MonthlySalesReport.cshtml" />
+    <Content Include="Views\Stock\StockReport.cshtml" />
+    <Content Include="Views\User\Create.cshtml" />
+    <Content Include="404Error.html" />
+    <Content Include="Views\SalesOrder\CustomerSalesReport.cshtml" />
+    <Content Include="Views\PurchaseOrder\YearlyPurchaseReport.cshtml" />
+    <Content Include="Views\PurchaseOrder\MonthlyPurchaseReport.cshtml" />
+    <Content Include="Views\Menu\Index.cshtml" />
+    <Content Include="Views\Menu\Create.cshtml" />
+    <Content Include="Views\Manage\Edit.cshtml" />
+    <Content Include="Views\CreditSalesOrder\UpComingScheduleReport.cshtml" />
+    <Content Include="Views\CreditSalesOrder\InstallmentCollectionReport.cshtml" />
+    <Content Include="Views\SaleOffer\Index.cshtml" />
+    <Content Include="Views\SaleOffer\Create.cshtml" />
+    <Content Include="Views\SalesOrder\MOWiseSalesReport.cshtml" />
+    <Content Include="Views\CashDelivery\Index.cshtml" />
+    <Content Include="Views\CashDelivery\Create.cshtml" />
+    <Content Include="Views\PurchaseOrder\SuplierWisePurchaseReport.cshtml" />
+    <Content Include="Views\Customer\ConcernWiseCustomerDueRpt.cshtml" />
+    <Content Include="Views\Supplier\ConcernWiseSupplierDueRpt.cshtml" />
+    <Content Include="Views\ReturnOrder\Index.cshtml" />
+    <Content Include="Views\ReturnOrder\Create.cshtml" />
+    <Content Include="Views\CashCollection\CashCollectionReport.cshtml" />
+    <Content Include="Views\CashDelivery\CashDeliveryReport.cshtml" />
+    <Content Include="Views\Stock\StockDetails.cshtml" />
+    <Content Include="Views\SRVisit\Index.cshtml" />
+    <Content Include="Views\SRVisit\Create.cshtml" />
+    <Content Include="Views\SalesOrder\MOWiseCustomerDue.cshtml" />
+    <Content Include="Views\SalesOrder\MOWiseSDetailsReport.cshtml" />
+    <Content Include="Views\Stock\ProductWisePriceProtection.cshtml" />
+    <Content Include="Views\Product\ProductWisePandSReport.cshtml" />
+    <Content Include="Views\SRVisit\SRVisitStatusReport.cshtml" />
+    <Content Include="Views\Customer\Create.mobile.cshtml" />
+    <Content Include="Views\SalesOrder\Create.mobile.cshtml" />
+    <Content Include="Views\Pickers\_ProductDetailPicker.mobile.cshtml" />
+    <Content Include="Views\SalesOrder\Index.mobile.cshtml" />
+    <Content Include="Views\Customer\Index.mobile.cshtml" />
+    <Content Include="Views\Pickers\_CustomerPicker.mobile.cshtml" />
+    <Content Include="Views\Customer\CustomerLedger.cshtml" />
+    <Content Include="Views\SalesOrder\SRWiseCustomerSalesSummary.cshtml" />
+    <Content Include="Views\Customer\CustomerDueReport.cshtml" />
+    <Content Include="Views\ReplacementOrder\Create.cshtml" />
+    <Content Include="Views\Stock\DailyStockVSSalesSummary.cshtml" />
+    <Content Include="Views\Stock\DailyStock.cshtml" />
+    <Content Include="Views\CashCollection\DailyCashBookLedgerReport.cshtml" />
+    <Content Include="Views\Pickers\_SalesProductDetailPicker.cshtml" />
+    <Content Include="Views\ReplacementOrder\Index.cshtml" />
+    <Content Include="Views\Return\Create.cshtml" />
+    <Content Include="Views\Return\Index.cshtml" />
+    <Content Include="Views\SalesOrder\DailyWorkSheetReport.cshtml" />
+    <Content Include="Views\Income\Index.cshtml" />
+    <Content Include="Views\Income\Create.cshtml" />
+    <Content Include="Views\SRVisit\SRVisitReport.cshtml" />
+    <Content Include="Views\SRVisit\SRWiseCustomerStatusReport.cshtml" />
+    <Content Include="Views\ReplacementOrder\ReplacementReport.cshtml" />
+    <Content Include="Views\Return\ReturnReport.cshtml" />
+    <Content Include="Views\Pickers\_ExpenseItemsPicker.cshtml" />
+    <Content Include="Views\PurchaseOrder\AdvanceSearchByIMEINO.cshtml" />
+    <Content Include="Views\SalesOrder\MonthlyBenefitReport.cshtml" />
+    <Content Include="Views\SalesOrder\ProductWiseBenefitReport.cshtml" />
+    <Content Include="Views\SalesOrder\ProductWiseSalesReport.cshtml" />
+    <Content Include="Views\PurchaseOrder\ProductWisePurchaseReport.cshtml" />
+    <Content Include="Views\SRVisit\SRVisitReturn.cshtml" />
+    <Content Include="Views\ReplacementOrder\DamageProductReport.cshtml" />
+    <Content Include="Views\CashCollection\SRWiseCashCollectionReport.cshtml" />
+    <Content Include="Views\Stock\StockSummaryReport.cshtml" />
+    <Content Include="Views\CreditSalesOrder\DefaultingCustomer.cshtml" />
+    <Content Include="Views\SalesOrder\ProductWiseSalesDetailsReport.cshtml" />
+    <Content Include="Views\PurchaseOrder\ProductWisePurchaseDetailsReport.cshtml" />
+    <Content Include="Views\PurchaseOrder\SRVisitAdvanceSearchByIMEINO.cshtml" />
+    <Content Include="Views\Pickers\_CreditProductDetailPicker.cshtml" />
+    <Content Include="Views\PurchaseOrder\DeliveryOrders.cshtml" />
+    <Content Include="Views\PurchaseOrder\CreateDeliveryOrder.cshtml" />
+    <Content Include="Views\Bank\Index.cshtml" />
+    <Content Include="Views\Bank\Create.cshtml" />
+    <Content Include="Views\BankTransaction\Index.cshtml" />
+    <Content Include="Views\BankTransaction\Create.cshtml" />
+    <Content Include="Views\Pickers\_BankPicker.cshtml" />
+    <Content Include="Views\BankTransaction\BankTransactionReport.cshtml" />
+    <Content Include="Views\Expenditure\IncomeReport.cshtml" />
+    <Content Include="Views\Pickers\_AnotherBankPicker.cshtml" />
+    <Content Include="Views\BankTransaction\BankLedger.cshtml" />
+    <Content Include="Views\PurchaseOrder\CreateDamageReturn.cshtml" />
+    <Content Include="Views\PurchaseOrder\DamageReturnOrders.cshtml" />
+    <Content Include="Views\PurchaseOrder\GetDamagePOReport.cshtml" />
+    <Content Include="Views\PurchaseOrder\GetDamageReturnPOReport.cshtml" />
+    <Content Include="Views\AllowanceDeduction\Create.cshtml" />
+    <Content Include="Views\AllowanceDeduction\Deductions.cshtml" />
+    <Content Include="Views\AllowanceDeduction\Index.cshtml" />
+    <Content Include="Views\AllowancesRuleSetup\Create.cshtml" />
+    <Content Include="Views\AllowancesRuleSetup\Index.cshtml" />
+    <Content Include="Views\DeductionsRuleSetup\Create.cshtml" />
+    <Content Include="Views\DeductionsRuleSetup\Index.cshtml" />
+    <Content Include="Views\Grade\Create.cshtml" />
+    <Content Include="Views\Grade\Index.cshtml" />
+    <Content Include="Views\GradeSalaryAssignment\Index.cshtml" />
+    <Content Include="Views\Pickers\_AllowancePicker.cshtml" />
+    <Content Include="Views\Department\Index.cshtml" />
+    <Content Include="Views\Department\Create.cshtml" />
+    <Content Include="Views\HolidayCalender\Index.cshtml" />
+    <Content Include="Views\EmployeeLeave\Create.cshtml" />
+    <Content Include="Views\EmployeeLeave\Index.cshtml" />
+    <Content Include="Views\UploadAttendence\Index.cshtml" />
+    <Content Include="Views\AdvanceSalary\Index.cshtml" />
+    <Content Include="Views\AdvanceSalary\Create.cshtml" />
+    <Content Include="Views\SalaryProcess\Index.cshtml" />
+    <Content Include="Views\Pickers\_MSEmployeePicker.cshtml" />
+    <Content Include="Views\SalaryProcess\UndoSalaryProcess.cshtml" />
+    <Content Include="Views\SalaryProcess\GetSalarySheet.cshtml" />
+    <Content Include="Views\Pickers\_DepartmentPicker.cshtml" />
+    <Content Include="Views\SalaryProcess\GetPaySlip.cshtml" />
+    <Content Include="Views\SalaryProcess\FinalizeMonth.cshtml" />
+    <Content Include="Views\TargetSetup\Index.cshtml" />
+    <Content Include="Views\TargetSetup\Create.cshtml" />
+    <Content Include="Views\CommissionSetup\Create.cshtml" />
+    <Content Include="Views\CommissionSetup\Index.cshtml" />
+    <Content Include="Views\POReturn\Create.cshtml" />
+    <Content Include="Views\POReturn\Index.cshtml" />
+    <Content Include="Views\POReturn\DailyPurchaseReturnReport.cshtml" />
+    <Content Include="Views\POReturn\MonthlyPurchaseReturnReport.cshtml" />
+    <Content Include="Views\POReturn\YearlyPurchaseReturnReport.cshtml" />
+    <Content Include="Views\POReturn\ProductWisePurchaseReturnReport.cshtml" />
+    <Content Include="Views\POReturn\ModelWiseReport.cshtml" />
+    <Content Include="Views\SalesOrder\AdminSalesReport.cshtml" />
+    <Content Include="Views\PurchaseOrder\AdminPOReport.cshtml" />
+    <Content Include="Views\Customer\AdminCustomerDueReport.cshtml" />
+    <Content Include="Views\CashCollection\AdminCashcolletionReport.cshtml" />
+    <Content Include="Views\CashCollection\CashInHandReport.cshtml" />
+    <Content Include="Views\Designation\DESwiseCommission.cshtml" />
+    <Content Include="Views\Designation\CreateDESwiseCommission.cshtml" />
+    <Content Include="Views\UploadAttendence\GetMachineData.cshtml" />
+    <Content Include="Views\UploadAttendence\Test.cshtml" />
+    <Content Include="Views\CashCollection\ProfitAndLossReport.cshtml" />
+    <Content Include="Views\CashCollection\SummaryReport.cshtml" />
+    <Content Include="Views\UploadAttendence\DailyAttendence.cshtml" />
+    <Content Include="Views\Manage\ChangePassword.cshtml" />
+    <Content Include="Views\Godown\Create.cshtml" />
+    <Content Include="Views\Godown\Index.cshtml" />
+    <Content Include="Views\Pickers\_GodownPicker.cshtml" />
+    <Content Include="Views\GodownToGodownTrans\Create.cshtml" />
+    <Content Include="Views\GodownToGodownTrans\Index.cshtml" />
+    <Content Include="Views\GodownToGodownTrans\InternalTransferReport.cshtml" />
+    <Content Include="Views\Pickers\_ProductDetailPicker2.cshtml" />
+    <Content Include="Views\Stock\StockLedgerReport.cshtml" />
+    <Content Include="Views\PurchaseOrder\SupplierLedger.cshtml" />
+    <Content Include="Views\Transfer\Index.cshtml" />
+    <Content Include="Views\Transfer\Create.cshtml" />
+    <Content Include="Views\Pickers\_GodownPickerByConcern.cshtml" />
+    <Content Include="Views\Pickers\_CreditCustomerPicker.cshtml" />
+    <Content Include="Views\Transfer\TransferReport.cshtml" />
+    <Content Include="Views\CashCollection\TypeWiseCashInHand.cshtml" />
+    <Content Include="Views\SMSService\Index.cshtml" />
+    <Content Include="Views\SMSService\SendSMS.cshtml" />
+    <Content Include="Views\SMSService\SMSReport.cshtml" />
+    <Content Include="Views\SMSBillPayment\Index.cshtml" />
+    <Content Include="Views\SMSBillPayment\Create.cshtml" />
+    <Content Include="Views\Pickers\_MSCustomerPicker.cshtml" />
+    <Content Include="Views\Pickers\_SupplierProductDetailPicker.cshtml" />
+    <Content Include="Views\Pickers\_CustomerPickerPostLoad.cshtml" />
+    <Content Include="Views\SalesOrder\GetSummaryReport.cshtml" />
+    <Content Include="Views\VATSetup\Index.cshtml" />
+    <Content Include="Views\CardType\Index.cshtml" />
+    <Content Include="Views\CardType\Create.cshtml" />
+    <Content Include="Views\CardTypeSetup\Create.cshtml" />
+    <Content Include="Views\CardTypeSetup\Index.cshtml" />
+    <Content Include="Views\Shared\_MRPUpdate.cshtml" />
+    <Content Include="Views\Expenditure\BalanceSheet.cshtml" />
+    <Content Include="Views\Expenditure\ProfitLossAccount.cshtml" />
+    <Content Include="Views\Expenditure\TrialBalance.cshtml" />
+    <Content Include="Views\Stock\AdminStockSummaryReport.cshtml" />
+    <Content Include="Views\CreditSalesOrder\HireAccountDetails.cshtml" />
+    <Content Include="Views\Shared\_ReportViewMobile.cshtml" />
+    <Content Include="Views\CashCollection\View1.cshtml" />
+    <Content Include="Views\CashCollection\MonthlyTransactionReport.cshtml" />
+    <Content Include="Views\InvestmentHead\Create.cshtml" />
+    <Content Include="Views\InvestmentHead\Index.cshtml" />
+    <Content Include="Views\Investment\Create.cshtml" />
+    <Content Include="Views\Investment\CreateCurrentAsset.cshtml" />
+    <Content Include="Views\Investment\CreateLiabilityPay.cshtml" />
+    <Content Include="Views\Investment\CreateLiabilityRec.cshtml" />
+    <Content Include="Views\Investment\CurrentAsset.cshtml" />
+    <Content Include="Views\Investment\Index.cshtml" />
+    <Content Include="Views\Investment\LiabilityPay.cshtml" />
+    <Content Include="Views\Investment\LiabilityRec.cshtml" />
+    <Content Include="Views\Pickers\_InvestmentHeadPicker.cshtml" />
+    <Content Include="Views\Investment\LiabilityReport.cshtml" />
+    <Content Include="Views\Pickers\_CustomerSalesProductPicker.cshtml" />
+    <Content Include="Views\SMSService\SettingIndex.cshtml" />
+    <Content Include="Views\Shared\_AdvanceSearch.cshtml" />
+    <Content Include="Views\Supplier\AdminSupplierDueRpt.cshtml" />
+    <Content Include="Views\CreditSalesOrder\AdminInstallmentCollectionReport.cshtml" />
+    <Content Include="Views\CashDelivery\AdminCashDeliveryReport.cshtml" />
+    <Content Include="Views\Income\AdminIncomeReport.cshtml" />
+    <Content Include="Views\Expenditure\AdminExpenseReport.cshtml" />
+    <Content Include="Views\CashCollection\AdminCashInhand.cshtml" />
+    <Content Include="Views\Stock\ShowroomAnalysis.cshtml" />
+    <Content Include="Views\ParentCategory\Create.cshtml" />
+    <Content Include="Views\ParentCategory\Index.cshtml" />
+    <Content Include="Views\Audit\Index.cshtml" />
+    <Content Include="Views\ManualAttendence\Index.cshtml" />
+    <Content Include="Views\MonthlyAttend\Index.cshtml" />
+    <Content Include="Views\EmployeeCommision\Index.cshtml" />
+    <Content Include="Views\Pickers\_PCPicker.cshtml" />
+    <Content Include="Views\Pickers\_IncomeItemPicker.cshtml" />
+    <Content Include="Views\SalaryProcess\GetAdvanceSalaryReport.cshtml" />
+    <Content Include="Views\CashCollection\AdjustmentReport.cshtml" />
+    <Content Include="Views\DueSalary\Index.cshtml" />
+    <Content Include="Views\DueSalary\Create.cshtml" />
+    <Content Include="Views\SMSService\SendBulkSMS.cshtml" />
+    <Content Include="Views\AdvanceSalary\AdvanceLoanReport.cshtml" />
+    <Content Include="Views\BarcodeCreditSalesOrder\Create.cshtml" />
+    <Content Include="Views\BarcodeCreditSalesOrder\Index.cshtml" />
+    <Content Include="Views\BarcodeSalesOrder\Create.cshtml" />
+    <Content Include="Views\BarcodeSalesOrder\Index.cshtml" />
+    <Content Include="Views\CashCollection\AdjustmentReport.cshtml" />
+    <Content Include="Views\DueSalary\Create.cshtml" />
+    <Content Include="Views\DueSalary\Index.cshtml" />
+    <Content Include="Views\Pickers\_IncomeItemPicker.cshtml" />
+    <Content Include="Views\SalaryProcess\GetAdvanceSalaryReport.cshtml" />
+    <Content Include="Views\SMSService\AdminSMSReport.cshtml" />
+    <Content Include="Views\Stock\StockQTYReport.cshtml" />
+    <Content Include="Views\CreditSalesOrder\LastPayAdjReport.cshtml" />
+    <Content Include="Views\Stock\DateWiseProducthistory.cshtml" />
+    <Content Include="Views\Stock\StockForcastingReport.cshtml" />
+    <Content Include="Views\Stock\StockForcastingReportProductWise.cshtml" />
+    <Content Include="Views\Stock\StockReportWithDate.cshtml" />
+    <Content Include="Views\UploadAttendence\DailyAttendenceList.cshtml" />
+    <Content Include="Views\Expenditure\BalanceSheetNew.cshtml" />
+    <Content Include="Views\AutoPurchaseOrder\Index.cshtml" />
+    <Content Include="Views\AutoPurchaseOrder\Create.cshtml" />
+    <Content Include="Views\Investment\TotalLiabilityPayRec.cshtml" />
+    <Content Include="Views\CreditInterestPercentage\Index.cshtml" />
+    <Content Include="Views\CreditInterestPercentage\Create.cshtml" />
+    <Content Include="Views\SalesOrder\oldCreate.mobile.cshtml" />
+    <Content Include="Views\Payment\Index.cshtml" />
+    <Content Include="Views\Pickers\_ConcernPicker.cshtml" />
+    <Content Include="Views\NewPicker\_ConcernPicker.cshtml" />
+    <Content Include="Views\CashCollection\ServiceCharge.cshtml" />
+    <Content Include="Views\CashCollection\CashCollectionReportNew.cshtml" />
+    <Content Include="Views\HireSalesReturn\Index.cshtml" />
+    <Content Include="Views\HireSalesReturn\Create.cshtml" />
+    <Content Include="Views\Pickers\_CustomerCreditSalesProductPicker.cshtml" />
+    <Content Include="Views\Customer\CustomerLedgerSummary.cshtml" />
+    <Content Include="Views\UserAudit\UserAuditDetailsReport.cshtml" />
+    <Content Include="Views\BankTransaction\CommonBankTransactionReport.cshtml" />
+    <Content Include="Views\BankLoanCollection\Create.cshtml" />
+    <Content Include="Views\BankLoanCollection\DueLoan.cshtml" />
+    <Content Include="Views\BankLoanCollection\Index.cshtml" />
+    <Content Include="Views\BankLoan\Create.cshtml" />
+    <Content Include="Views\BankLoan\Index.cshtml" />
+    <Content Include="Views\BankLoan\LoanDetails.cshtml" />
+    <Content Include="Views\PurchaseOrder\SupplierLedgerSummary.cshtml" />
+    <Content Include="Views\Expenditure\AdminBalanceSheetNew.cshtml" />
+    <Content Include="Views\Expenditure\AdminTrialBalance.cshtml" />
+    <Content Include="Views\Expenditure\AdminProfitLossAccount.cshtml" />
+    <Content Include="Views\Customer\AdjustmentReport.cshtml" />
+    <Content Include="Views\Supplier\SupplierAdjustmentReport.cshtml" />
+    <Content Include="Views\Transfer\AdminTransferReport.cshtml" />
+    <Content Include="Views\CashCollection\DiscountAdjReportNew.cshtml" />
+    <Content Include="Views\Transfer\TransferReportNewFormat.cshtml" />
+    <Content Include="Views\SalesOrder\ProductWiseBenefitReportNew.cshtml" />
+    <Content Include="Views\Shared\_ReportViewerforExcel.cshtml" />
+    <Content Include="Views\Stock\StockLedgerReportExcel.cshtml" />
+    <Content Include="Views\Pickers\_OldProductDetailPicker.cshtml" />
+    <Content Include="Views\Color\GetColor.cshtml" />
+    <Content Include="Views\ECOMPurchaseOrder\Index.cshtml" />
+    <Content Include="Views\EmobileCashCollection\Create.cshtml" />
+    <Content Include="Views\EmobileCashCollection\Index.cshtml" />
+    <Content Include="Views\EmobileCashDelivery\Create.cshtml" />
+    <Content Include="Views\EmobileCashDelivery\Index.cshtml" />
+    <Content Include="Views\EmobileCreditSalesOrder\Create.cshtml" />
+    <Content Include="Views\EmobileCreditSalesOrder\Index.cshtml" />
+    <Content Include="Views\EmobilePurchaseOrder\Create.cshtml" />
+    <Content Include="Views\EmobilePurchaseOrder\Index.cshtml" />
+    <Content Include="Views\EmobileSalesOrder\Create.cshtml" />
+    <Content Include="Views\EmobileSalesOrder\Index.cshtml" />
+    <Content Include="Views\ECOMPurchaseOrder\Create.cshtml" />
+    <Content Include="Views\Pickers\_ECOMProductPicker.cshtml" />
+    <Content Include="Views\Pickers\_EmobileProductPicker.cshtml" />
+    <Content Include="Views\ECOMSalesOrder\Index.cshtml" />
+    <Content Include="Views\ECOMSalesOrder\Create.cshtml" />
+    <Content Include="Views\Pickers\_ECOMProductDetailPicker.cshtml" />
+    <Content Include="Views\Product\index.cshtml" />
+    <Content Include="Views\Product\EmobileIndex.cshtml" />
+    <Content Include="Views\Shared\_EmobileMRPUpdate.cshtml" />
+    <Content Include="Views\Customer\Index_old.cshtml" />
+    <Content Include="Views\PurchaseDO\Index.cshtml" />
+    <Content Include="Views\PurchaseDO\Create.cshtml" />
+    <Content Include="Views\PurchaseDO\ProductWisePurchaseDOReport.cshtml" />
+    <Content Include="Views\DO\Index.cshtml" />
+    <Content Include="Views\DO\Create.cshtml" />
+    <Content Include="Views\DO\DOReport.cshtml" />
+    <Content Include="Views\Pickers\_POProductPicker.cshtml" />
+    <Content Include="Views\SOReplacementOrder\Index.cshtml" />
+    <Content Include="Views\SOReplacementOrder\Create.cshtml" />
+    <Content Include="Views\DamagePurchaseOrder\Index.cshtml" />
+    <Content Include="Views\DamagePurchaseOrder\Create.cshtml" />
+    <Content Include="Views\DamagePOReturn\Index.cshtml" />
+    <Content Include="Views\DamagePOReturn\Create.cshtml" />
+    <Content Include="Views\Pickers\_SupplierDamageProductDetailPicker.cshtml" />
+    <Content Include="Views\Pickers\_DateWiseProductDetailPicker.cshtml" />
+    <Content Include="Views\Pickers\_DateWiseCreditProductDetailPicker.cshtml" />
+    <Content Include="Views\Stock\AdminProductStockReport.cshtml" />
+    <Content Include="Views\Stock\RateWiseStockLedgerReport.cshtml" />
+    <Content Include="Views\Stock\StockSummaryReportZeroQty.cshtml" />
+    <Content Include="Views\Stock\StockReportNew.cshtml" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="Content\photos\customers\" />
+    <Folder Include="Content\photos\employees\" />
+    <Folder Include="Content\photos\products\" />
+    <Folder Include="Content\photos\suppliers\" />
+    <Folder Include="Views\SalaryMonthly\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IMSWEB.Data\IMSWEB.Data.csproj">
+      <Project>{1b217255-fd03-453e-af87-33856ef2a1e4}</Project>
+      <Name>IMSWEB.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IMSWEB.Model\IMSWEB.Model.csproj">
+      <Project>{043ce8dc-b7d9-4e99-8759-408f61f2ea9e}</Project>
+      <Name>IMSWEB.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IMSWEB.Report\IMSWEB.Report.csproj">
+      <Project>{028923b2-2268-49db-84c8-2923c83015ef}</Project>
+      <Name>IMSWEB.Report</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IMSWEB.Service\IMSWEB.Service.csproj">
+      <Project>{b3e52a55-f420-4ab1-b3cc-85e8c64d0e3f}</Project>
+      <Name>IMSWEB.Service</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>7328</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:7328/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="CopyRoslynFiles" AfterTargets="AfterBuild" Condition="!$(Disable_CopyWebApplication) And '$(OutDir)' != '$(OutputPath)'">
+    <ItemGroup>
+      <RoslynFiles Include="$(CscToolPath)\*" />
+    </ItemGroup>
+    <MakeDir Directories="$(WebProjectOutputDir)\bin\roslyn" />
+    <Copy SourceFiles="@(RoslynFiles)" DestinationFolder="$(WebProjectOutputDir)\bin\roslyn" SkipUnchangedFiles="true" Retries="$(CopyRetryCount)" RetryDelayMilliseconds="$(CopyRetryDelayMilliseconds)" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

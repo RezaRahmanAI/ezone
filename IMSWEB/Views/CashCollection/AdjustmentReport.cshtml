@@ -1,0 +1,85 @@
+﻿
+
+@{
+    ViewBag.Title = "Adjustment Report";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+
+@using (Ajax.BeginForm("AdjustmentReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl },
+    ajaxOptions: new AjaxOptions
+    {
+        HttpMethod = "Post",
+        UpdateTargetId = "report",
+        LoadingElementId = "spinningIcon"
+    }, htmlAttributes: new { role = "form", @class = "form-horizontal" }))
+{
+    <div class="row">
+        <div class="col-sm-5 col-sm-offset-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        @Html.Label("From Date", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class='col-md-6 input-group date' id='FromDate'>
+                            <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("To Date ", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class='col-md-6 input-group date' id='ToDate'>
+                            <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                        </div>
+                        <div class='col-md-pull-8'>
+                            <label>
+                                <input id="ReportType" type="checkbox" title="Hire" value="1" name="ReportType" />
+                                Hire Sales
+                            </label>
+                            <label>
+                                <input id="ReportType" type="checkbox" title="CashCollection" value="2" name="ReportType" />
+                                CashCollection
+                            </label>
+                            <label>
+                                <input id="ReportType" type="checkbox" title="All" value="3" name="ReportType" />
+                                All
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                        </div>
+                        <div class="col-md-8">
+                            <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: new moment().startOf('month'),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+</script>

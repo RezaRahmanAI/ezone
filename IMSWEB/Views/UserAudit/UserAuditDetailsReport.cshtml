@@ -1,0 +1,87 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.Model.UserAuditDetail
+@{
+    ViewBag.Title = "User Audit Details Report";
+}
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+
+                @using (Ajax.BeginForm("UserAuditDetailsReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form", @class = "form-horizontal" }))
+                {
+                    <div class="form-group">
+                        <label class="control-label col-sm-3 col-md-3">Object Type</label>
+                        <div class=" col-sm-9 col-md-9">
+                            @Html.EnumDropDownListFor(model => model.ObjectType, "--Select Object Type--", new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-3 col-md-3">From Date</label>
+                        <div class=" col-sm-9 col-md-9">
+                            <div class='input-group date' id='FromDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-3 col-md-3">To Date</label>
+                        <div class=" col-sm-9 col-md-9">
+                            <div class='input-group date' id='ToDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label  col-sm-3 col-md-3">
+                        </label>
+                        <div class="col-sm-9 col-md-9 btn-group">
+                            <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-primary" />
+                            <img id="spinningIcon" height="45" width="45" style="display:none" src="~/Content/images/Spinner.gif" />
+                        </div>
+                    </div>
+
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $("#ObjectType").select2();
+
+    $("form").submit(function (e) {
+        var Type = $("#ObjectType").val();
+        if (Type == undefined || Type == "0") {
+            toastr.error("Please select a object type.");
+            e.preventDefault();
+            return false;
+        }
+    });
+
+</script>
+
+

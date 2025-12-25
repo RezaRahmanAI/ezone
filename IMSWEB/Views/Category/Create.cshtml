@@ -1,0 +1,55 @@
+﻿@model IMSWEB.CreateCategoryViewModel
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Category";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+
+@using (Html.BeginForm(actionName, "Category", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id);
+    <div class="col-md-offset-3 col-md-5">
+        <div class="form-group">
+            @Html.LabelFor(model => model.Code, htmlAttributes: new { @class = "control-label col-md-4" })
+            <div class=" col-md-8">
+                @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-4" })
+            <div class=" col-md-8">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @if (ViewBag.IsParentCateShow)
+        {
+            <div class="form-group">
+                @Html.LabelFor(model => model.PCategoryID, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class=" col-md-8">
+                    @Html.DropDownListFor(model => model.PCategoryID, new SelectList(Model.Parents, "PCategoryID", "Name"), "--Select Parent Category--", new { @class = "form-control input-sm", autofocus = "autofocus" })
+                    @Html.ValidationMessageFor(model => model.PCategoryID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        }
+        else
+        {
+            @Html.HiddenFor(model => model.PCategoryID, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", tabindex = -7 } })
+        }
+        <div class="form-group">
+            <div class="col-sm-offset-4 col-sm-8">
+                <input type="submit" value="Add Category" class="btn btn-sm btn-primary" />
+            </div>
+        </div>
+
+    </div>
+}
+
+<script type="text/javascript">
+    /*    $('#PCategoryID').select2();*/
+</script>

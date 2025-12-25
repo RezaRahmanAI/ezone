@@ -1,0 +1,89 @@
+﻿@model IEnumerable<ADParameterBasicCreate>
+@{
+    ViewBag.Title = "Allowances";
+}
+<h4 class="text-left inline-header">Allowances Rule Setup as per Grade</h4>
+@Html.ActionLink("New", "Create", "AllowancesRuleSetup", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+<hr />
+<table id="AllowancesRuleSetupCreateTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="AllowDeductName"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.AllowDeductName)
+            </th>
+
+            <th data-field="EntitleTypeName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.EntitleTypeName)
+            </th>
+
+            <th data-field="GradeName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.GradeName)
+            </th>
+            <th data-field="PeriodicityName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.PeriodicityName)
+            </th>
+
+            <th>
+
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AllowDeductName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EntitleTypeName)
+                    </td>
+                    <td>
+                        @foreach (var subitem in item.GradeList)
+                        {
+                            @subitem
+                            <span>,</span>
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PeriodicityName)
+                    </td>
+                    <td>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            @Html.ActionLink("Edit", "Edit", new { id = item.ADParameterID })
+                            <span>|</span>
+                            @Html.ActionLink("Delete", "Delete", new { id = item.ADParameterID }, new { onclick = "if(!confirm('Do you want to delete this Transaction?')) return false;" })
+                        }
+                    </td>
+                </tr>
+                count++;
+            }
+        }
+    </tbody>
+</table>

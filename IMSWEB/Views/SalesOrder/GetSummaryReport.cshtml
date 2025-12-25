@@ -1,0 +1,78 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.GetCustomerViewModel
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Ajax.BeginForm("GetSummaryReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form", @class = "form-horizontal" }))
+                {
+                    if (User.IsInRole(EnumUserRoles.superadmin.ToString()) || User.IsInRole(EnumUserRoles.Admin.ToString()))
+                    {
+                        <div class="form-group">
+                            <label class="control-label col-sm-3 col-md-3">Concern</label>
+                            <div class=" col-sm-9 col-md-9">
+                                @Html.DropDownList("ConcernID", @ViewBag.Concerns as SelectList, "--Select Concern--", new { @class = "form-control input-sm" })
+                            </div>
+                        </div>
+                    }
+                    <div class="form-group">
+                        <label class="control-label col-sm-3 col-md-3">Date</label>
+                        <div class=" col-sm-9 col-md-9">
+                            <div class='input-group date' id='FromDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label  col-sm-3 col-md-3">
+                        </label>
+                        <div class="col-sm-9 col-md-9 btn-group">
+                            <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-primary" />
+                            <img id="spinningIcon" height="45" width="45" style="display:none" src="~/Content/images/Spinner.gif" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#FromDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY'
+        });
+
+        //$('#ToDate').datetimepicker({
+        //    defaultDate: moment(),
+        //    format: 'DD-MMM-YYYY'
+        //});
+
+        $("#ConcernID").select2();
+        //$("#CustomerType").select2();
+
+        //$('form').submit(function () {
+
+        //    // Get the Login Name value and trim it
+        //    var name = $.trim($('#CustomersId').val());
+        //    var chk = $('#rdioDetail').prop("checked");
+        //    // Check if empty of not
+        //    if (name === '' && !chk) {
+        //        alert('No Customer Selected .');
+        //        return false;
+        //    }
+        //});
+    });
+
+</script>

@@ -1,0 +1,47 @@
+﻿
+@using IMSWEB.Model
+@model PurchaseOrderViewModel
+
+@{
+    ViewBag.Title = "Admin Supplier Due Report";
+}
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("AdminSupplierDueRpt", "Report", new { ReturnUrl = ViewBag.ReturnUrl },
+    ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" },
+    htmlAttributes: new { role = "form",@class="form-horizontal" }))
+{
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-md-3">Concern</label>
+                            <div class="col-md-9">
+                                @Html.DropDownList("ConcernID", @ViewBag.Concerns as SelectList, "--All Concerns--", new { @class = "form-control input-sm" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </div>
+                            <div class="col-md-9">
+                                <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+
+<script>
+    $(document).ready(function () {
+        $('#ConcernID').select2();
+    });
+</script>

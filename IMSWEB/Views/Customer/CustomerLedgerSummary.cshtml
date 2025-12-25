@@ -1,0 +1,106 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.CreateCustomerViewModel
+
+
+@{
+    ViewBag.Title = "Customer Ledger Summary";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-lg-5 col-md-5 col-sm-12 col-lg-offset-3 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Ajax.BeginForm("CustomerLedger", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+                {
+                    <input type="hidden" name="ReportType" value="2" />
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                <label>Customer Name</label>
+                            </td>
+                            <td>
+                                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Customer, id = "0" });}
+                                @Html.ValidationMessageFor(model => model.EmployeeId, "", new { @class = "text-danger" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        @*<tr>
+                                <td></td>
+                                <td>
+                                    <label style="margin-right:20px">
+                                        <input id="IsSummaryReport" title="Summary Report" type="radio" value="1" name="IsSummaryReport" checked />Summary
+                                    </label>
+                                    <label>
+                                        <input id="IsSummaryReport" title="Detailis Report" type="radio" value="2" name="IsSummaryReport" />Details
+                                    </label>
+                                </td>
+                            </tr>*@
+                        <tr>
+                            <td>
+                                <div class="col-sm-4">
+                                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-sm-4">
+                                    <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+    $('form').submit(function () {
+
+        // Get the Login Name value and trim it
+        var name = $.trim($('#CustomersId').val());
+        //var chk = $('#rdioDetail').prop("checked");
+        // Check if empty of not
+        if (name === '') {
+            toastr.error("Please select a customer.")
+            return false;
+        }
+    });
+</script>

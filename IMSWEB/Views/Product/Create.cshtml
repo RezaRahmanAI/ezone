@@ -1,0 +1,443 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.CreateProductViewModel
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Product";
+
+    bool isMRPUpdateNotApplicable = (bool)ViewBag.IsMRPUpdateNotApplicable;
+
+}
+
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+@using (Html.BeginForm(actionName, "Product", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data", role = "form" }))
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.ProductId)
+                    @Html.HiddenFor(m => m.PicturePath)
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Code, new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(m => m.Code, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                    @Html.ValidationMessageFor(m => m.Code, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ProductName, new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @*@if (isMRPUpdateNotApplicable)
+                                        {
+                                            @Html.EditorFor(m => m.ProductName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", @readonly = "readonly" } })
+                                        }
+                                        else
+                                        {
+                                            @Html.EditorFor(m => m.ProductName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                                        }*@
+                                    @Html.EditorFor(m => m.ProductName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                                    @Html.ValidationMessageFor(m => m.ProductName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.CompanyId, new { @class = "control-label col-md-3" })
+                                <div class="col-md-8" style="padding-right:0px !important">
+                                    @if (isMRPUpdateNotApplicable)
+                                    {
+                                        @Html.HiddenFor(m => m.CompanyId, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", @readonly = "readonly" } })
+                                        @Html.EditorFor(m => m.CompanyName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", @readonly = "readonly" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.HiddenFor(m => m.CompanyId, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                                        @Html.EditorFor(m => m.CompanyName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                                    }
+                                    @Html.ValidationMessageFor(m => m.CompanyId, "", new { @class = "text-danger" })
+                                </div>
+                                @if (isMRPUpdateNotApplicable)
+                                {
+
+                                }
+                                else
+                                {
+                                    <div class="col-md-1" style="padding-left:10px !important">
+                                        <button id="btnAddCompany" type="button" class="btn btn-xs btn-info">
+                                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                }
+
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.CategoryId, new { @class = "control-label col-md-3" })
+                                <div class="col-md-8" style="padding-right:0px !important">
+                                    @if (isMRPUpdateNotApplicable)
+                                    {
+                                        @Html.HiddenFor(m => m.CategoryId, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", @readonly = "readonly" } })
+                                        @Html.EditorFor(m => m.CategoryName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", @readonly = "readonly" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.HiddenFor(m => m.CategoryId, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                                        @Html.EditorFor(m => m.CategoryName, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                                    }
+                                    @Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "text-danger" })
+                                </div>
+                                @if (isMRPUpdateNotApplicable)
+                                {
+
+                                }
+                                else
+                                {
+                                    <div class="col-md-1" style="padding-left:10px !important">
+                                        <button id="btnAddCategory" type="button" class="btn btn-xs btn-info">
+                                            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                }
+
+                            </div>
+                            @if (ViewBag.IsEcomputerShow)
+                            {
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.ECOMRP, new { @class = "control-label col-md-3" })
+                                    <div class="col-md-9">
+                                        @if (isMRPUpdateNotApplicable)
+                                        {
+                                            @Html.EditorFor(m => m.ECOMRP, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number", @readonly = "readonly" } })
+                                        }
+                                        else
+                                        {
+                                            @Html.EditorFor(m => m.ECOMRP, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number" } })
+                                        }
+
+                                        @Html.ValidationMessageFor(m => m.ECOMRP, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            }
+                            @if (ViewBag.IsRPRateShow)
+                            {
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.RP, new { @class = "control-label col-md-3" })
+                                    <div class="col-md-9">
+                                        @if (isMRPUpdateNotApplicable)
+                                        {
+                                            @Html.EditorFor(m => m.RP, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number", @readonly = "readonly" } })
+                                        }
+                                        else
+                                        {
+                                            @Html.EditorFor(m => m.RP, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number" } })
+                                        }
+
+                                        @Html.ValidationMessageFor(m => m.RP, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            }
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.MRP, new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @if (isMRPUpdateNotApplicable)
+                                    {
+                                        @Html.EditorFor(m => m.MRP, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number", @readonly = "readonly" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.EditorFor(m => m.MRP, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number" } })
+                                    }
+
+                                    @Html.ValidationMessageFor(m => m.MRP, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            @if (ViewBag.IsProductTypeHide)
+                            {
+                                <div class="form-group" style="display:none">
+                                    @Html.LabelFor(model => model.ProductType, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-9">
+                                        @if (isMRPUpdateNotApplicable)
+                                        {
+                                            @Html.EditorFor(model => model.ProductType, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", @readonly = "readonly" } })
+                                        }
+                                        else
+                                        {
+                                            @Html.EnumDropDownListFor(model => model.ProductType, "--Select an unit--", new { @class = "form-control input-sm" })
+                                        }
+
+                                        @Html.ValidationMessageFor(model => model.ProductType, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.ProductType, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-9">
+                                        @if (isMRPUpdateNotApplicable)
+                                        {
+                                            @Html.EditorFor(model => model.ProductType, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus", @readonly = "readonly" } })
+                                        }
+                                        else
+                                        {
+                                            @Html.EnumDropDownListFor(model => model.ProductType, "--Select an unit--", new { @class = "form-control input-sm" })
+                                        }
+
+                                        @Html.ValidationMessageFor(model => model.ProductType, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            }
+                            @if (ViewBag.IsRPRateShow)
+                            {
+                                <div class="form-group">
+                                    <div class="col-md-offset-3 col-md-9">
+                                        <input type="submit" class="btn btn-sm btn-primary" id="btnSaveProduct" value="Add Product" />
+                                    </div>
+                                </div>
+                            }
+                            @if (ViewBag.IsEcomputerShow)
+                            {
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.ServiceWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-5">
+                                        @*"--Select a type--",*@
+                                        @Html.EditorFor(model => model.ServiceWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                                        @Html.ValidationMessageFor(model => model.ServiceWarrentyMonth, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-control input-sm" name="Service">
+                                            <option value="Month(s)">Month(s)</option>
+                                            <option selected value="Years(s)">Years(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                @Html.HiddenFor(model => model.CompressorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                                @Html.HiddenFor(model => model.PanelWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                                @Html.HiddenFor(model => model.MotorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                                @Html.HiddenFor(model => model.UserInputWarranty, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                                @Html.HiddenFor(model => model.SparePartsWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                            }
+                            @if (ViewBag.IsEcomputerShow)
+                            {
+                                <div class="form-group">
+                                    <div class="col-md-offset-3 col-md-9">
+                                        <input type="submit" class="btn btn-sm btn-primary" id="btnSaveProduct" value="Add Product" />
+                                    </div>
+                                </div>
+                            }
+
+                            @*<div class="form-group">
+                                    @Html.LabelFor(model => model.UnitType, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-9">
+                                        "--Select a type--",
+                                        @Html.EnumDropDownListFor(model => model.UnitType, "--Select an unit--", new { @class = "form-control input-sm" })
+                                        @Html.ValidationMessageFor(model => model.UnitType, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>*@
+
+                        </div>
+
+                        <div class="col-md-6">
+                            @if (ViewBag.IsRPRateShow)
+                            {
+
+                                @Html.HiddenFor(model => model.CompressorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+
+                                @Html.HiddenFor(model => model.PanelWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                                @Html.HiddenFor(model => model.ServiceWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+
+                                @Html.HiddenFor(model => model.MotorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                                @Html.HiddenFor(model => model.UserInputWarranty, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+
+                                @Html.HiddenFor(model => model.SparePartsWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                            }
+                            else if (ViewBag.IsEcomputerShow)
+                            {
+
+                                @Html.HiddenFor(model => model.CompressorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+
+                                @Html.HiddenFor(model => model.PanelWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                                @Html.HiddenFor(model => model.ServiceWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+
+                                @Html.HiddenFor(model => model.MotorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                                @Html.HiddenFor(model => model.UserInputWarranty, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+
+                                @Html.HiddenFor(model => model.SparePartsWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+
+                            }
+                            else
+                            {
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.CompressorWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-5">
+                                        @*"--Select a type--",*@
+                                        @Html.EditorFor(model => model.CompressorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                                        @Html.ValidationMessageFor(model => model.CompressorWarrentyMonth, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-control input-sm" name="Compressor">
+                                            <option value="Month(s)">Month(s)</option>
+                                            <option selected value="Years(s)">Years(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.PanelWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-5">
+                                        @*"--Select a type--",*@
+                                        @Html.EditorFor(model => model.PanelWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                                        @Html.ValidationMessageFor(model => model.PanelWarrentyMonth, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-control input-sm" name="Panel">
+                                            <option value="Month(s)">Month(s)</option>
+                                            <option selected value="Years(s)">Years(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.ServiceWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-5">
+                                        @*"--Select a type--",*@
+                                        @Html.EditorFor(model => model.ServiceWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                                        @Html.ValidationMessageFor(model => model.ServiceWarrentyMonth, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-control input-sm" name="Service">
+                                            <option value="Month(s)">Month(s)</option>
+                                            <option selected value="Years(s)">Years(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                @*<div class="form-group">
+                                        @Html.LabelFor(m => m.PicturePath, new { @class = "control-label col-md-3" })
+                                        <div class="col-md-9">
+                                            <input class="form-control input-sm" id="picture" name="picture" type="file" accept="image/*"
+                                                   onchange="document.getElementById('productPicture').src = window.URL.createObjectURL(this.files[0]);
+                                                            document.getElementById('PicturePath').value = window.URL.createObjectURL(this.files[0]);">
+                                            @Html.ValidationMessageFor(m => m.PicturePath, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>*@
+
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.MotorWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-5">
+                                        @*"--Select a type--",*@
+                                        @Html.EditorFor(model => model.MotorWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                                        @Html.ValidationMessageFor(model => model.MotorWarrentyMonth, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-control input-sm" name="Motor">
+                                            <option value="Month(s)">Month(s)</option>
+                                            <option selected value="Years(s)">Years(s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.SparePartsWarrentyMonth, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-5">
+                                        @*"--Select a type--",*@
+                                        @Html.EditorFor(model => model.SparePartsWarrentyMonth, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                                        @Html.ValidationMessageFor(model => model.SparePartsWarrentyMonth, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-control input-sm" name="SpareParts">
+                                            <option value="Month(s)">Month(s)</option>
+                                            <option selected value="Years(s)">Years(s)</option>
+                                        </select>
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(Model.PicturePath))
+                                    {
+                                        <div class="form-group">
+                                            <div class="col-md-offset-3 col-md-9">
+                                                <img id="productPicture" src="/Content/photos/products/@(Model != null ? Model.PicturePath : string.Empty)" alt="Uploaded picture will appear here." height="200" />
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.UserInputWarranty, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-9">
+                                        @Html.EditorFor(model => model.UserInputWarranty, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                                        @Html.ValidationMessageFor(model => model.UserInputWarranty, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-offset-3 col-md-9">
+                                        <input type="submit" class="btn btn-sm btn-primary" id="btnSaveProduct" value="Add Product" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+<div id="newEntryModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <p class="modal-title" id="lblEntryName">Add New</p>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label id="lblName" class="control-label col-md-3">Name:</label>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control input-sm" autofocus id="newName" />
+                                <input type="hidden" id="entryType" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <div style="display:none" id="divPCategory" class="form-group">
+                            @Html.Label("PCategoryID", new { @class = "control-label col-md-3" })
+                            <div class="col-md-6">
+                                @Html.Hidden("PCategoryID", new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                                @Html.Editor("PCategoryName", new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info btn-xs" id="btnAddCompanyCategory">Add</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="~/Scripts/productConfig.js"></script>

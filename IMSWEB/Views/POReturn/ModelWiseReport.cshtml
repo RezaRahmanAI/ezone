@@ -1,0 +1,174 @@
+﻿@using IMSWEB.Model
+@{
+    ViewBag.Title = "Model wise Purchase Return Details";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+
+@using (Ajax.BeginForm("ProductWisePurchaseDetailsReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+{
+    <input type="hidden" name="PurchaseType" value=@EnumPurchaseType.ProductReturn />
+    
+    <div class="row">
+        <div class="col-md-6 col-md-offset-2">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label>
+                                    <input id="rdoProduct" type="radio" title="All Product" value="0" name="ReportType" />
+                                    Product Wise Purchase
+                                </label>
+                            </td>
+                            <td>
+                                <span id="pickerSpace">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Product, id = "0" });}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>
+                                    <input id="rdoCompany" type="radio" title="Company Wise Stock" value="1" name="ReportType" />Company Wise Purchase
+                                </label>
+                            </td>
+                            <td>
+                                <span id="pickerSpace">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Company, id = "0" });}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>
+                                    <input id="rdoCategory" title="Category Wise Stock" type="radio" value="2" name="ReportType" />Category Wise Purchase
+                                </label>
+                            </td>
+                            <td>
+                                <span id="pickerSpace">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Category, id = "0" });}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="form-group">
+                                    <div class="col-sm-4">
+                                        <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-primary" />
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+<script>
+    $(document).ready(function () {
+
+        $('#FromDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY'
+        });
+
+        $('#ToDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY'
+        });
+
+        $("#CompaniesId").val(0);
+        $("#CategoriesId").val(0);
+        $("#ProductsId").val(0);
+
+        $('input[type=radio][name=ReportType]').change(function () {
+            ClearPickerData();
+        });
+
+
+    });
+
+    function ClearPickerData() {
+        $('#CategoriesCode').val('');
+        $('#CategoriesName').val('');
+        $('#CategoriesId').val('');
+
+        $('#CompaniesCode').val('');
+        $('#CompaniesName').val('');
+        $('#CompaniesId').val(0);
+
+        $('#ProductsCode').val('');
+        $('#ProductsName').val('');
+        $('#ProductsId').val('');
+
+    }
+
+    $('.modal').on('hidden.bs.modal', function () {
+        var modalname = $(this).attr('id');
+        if (modalname == "ProductsModal") {
+            $('#CategoriesCode').val('');
+            $('#CategoriesName').val('');
+            $('#CategoriesId').val('');
+            $('#CompaniesCode').val('');
+            $('#CompaniesName').val('');
+            $('#CompaniesId').val(0);
+            $("#rdoProduct").prop("checked", true);
+        }
+        else if (modalname == "CategoriesModal") {
+            $('#CompaniesCode').val('');
+            $('#CompaniesName').val('');
+            $('#CompaniesId').val('');
+            $('#ProductsCode').val('');
+            $('#ProductsName').val('');
+            $('#ProductsId').val('');
+            $("#rdoCategory").prop("checked", true);
+
+        }
+        else if (modalname == "CompaniesModal") {
+            $('#ProductsCode').val('');
+            $('#ProductsName').val('');
+            $('#ProductsId').val('');
+            $('#CategoriesCode').val('');
+            $('#CategoriesName').val('');
+            $('#CategoriesId').val('');
+            $("#rdoCompany").prop("checked", true);
+
+        }
+    })
+</script>

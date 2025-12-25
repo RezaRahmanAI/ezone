@@ -1,0 +1,129 @@
+﻿@model dynamic
+<div class="input-group">
+    <span class="input-group-btn">
+        <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#ColorsModal"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Select Concern</button>
+    </span>
+    <input type="hidden" class="input-sm form-control input-sm" id="ConcernIds" name="ConcernIds" value="@ViewBag.ConcernId" readonly="readonly">
+</div>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-lg" id="ColorsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="myModalLabel">Existing Colors</h5>
+            </div>
+            <div class="modal-body">
+                <div id="Colorstoolbar">
+                    <p class="text-warning" id="selectedCount"></p>
+                </div>
+                <table id="ConcernsTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-click-to-select="true"
+                       data-single-select="false"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="6"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th data-field="id" class="hidden">
+                            </th>
+                            <th data-checkbox="true">
+                            </th>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="name"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Name
+                            </th>
+                            <th data-field="ServiceCharge"
+                                data-sorter="sorter"
+                                data-sortable="false">
+                                ServiceCharge
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="hidden">
+                                        @item.Id
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @item.Name
+                                    </td>
+                                    <td>
+                                        @item.ServiceCharge
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var idsArray = [];
+    var $table = $('#ConcernsTable');
+    var $p = $('#selectedCount');
+    $table.on('check.bs.table', function (e, row) {
+        idsArray.push($.trim(row.id)); // add the checked id to the array
+        $p.text(idsArray.length + ' item(s) selected');
+        console.log(idsArray);
+        //$('#txtConcernCount').text(idsArray.length);
+        getPaymentDetailsForConcern();
+    });
+    $table.on('uncheck.bs.table', function (e, row) {
+        var index = idsArray.indexOf($.trim(row.id)); // get the index of the unchecked id
+        if (index !== -1) { // if the unchecked id was found
+            idsArray.splice(index, 1); // remove it from the array
+            $p.text(idsArray.length + ' item(s) selected');
+            console.log(idsArray);
+            //$('#txtConcernCount').text(idsArray.length);
+            getPaymentDetailsForConcern();
+        }
+    });
+
+
+    function getPaymentDetailsForConcern() {
+        $.ajax({
+            type: 'POST',
+            url: '/Payment/GetPaymentForConcerns',
+            traditional: true,
+            data: { allConcernIds: idsArray },
+            async: false,
+            cache: false,
+            success: function (data) {
+                if (data.msg == "ok") {
+                    $('#txtConcernCount').text(data.totalConcern);
+                    $('#txtTotalDueAmount').text(data.amount);
+                    $('#txtRemainingMonth').text(data.noOfMonth);
+                }
+            },
+            error: function () {
+                console.log('An error occurred');
+            }
+        });
+    }
+
+</script>

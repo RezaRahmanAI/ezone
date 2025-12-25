@@ -1,0 +1,629 @@
+﻿@model IMSWEB.DOViewModel
+@using IMSWEB.Model
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string Controllername = ViewContext.RouteData.Values["controller"].ToString();
+    ViewBag.Title = "Create Company Purchase OSS";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+@using (Html.BeginForm("Create", Controllername, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    <div class="row">
+        <div class="col-md-5">
+            <div class="panel">
+                <div class="panel-body">
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.DOID)
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Date, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class=" col-md-9">
+                            <div class='input-group date' id='Date' tabindex="2">
+                                <input type='text' class="input-sm form-control input-sm" name='Date' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.Date, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DONo, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class=" col-md-9">
+                            @Html.EditorFor(model => model.DONo, new { htmlAttributes = new { @class = "form-control input-sm", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.DONo, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SupplierID, new { @class = "control-label col-md-3", autofocus = "autofocus" })
+                        <div class="col-md-9">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Supplier, id = (Model != null && Model.SupplierID != 0) ? Model.SupplierID : 0 });}
+                            @Html.ValidationMessageFor(model => model.SupplierID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Detail.ProductID, new { @class = "control-label col-md-3", autofocus = "autofocus" })
+                        <div class="col-md-9">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Product, id = (Model.Detail != null && Model.Detail.ProductID != null) ? Model.Detail.ProductID : "0" });}
+                            @Html.ValidationMessageFor(model => model.Detail.ProductID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    @*<div class="form-group">
+                            @Html.LabelFor(model => model.Detail.ColorID, new { @class = "control-label col-md-3", autofocus = "autofocus" })
+                            <div class="col-md-9">
+                                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Color, id = (Model.Detail != null && Model.Detail.ColorID != null) ? Model.Detail.ColorID : "0" });}
+                                @Html.ValidationMessageFor(model => model.Detail.ColorID, "", new { @class = "text-danger" })
+                            </div>
+                        </div>*@
+                    <!--<div class="form-group">
+                    @Html.LabelFor(m => m.Detail.ColorID, new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(m => m.Detail.ColorName, new { htmlAttributes = new { @class = "input-sm form-control input-sm" } })-->
+                    @*@Html.HiddenFor(m => m.Detail.ColorID)*@
+                    <!--<input name="Detail.ColorID" id="txtColorId" hidden />
+                            @Html.ValidationMessageFor(m => m.Detail.ColorID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>-->
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Detail.ColorID, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(m => m.Detail.ColorName, new { htmlAttributes = new { @class = "input-sm form-control input-sm" } })
+
+                            @{if (Model.Detail.ColorID != null)
+                                {
+                                    @Html.HiddenFor(m => m.Detail.ColorID)
+                                }
+                                <input name="Detail.ColorID" id="txtColorId" hidden />
+                            }
+
+                            @Html.ValidationMessageFor(m => m.Detail.ColorID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Detail.PreviousStock, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class=" col-md-9">
+                            @Html.EditorFor(model => model.Detail.PreviousStock, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.Detail.PreviousStock, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Detail.DOQty, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class=" col-md-9">
+                            @Html.EditorFor(model => model.Detail.DOQty, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number" } })
+                            @Html.ValidationMessageFor(model => model.Detail.DOQty, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Detail.DDLiftingPrice, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class=" col-md-9">
+                            @Html.EditorFor(model => model.Detail.DDLiftingPrice, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number" } })
+                            @Html.ValidationMessageFor(model => model.Detail.DDLiftingPrice, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Detail.PPDisPercent, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class=" col-md-9">
+                            @Html.EditorFor(model => model.Detail.PPDisPercent, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number" } })
+                            @Html.ValidationMessageFor(model => model.Detail.PPDisPercent, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Detail.PPDisAmt, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class=" col-md-9">
+                            @Html.EditorFor(model => model.Detail.PPDisAmt, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number" } })
+                            @Html.ValidationMessageFor(model => model.Detail.PPDisAmt, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Detail.UnitPrice, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class=" col-md-9">
+                            @Html.EditorFor(model => model.Detail.UnitPrice, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.Detail.UnitPrice, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Detail.TotalAmt, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class=" col-md-9">
+                            @Html.EditorFor(model => model.Detail.TotalAmt, new { htmlAttributes = new { @class = "form-control input-sm text-right", @type = "number", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.Detail.TotalAmt, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group pull-right">
+                        <div class="col-sm-4">
+                            <input type="submit" name="btnAdd" id="btnAdd" value="Add Product" class="btn btn-sm btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7" style="padding-left:1px !important">
+            <div class="panel">
+                <div class="panel-body">
+                    <table id="productsTable"
+                           data-toggle="table"
+                           data-search="false"
+                           data-show-refresh="false"
+                           data-show-toggle="false"
+                           data-show-columns="false"
+                           data-show-export="false"
+                           data-detail-view="false"
+                           data-pagination="false"
+                           data-id-field="name"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="10"
+                           data-height="246"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th data-field="ProductName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Detail.ProductName)
+                                </th>
+                                <th data-field="ColorName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Detail.ColorName)
+                                </th>
+                                <th data-field="MRP"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Detail.DDLiftingPrice)
+                                </th>
+                                <th data-field="PPDisAmt"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Detail.PPDisAmt)
+                                </th>
+                                <th data-field="UnitPrice"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Detail.UnitPrice)
+                                </th>
+                                <th data-field="DOQty"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Detail.DOQty)
+                                </th>
+                                <th data-field="TotalAmt"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(model => model.Detail.TotalAmt)
+                                </th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Details != null)
+                            {
+                                int count = 1;
+                                foreach (var item in Model.Details)
+                                {
+                                    <tr>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ProductName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ColorName)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.DDLiftingPrice)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PPDisAmt)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.UnitPrice)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.DOQty)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.TotalAmt)
+                                        </td>
+                                        <td>
+                                            @Html.ActionLink("Delete", "DeleteFromView", new { id = item.ProductID, previousAction = actionName.ToLower() }, new { onclick = "if(!confirm('Do you want to delete this?')) return false;" })
+                                            @Html.ActionLink("Edit", "EditFromView", new { id = item.ProductID, previousAction = actionName.ToLower() }, new { })
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+
+                            <div class="form-group" style="display:none">
+                                @Html.LabelFor(model => model.TotalDiscountPercentage, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(model => model.TotalDiscountPercentage, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01" } })
+                                    @Html.ValidationMessageFor(model => model.TotalDiscountPercentage, "", new { @class = "text-danger" })
+                                    @Html.HiddenFor(model => model.PPDisAmt, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.NetDiscount, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.HiddenFor(model => model.tempNetDiscount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.EditorFor(model => model.NetDiscount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.NetDiscount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.GrandTotal, htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class=" col-md-8">
+                                    @Html.EditorFor(model => model.GrandTotal, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.GrandTotal, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.TotalAmt, htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class=" col-md-8">
+                                    @Html.EditorFor(model => model.TotalAmt, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.TotalAmt, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Remarks, htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class=" col-md-8">
+                                    @Html.TextAreaFor(model => model.Remarks, new { @class = "form-control input-sm" })
+                                    @Html.ValidationMessageFor(model => model.Remarks, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+
+                            @*<div class="form-group">
+                                    @Html.LabelFor(model => model.TotalDiscountAmount, new { @class = "control-label col-md-4" })
+                                    <div class="col-md-8">
+                                        @Html.EditorFor(model => model.TotalDiscountAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01" } })
+                                        @Html.ValidationMessageFor(model => model.TotalDiscountAmount, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>*@
+
+                            <div class="form-group" style="display:none">
+                                @Html.LabelFor(m => m.TotalDiscountAmount, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.HiddenFor(m => m.tempFlatDiscountAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01" } })
+                                    @Html.EditorFor(m => m.TotalDiscountAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01" } })
+                                    @Html.ValidationMessageFor(m => m.TotalDiscountAmount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <!--<div class="form-group">-->
+                            @*@Html.LabelFor(m => m.SalesOrder.PPDiscountAmount, new { @class = "control-label col-md-4" })*@
+                            <!--<div class="col-md-8">
+                                    @Html.HiddenFor(m => Model.PPDiscountAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.HiddenFor(m => Model.tempFlatDiscountAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(m => Model.PPDiscountAmount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>-->
+
+
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.PaidAmt, htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class=" col-md-8">
+                                    @Html.EditorFor(model => model.PaidAmt, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number" } })
+                                    @Html.ValidationMessageFor(model => model.PaidAmt, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.PaymentDue, htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class=" col-md-8">
+                                    @Html.EditorFor(model => model.PaymentDue, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.PaymentDue, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            @*@{
+                                    var TotalDis = @ViewBag.TotalFlatDisAmt;
+                                    var TotalDisPer = @ViewBag.TotalPPDisPer;
+                                    var TotalPpdiscountNew = @ViewBag.TotalPpdiscountAmount;
+
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.TotalDis, htmlAttributes: new { @class = "control-label col-md-4" })
+                                        <div class=" col-md-8">
+                                            @Html.EditorFor(model => @TotalDis, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", } })
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.PaymentDue, htmlAttributes: new { @class = "control-label col-md-4" })
+                                        <div class=" col-md-8">
+                                            @Html.EditorFor(model => @TotalDisPer, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", } })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.PaymentDue, htmlAttributes: new { @class = "control-label col-md-4" })
+                                        <div class=" col-md-8">
+                                            @Html.EditorFor(model => @TotalPpdiscountNew, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", } })
+                                        </div>
+                                    </div>
+                                }*@
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="form-group pull-right">
+                        <div class="col-sm-4">
+                            <input type="submit" name="btnSave" id="btnSave" value="Save DO" class="btn btn-sm btn-success" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#Date').datetimepicker({
+       @{
+           if (Model == null || Model.Date == DateTime.MinValue)
+           {
+               @:defaultDate: moment(),
+           }
+            else
+            {
+            @:defaultDate: '@(Convert.ToDateTime(Model.Date).ToString("dd-MMM-yyyy"))',
+            }
+            @:format: 'DD-MMM-YYYY'
+       }
+        });
+
+
+
+        function getDefaultIntIfEmpty(value, defaultValue) {
+            var parsedValue = parseInt(value, 10);
+            if (!isNaN(parsedValue)) {
+                return parsedValue;
+            } else {
+
+                return defaultValue;
+            }
+        }
+
+     });
+
+
+
+    //Product Add validation
+    $(document).on('click', '#btnAdd', function (e) {
+        var productId = $("#ProductsId").val();
+        if (productId == "" || productId == undefined) {
+            toastr.error("Please select product first");
+            e.preventDefault();
+            $("#RawProductsCode").focus();
+            $("#RawProductsCode").select();
+            return false
+        }
+        var qty = parseFloat($("#Detail_DOQty").val());
+        if (qty == 0 || qty == NaN) {
+            toastr.error("Please enter product qty.");
+            $("#Detail_DOQty").focus();
+            $("#Detail_DOQty").select();
+            e.preventDefault();
+            return false
+        }
+        var mrp = parseFloat($("#Detail_MRP").val());
+        if (mrp == 0 || mrp == NaN) {
+            toastr.error("Please enter mrp.");
+            $("#Detail_MRP").focus();
+            $("#Detail_MRP").select();
+            e.preventDefault();
+            return false
+        }
+        var ddlp = parseFloat($("#Detail_DDLiftingPrice").val());
+        if (ddlp == 0 || ddlp == NaN) {
+            toastr.error("Please enter DDL.Price.");
+            $("#Detail_DDLiftingPrice").focus();
+            $("#Detail_DDLiftingPrice").select();
+            e.preventDefault();
+            return false
+        }
+    });
+
+    //Save validation
+    $(document).on('click', '#btnSave', function (e) {
+        var CustomersId = $("#SuppliersId").val();
+        if (CustomersId == "" || CustomersId == undefined) {
+            toastr.error("Please select supplier first");
+            e.preventDefault();
+            $("#SuppliersCode").focus();
+            return false
+        }
+    });
+
+    //****************************
+    // Per product event start
+    //****************************
+
+
+    $("#item_TotalDiscountPercentage").on("input", function () {
+        alert('fired');
+    });
+
+
+    $("#Detail_DOQty").on("input", function () {
+        var purchaseRate = $("#Detail_DDLiftingPrice").val();
+        $("#Detail_TotalAmt").val(parseInt($(this).val()) * parseFloat(purchaseRate));
+
+        var productName = $('#ProductsName').val();
+        if (productName == '') {
+            toastr['error']('Please pick a product first.');
+            return;
+        }
+
+        var ProductType = $('#ProductsType').val();
+        var Quantity = $("#Detail_DOQty").val();
+
+        var mrpRate = getDefaultIntIfEmpty($("#Detail_DDLiftingPrice").val());
+        var percentage = getDefaultFloatIfEmpty($("#Detail_PPDisPercent").val());
+        var PPDamount = (((mrpRate) * percentage) / 100).toFixed(2);
+        var UnitPrice = mrpRate - PPDamount;
+        var TotalAmt = (UnitPrice * Quantity).toFixed(2);
+        $("#Detail_TotalAmt").val(TotalAmt);
+        $("#Detail_UnitPrice").val((UnitPrice).toFixed(2));
+        $("#Detail_PPDisAmt").val(PPDamount);
+
+
+    });
+
+    $("#Detail_MRP").on("input", function () {
+        var quantity = getDefaultIntIfEmpty($("#Detail_DOQty").val());
+        var mrpRate = getDefaultFloatIfEmpty($(this).val());
+        var percentage = getDefaultFloatIfEmpty($("#Detail_PPDisPercent").val());
+        var PPDamount = (((mrpRate) * percentage) / 100).toFixed(2);
+        var UnitPrice = mrpRate - PPDamount;
+        var TotalAmt = (UnitPrice * quantity).toFixed(2);
+        $("#Detail_TotalAmt").val(getDefaultFloatIfEmpty(TotalAmt));
+        $("#Detail_UnitPrice").val((UnitPrice).toFixed(2));
+        $("#Detail_PPDisAmt").val(PPDamount);
+
+    });
+
+
+
+    $("#Detail_DDLiftingPrice").on("input", function () {
+        var quantity = getDefaultIntIfEmpty($("#Detail_DOQty").val());
+        var mrpRate = getDefaultFloatIfEmpty($(this).val());
+
+        var percentage = getDefaultFloatIfEmpty($("#Detail_PPDisPercent").val());
+        var PPDamount = (((mrpRate) * percentage) / 100).toFixed(2);
+        var UnitPrice = mrpRate - PPDamount;
+        var TotalAmt = (UnitPrice * quantity).toFixed(2);
+        $("#Detail_TotalAmt").val(getDefaultFloatIfEmpty(TotalAmt));
+        $("#Detail_UnitPrice").val((UnitPrice).toFixed(2));
+        $("#Detail_PPDisAmt").val(PPDamount);
+    });
+
+
+
+
+    $("#Detail_PPDisPercent").on("input", function () {
+        var percentage = getDefaultFloatIfEmpty($(this).val());
+        var quantity = getDefaultIntIfEmpty($("#Detail_DOQty").val());
+        var mrpRate = Math.round($("#Detail_DDLiftingPrice").val());
+
+        var PPDamount = Math.round((((mrpRate * percentage) / 100))).toFixed(2);
+        $("#Detail_PPDisAmt").val(PPDamount);
+        var UnitPrice = mrpRate - PPDamount;
+
+        $("#Detail_UnitPrice").val((UnitPrice).toFixed(2));
+        var TotalAmt = (UnitPrice * quantity).toFixed(2);
+        $("#Detail_TotalAmt").val(getDefaultFloatIfEmpty(TotalAmt));
+    });
+
+    $("#Detail_PPDisAmt").on("input", function () {
+        var PPDamount = Math.round($(this).val());
+        var quantity = getDefaultIntIfEmpty($("#Detail_DOQty").val());
+        var mrpRate = Math.round($("#Detail_DDLiftingPrice").val());
+        var percentage = getDefaultFloatIfEmpty(((100 * PPDamount) / (quantity * mrpRate)) * quantity).toFixed(2);
+        $("#Detail_PPDisPercent").val(percentage);
+        var UnitPrice = mrpRate - PPDamount;
+        $("#Detail_UnitPrice").val((UnitPrice).toFixed(2));
+        var TotalAmt = (UnitPrice * quantity).toFixed(2);
+        $("#Detail_TotalAmt").val(getDefaultFloatIfEmpty(TotalAmt));
+
+    });
+
+
+    $(document).on('input', '#PaidAmt', function () {
+        var PaidAmt = getDefaultFloatIfEmpty($('#PaidAmt').val());
+        var TotalAmt = getDefaultFloatIfEmpty($('#TotalAmt').val());
+        var paymentDue = TotalAmt - PaidAmt;
+        $('#PaymentDue').val(paymentDue);
+    });
+
+
+
+    //*************************
+    //Per Product event end
+    //*************************
+
+    //Flat discount Percentage
+    $("#TotalDiscountPercentage").on("input", function () {
+        var totalPercentage = getDefaultFloatIfEmpty($(this).val());
+        var totalAmount = getDefaultFloatIfEmpty($("#GrandTotal").val());
+        var totalDiscountAmount = getDefaultFloatIfEmpty((totalAmount * totalPercentage) / 100).toFixed(2);
+
+        $("#TotalDiscountAmount").val(totalDiscountAmount);
+        calculateVariousValue(totalDiscountAmount, totalAmount);
+    });
+
+    //Flat discount Amount
+    $("#TotalDiscountAmount").on("input", function () {
+        var totalDiscountAmount = getDefaultFloatIfEmpty($(this).val());
+        var totalAmount = getDefaultFloatIfEmpty($("#GrandTotal").val());
+        var totalPercentage = getDefaultFloatIfEmpty((100 * totalDiscountAmount) / totalAmount).toFixed(2);
+
+        $("#TotalDiscountPercentage").val(totalPercentage);
+        calculateVariousValue(totalDiscountAmount, totalAmount);
+    });
+
+
+    function calculateVariousValue(flatDiscountAmt, grandtotalAmount) {
+/*        var tempFlatDisAmt = getDefaultFloatIfEmpty($("#tempFlatDiscountAmount").val());*/
+        var FlatDisAmt = getDefaultFloatIfEmpty($("#TotalDiscountAmount").val());
+        var tempNetDisAmt = getDefaultFloatIfEmpty($("#tempNetDiscount").val());
+/*        alert(tempNetDisAmt);*/
+        if (FlatDisAmt == 0) {
+            var updatedflatDiscountAmount = parseFloat(tempNetDisAmt);
+        }
+        else {
+            var updatedflatDiscountAmount = parseFloat(FlatDisAmt) + parseFloat(tempNetDisAmt);
+        }
+
+    /*    var updateNetDisAmt = tempNetDisAmt + updatedflatDiscountAmount;*/
+        var recieveAmount = getDefaultFloatIfEmpty($("#RecieveAmount").val());
+        var granTotal = getDefaultFloatIfEmpty($("#GrandTotal").val());
+        $("#NetDiscount").val(getDefaultFloatIfEmpty(updatedflatDiscountAmount).toFixed(2));
+        var updateDIs = getDefaultFloatIfEmpty($("#NetDiscount").val());
+        $("#TotalAmt").val((getDefaultFloatIfEmpty(granTotal - updateDIs)).toFixed(2)).trigger('Input');
+        $("#PaymentDue").val(getDefaultFloatIfEmpty((getDefaultFloatIfEmpty(granTotal - (updateDIs + recieveAmount).toFixed(2)))));
+    }
+
+    $("#RecieveAmount").on("input", function () {
+        var totalAmount = getDefaultFloatIfEmpty($("#GrandTotal").val());
+        var totalDiscountAmount = getDefaultFloatIfEmpty($("#TotalDiscountAmount").val());
+        calculateVariousValue(totalDiscountAmount, totalAmount);
+    });
+
+
+</script>
+<script src="~/Scripts/productConfig.js"></script>

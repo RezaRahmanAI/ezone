@@ -1,0 +1,119 @@
+﻿
+@{
+    ViewBag.Title = "DO Report";
+}
+@using IMSWEB.Model
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-md-5">
+        <div class="panel">
+            <div class="panel-body">
+                @using (Ajax.BeginForm("DOReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form", @class = "form-horizontal" }))
+                {
+                    <div class="form-group">
+                        @Html.Label("From Date", htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class='col-md-9 input-group date' id='FromDate'>
+                            <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("To Date", htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class='col-md-9 input-group date' id='ToDate'>
+                            <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Customer", new { @class = "control-label col-md-3 full-width-picker-label" })
+                        <div class="col-md-9 full-width-picker">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Customer, id = 0 });}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Supplier", new { @class = "control-label col-md-3 full-width-picker-label" })
+                        <div class="col-md-9 full-width-picker">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Supplier, id = 0 });}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-3 col-md-4">
+                            <label>
+                                <input type="radio" name="chkDOType" id="PODO" checked value="1" />
+                                <span>Purchase DO</span>
+                            </label>
+                        </div>
+                        <div class="col-md-4">
+                            <label>
+                                <input type="radio" name="chkDOType" id="SODO" value="2" />
+                                <span>Sales DO</span>
+                            </label>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-4 col-md-offset-3">
+                            <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                        </div>
+                        <div class="col-md-4">
+                            <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#FromDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY'
+        });
+
+        $('#ToDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY'
+        });
+    });
+
+    $(document).on('hidden.bs.modal', function (e) {
+        var modalName = e.target.id;
+        if (modalName == "SuppliersModal") {
+            ToggleModal(modalName, "");
+            $('#PODO').prop("checked", true);
+        }
+        else if (modalName == "CustomersModal") {
+            ToggleModal(modalName, "");
+            $('#SODO').prop("checked", true);
+        }
+    });
+
+    function ToggleModal(modalName, POType) {
+        if (modalName == "SuppliersModal" || POType == "PODO") {
+            $('#CustomersCode').val('');
+            $('#CustomersName').val('');
+            $('#CustomersId').val('');
+        }
+        else if (modalName == "CustomersModal") {
+            $('#SuppliersCode').val('');
+            $('#SuppliersName').val('');
+            $('#SuppliersId').val('');
+        }
+    }
+
+    $(document).on('change', 'input[name="chkDOType"]', function (e) {
+        var modalName = e.target.id;
+        ToggleModal("", modalName);
+
+    });
+
+
+</script>

@@ -1,0 +1,196 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.GetSalarySheetViewModel
+
+
+@{
+    ViewBag.Title = "Salary Sheet";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("GetSalarySheet", "Report", new { ReturnUrl = ViewBag.ReturnUrl },
+    ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" },
+    htmlAttributes: new { role = "form", @class = "form-horizontal" }))
+{
+    @Html.Hidden("EmployeeIdList");
+    <div class="row">
+        <div class="col-lg-5 col-md-5  col-sm-12 col-lg-offset-1 col-md-offset-1" style="
+    padding-right: 0px;
+">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-group">
+                        @Html.Label("Salary Month", htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            <div class='input-group date' id='SalaryMonth'>
+                                <input type='text' class="input-sm form-control input-sm" name='SalaryMonth' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Department", htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Department, id = (Model != null && Model.DepartmentID != null) ? Model.DepartmentID : 0 });}
+                            @Html.ValidationMessageFor(model => model.DepartmentID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Employee", htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && Model.EmployeeId != null) ? Model.EmployeeId : "0" });}
+                            @Html.ValidationMessageFor(model => model.EmployeeId, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                        </div>
+                        <div class="col-md-2">
+                            <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-md-5  col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table id="SalarySheetEmployeesTable"
+                           data-toggle="table"
+                           data-search="true"
+                           data-click-to-select="true"
+                           data-single-select="false"
+                           data-detail-view="true"
+                           data-pagination="true"
+                           data-id-field="name"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="20"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th data-field="id" class="hidden">
+                                </th>
+                                <th data-checkbox="true">
+                                </th>
+                                <th>
+                                    Sl
+                                </th>
+                                <th data-field="code"
+                                    data-sortable="true">
+                                    Code
+                                </th>
+                                <th data-field="name"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    Name
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null)
+                            {
+                                int count = 1;
+                                foreach (var item in Model.Employees)
+                                {
+                                    <tr>
+                                        <td class="hidden">
+                                            @item.Id
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            @count
+                                        </td>
+                                        <td>
+                                            @item.Code
+                                        </td>
+                                        <td>
+                                            @item.Name
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@using (Html.BeginForm("GetEmployeesByDepartmentID", "SalaryProcess", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "salarysheetform" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.DepartmentID, new { htmlAttributes = new { @class = "form-control input-sm" } })
+}
+<script>
+    $(document).ready(function () {
+
+        $('#SalaryMonth').datetimepicker({
+          @{
+          if (Model == null || Model.SalaryMonth == null)
+          {
+              @:defaultDate: moment(),
+          }
+        else
+        {
+        @:defaultDate: '@(Convert.ToDateTime(Model.SalaryMonth).ToString("dd-MMM-yyyy"))',
+        }
+        @:format: 'MMMM YYYY'
+        }
+    });
+
+    });
+
+
+
+    $('#DepartmentsModal').on('hidden.bs.modal', function () {
+        $("#DepartmentsId").val();
+        $("#DepartmentID").val( $("#DepartmentsId").val());
+
+        $('form#salarysheetform').submit();
+    })
+
+
+    var $table = $('#SalarySheetEmployeesTable');
+    var checkedIdArr = [];
+
+    $table.on('check.bs.table', function (e, row) {
+        checkedIdArr.push($.trim(row.id));
+        $('#EmployeeIdList').val(checkedIdArr);
+        SetFormValue();
+    });
+    $table.on('uncheck.bs.table', function (e, row) {
+        var index = checkedIdArr.indexOf($.trim(row.id));
+        if (index > -1)
+            checkedIdArr.splice(index, 1);
+        $('#EmployeeIdList').val(checkedIdArr);
+        SetFormValue();
+    });
+    function getRowById(id) {
+        return $("td").filter(function () {
+            return $(this).hasClass('hidden') && $.trim($(this).text()) == id;
+        }).closest("tr");
+    }
+
+    $(document).on('change', 'input[name="btSelectAll"]', function () {
+        checkedIdArr = [];
+        if (this.checked == true) {
+            @foreach (var item in Model.Employees)
+            {
+                @:checkedIdArr.push("@item.Id");
+            }
+        }
+        $('#EmployeeIdList').val(checkedIdArr);
+        SetFormValue();
+    });
+
+    function SetFormValue() {
+        $("#EmployeesCode").val("000000")
+        $("#EmployeesName").val("Selected Employee: " + checkedIdArr.length)
+    }
+</script>

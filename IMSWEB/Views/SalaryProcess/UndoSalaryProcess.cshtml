@@ -1,0 +1,84 @@
+﻿@model IEnumerable<SalaryProcessViewModel>
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName;
+    int Counter = 1;
+}
+
+<h4>Undo Salary Process</h4>
+<hr />
+
+
+<div class="row">
+    <div class="col-md-offset-1 col-md-10">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table id="UndoSalaryTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="10"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="code"
+                                data-sortable="true">
+                                Process ID
+                            </th>
+                            <th data-field="name"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Salary Month
+                            </th>
+                            <th data-field="Error"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Total Employee
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SalaryProcessID)
+                                    </td>
+                                    <td>
+                                        @item.SalaryProcessMonth.ToString("dd MMM yyyy")
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.TotalEmployee)
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink("Undo", "Undo", new { SalaryProcessID = item.SalaryProcessID }, new { onclick = "if(!confirm('Do you want to delete this bank?')) return false;" })
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>

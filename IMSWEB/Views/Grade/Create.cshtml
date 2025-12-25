@@ -1,0 +1,49 @@
+﻿@model GradeViewModel
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + "";
+}
+
+<h4>@(ViewBag.Title + " Grade.")</h4>
+<hr />
+
+@using (Html.BeginForm(actionName, "Grade", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.GradeID);
+    <div class="col-md-offset-3 col-md-5">
+        <div class="form-group">
+            @Html.LabelFor(model => model.Code, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.BasicPercentOfGross, htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.BasicPercentOfGross, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                @Html.ValidationMessageFor(model => model.BasicPercentOfGross, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-9 col-md-offset-3">
+                <div class="checkbox">
+                    <label>@Html.CheckBoxFor(model => model.HasGrossConcept) Gross Applicable</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+                <input type="submit" value="Add" class="btn btn-sm btn-primary" />
+            </div>
+        </div>
+    </div>
+}

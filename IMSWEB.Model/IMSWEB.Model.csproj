@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{043CE8DC-B7D9-4E99-8759-408F61F2EA9E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>IMSWEB.Model</RootNamespace>
+    <AssemblyName>IMSWEB.Model</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNet.Identity.Core">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.1\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Enums\Enum.cs" />
+    <Compile Include="Enums\EnumExtension.cs" />
+    <Compile Include="IModelBase.cs" />
+    <Compile Include="Models\ADParameterBasic.cs" />
+    <Compile Include="Models\ADParameterEmployee.cs" />
+    <Compile Include="Models\ADParameterGrade.cs" />
+    <Compile Include="Models\AdvanceSalary.cs" />
+    <Compile Include="Models\AllowanceDeduction.cs" />
+    <Compile Include="Models\Attendence.cs" />
+    <Compile Include="Models\AttendenceMonth.cs" />
+    <Compile Include="Models\AuditTrailModel.cs" />
+    <Compile Include="Models\BankLoan.cs" />
+    <Compile Include="Models\BankLoanCollection.cs" />
+    <Compile Include="Models\BankLoanDetails.cs" />
+    <Compile Include="Models\BankLoanPenaltyDetails.cs" />
+    <Compile Include="Models\CardType.cs" />
+    <Compile Include="Models\CardTypeSetup.cs" />
+    <Compile Include="Models\CashCollTranHistory.cs" />
+    <Compile Include="Models\CommissionSetup.cs" />
+    <Compile Include="Models\CreditInterestHistory.cs" />
+    <Compile Include="Models\CreditInterestPercentage.cs" />
+    <Compile Include="Models\CustomerOpeningDue.cs" />
+    <Compile Include="Models\DO.cs" />
+    <Compile Include="Models\DODetail.cs" />
+    <Compile Include="Models\EmployeeCommission.cs" />
+    <Compile Include="Models\Godown.cs" />
+    <Compile Include="Models\DesWiseCommission.cs" />
+    <Compile Include="Models\ExtraCommissionSetup.cs" />
+    <Compile Include="Models\HireSalesReturnCustomerDueAdjustment.cs" />
+    <Compile Include="Models\ManualAttendence.cs" />
+    <Compile Include="Models\MonthlyAttendence.cs" />
+    <Compile Include="Models\ParentCategory.cs" />
+    <Compile Include="Models\PrevBalance.cs" />
+    <Compile Include="Models\SalaryProcess.cs" />
+    <Compile Include="Models\SalaryMonthlyDetail.cs" />
+    <Compile Include="Models\Bank.cs" />
+    <Compile Include="Models\BankTransaction.cs" />
+    <Compile Include="Models\Department.cs" />
+    <Compile Include="Models\EmpGradeSalaryAssignment.cs" />
+    <Compile Include="Models\EmployeeLeave.cs" />
+    <Compile Include="Models\Grade.cs" />
+    <Compile Include="Models\GradeSalaryChangeType.cs" />
+    <Compile Include="Models\HolidayCalender.cs" />
+    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\CashCollection.cs" />
+    <Compile Include="Models\Category.cs" />
+    <Compile Include="Models\Company.cs" />
+    <Compile Include="Models\CreditSale.cs" />
+    <Compile Include="Models\CreditSaleDetails.cs" />
+    <Compile Include="Models\CreditSalesSchedules.cs" />
+    <Compile Include="Models\Customer.cs" />
+    <Compile Include="Models\DamageProduct.cs" />
+    <Compile Include="Models\Designation.cs" />
+    <Compile Include="Models\Employee.cs" />
+    <Compile Include="Models\Error.cs" />
+    <Compile Include="Models\Expenditure.cs" />
+    <Compile Include="Models\ExpenseItem.cs" />
+    <Compile Include="IMSWEB.cs" />
+    <Compile Include="Models\Color.cs" />
+    <Compile Include="Models\Location.cs" />
+    <Compile Include="Models\MenuModels.cs" />
+    <Compile Include="Models\POProductDetail.cs" />
+    <Compile Include="Models\POrder.cs" />
+    <Compile Include="Models\POrderDetail.cs" />
+    <Compile Include="Models\PriceProtection.cs" />
+    <Compile Include="Models\Religion.cs" />
+    <Compile Include="Models\ReplaceOrder.cs" />
+    <Compile Include="Models\ReplaceOrderDetail.cs" />
+    <Compile Include="Models\ROProductDetail.cs" />
+    <Compile Include="Models\ROrderDetail.cs" />
+    <Compile Include="Models\ROrder.cs" />
+    <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\SalaryMonthly.cs" />
+    <Compile Include="Models\SaleOffer.cs" />
+    <Compile Include="Models\ServiceCharge.cs" />
+    <Compile Include="Models\ServiceChargeDetails.cs" />
+    <Compile Include="Models\SessionMaster.cs" />
+    <Compile Include="Models\ShareInvestment.cs" />
+    <Compile Include="Models\ShareInvestmentHead.cs" />
+    <Compile Include="Models\SisterConcern.cs" />
+    <Compile Include="Models\Return.cs" />
+    <Compile Include="Models\SMSBillPayment.cs" />
+    <Compile Include="Models\SMSFormate.cs" />
+    <Compile Include="Models\SMSPaymentMaster.cs" />
+    <Compile Include="Models\SMSPaymentMasterDetails.cs" />
+    <Compile Include="Models\SMSStatus.cs" />
+    <Compile Include="Models\SOrder.cs" />
+    <Compile Include="Models\ReturnDetail.cs" />
+    <Compile Include="Models\SOrderDetail.cs" />
+    <Compile Include="Models\SRVisit.cs" />
+    <Compile Include="Models\SRVisitDetail.cs" />
+    <Compile Include="Models\SRVProductDetail.cs" />
+    <Compile Include="Models\Stock.cs" />
+    <Compile Include="Models\StockDetail.cs" />
+    <Compile Include="Models\Supplier.cs" />
+    <Compile Include="Models\sysdiagram.cs" />
+    <Compile Include="Models\SystemInformation.cs" />
+    <Compile Include="Models\TargetSetup.cs" />
+    <Compile Include="Models\TargetSetupDetail.cs" />
+    <Compile Include="Models\TransactionPOrder.cs" />
+    <Compile Include="Models\TransactionPOrderDetail.cs" />
+    <Compile Include="Models\TransactionSOrder.cs" />
+    <Compile Include="Models\TransactionSOrderDetail.cs" />
+    <Compile Include="Models\Transfer.cs" />
+    <Compile Include="Models\TransferDetail.cs" />
+    <Compile Include="Models\TransferHistory.cs" />
+    <Compile Include="Models\UserAuditDetail.cs" />
+    <Compile Include="OldUser.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SPModel\AccountingReportModel.cs" />
+    <Compile Include="SPModel\AdjustmentReportModel.cs" />
+    <Compile Include="SPModel\AdvanceLoanReportModel.cs" />
+    <Compile Include="SPModel\AdvanceSearchModel.cs" />
+    <Compile Include="SPModel\AttendenceReportVM.cs" />
+    <Compile Include="SPModel\BankSummaryReportModel.cs" />
+    <Compile Include="SPModel\BankTransReportModel.cs" />
+    <Compile Include="SPModel\CashCollectionReportModel.cs" />
+    <Compile Include="SPModel\CashInHandModel.cs" />
+    <Compile Include="SPModel\CashInHandReportModel.cs" />
+    <Compile Include="SPModel\Costing.cs" />
+    <Compile Include="SPModel\CustomerDueReport.cs" />
+    <Compile Include="SPModel\CustomerDueReportModel.cs" />
+    <Compile Include="SPModel\BankLedgerModel.cs" />
+    <Compile Include="SPModel\CustomerLedgerModel.cs" />
+    <Compile Include="SPModel\DailyCashBookLedgerModel.cs" />
+    <Compile Include="SPModel\DailyStockVSSalesSummaryReportModel.cs" />
+    <Compile Include="SPModel\DailyWorkSheetReportModel.cs" />
+    <Compile Include="SPModel\DistributorAnalysis.cs" />
+    <Compile Include="SPModel\HireAccountDetailsReportModel.cs" />
+    <Compile Include="SPModel\LedgerAccountReportModel.cs" />
+    <Compile Include="SPModel\LiabilityReportModel.cs" />
+    <Compile Include="SPModel\MonthlyBenefitReport.cs" />
+    <Compile Include="SPModel\PaySlip.cs" />
+    <Compile Include="SPModel\ProductDetailsModel.cs" />
+    <Compile Include="SPModel\ProductPickerInStockReportModel.cs" />
+    <Compile Include="SPModel\ProductWiseBenefitModel.cs" />
+    <Compile Include="SPModel\ProductWisePurchaseModel.cs" />
+    <Compile Include="SPModel\ProductWiseSalesReportModel.cs" />
+    <Compile Include="SPModel\ReplacementOrderInvoiceModel.cs" />
+    <Compile Include="SPModel\ReplacementReportModel.cs" />
+    <Compile Include="SPModel\ReturnReportModel.cs" />
+    <Compile Include="SPModel\ServiceChargeModel.cs" />
+    <Compile Include="SPModel\SMS\SMS.cs" />
+    <Compile Include="SPModel\SRVisitReportModel.cs" />
+    <Compile Include="SPModel\SRVisitStatusReportModel.cs" />
+    <Compile Include="SPModel\SRWiseCustomerSalesSummaryVM.cs" />
+    <Compile Include="SPModel\SRWiseCustomerStatusReportModel.cs" />
+    <Compile Include="SPModel\SRWiseSalesDetailsReportModel.cs" />
+    <Compile Include="SPModel\StockForcastingReportModel.cs" />
+    <Compile Include="SPModel\StockLedger.cs" />
+    <Compile Include="SPModel\StockReportWithDateReportModel.cs" />
+    <Compile Include="SPModel\SummaryReportModel.cs" />
+    <Compile Include="SPModel\SupplierLedgerReportModel.cs" />
+    <Compile Include="SPModel\TransactionReportModel.cs" />
+    <Compile Include="SPModel\UpcommingScheduleReport.cs" />
+    <Compile Include="SPModel\UserAuditDetailsReportModel.cs" />
+    <Compile Include="SPModel\VoucherTransactionReportModel.cs" />
+    <Compile Include="TOs\SRQuantity.cs" />
+    <Compile Include="TO\BankLoanCollectionTO.cs" />
+    <Compile Include="TO\BankLoanTO.cs" />
+    <Compile Include="TO\Bkash\ConfirmPaymentResponseTO.cs" />
+    <Compile Include="TO\Bkash\CreatePaymentResponseTO.cs" />
+    <Compile Include="TO\Bkash\SisterConcerPayTO.cs" />
+    <Compile Include="TO\Bkash\TokenResponse.cs" />
+    <Compile Include="TO\IdNameDDLTO.cs" />
+    <Compile Include="TO\IdNameList.cs" />
+    <Compile Include="TO\PaymentDueInfoTO.cs" />
+    <Compile Include="TO\RPTBankDueLoanTO.cs" />
+    <Compile Include="TO\RPTBankLoanCollectionInvTO.cs" />
+    <Compile Include="TO\RPTBankLoanDetailsTO.cs" />
+    <Compile Include="TO\RPTCustomerAdjustmentDateWise.cs" />
+    <Compile Include="TO\RPTCustomerDueDateWise.cs" />
+    <Compile Include="TO\RPTDoTO.cs" />
+    <Compile Include="TO\SupplierDueTO.cs" />
+    <Compile Include="TO\TOAccountRecAndPay.cs" />
+    <Compile Include="TO\TOCategoryWiseCustomerDue.cs" />
+    <Compile Include="TO\TOCheckStockValue.cs" />
+    <Compile Include="TO\TOCustomerInfoForDueReport.cs" />
+    <Compile Include="TO\TOHomeWidget.cs" />
+    <Compile Include="ZKTECOModel\DeviceTimeInfo.cs" />
+    <Compile Include="ZKTECOModel\AttendenceLog.cs" />
+    <Compile Include="ZKTECOModel\UserIDInfo.cs" />
+    <Compile Include="ZKTECOModel\UserInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+</Project>

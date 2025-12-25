@@ -1,0 +1,285 @@
+﻿@model IMSWEB.TargetSetupViewModel
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Create";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+    bool IsAmountFieldEnable = Model != null ? (Model.CatergoryWiseDetails.Count() > 0 ? false : true) : true;
+}
+<h4>Target Setup</h4>
+<hr />
+
+@using (Html.BeginForm(actionName, controllerName, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "myform" }))
+{
+    <div class="row">
+        <div class="col-md-6">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.TID)
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.TargetMonth, new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @*@Html.EditorFor(model => model.TargetMonth, new { htmlAttributes = new { @class = "form-control input-sm" } })*@
+                                    <div class='input-group date' id='TargetMonth'>
+                                        <input type='text' class="input-sm form-control input-sm" name='TargetMonth' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.TargetMonth, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.EmployeeID, new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && Model.EmployeeID != null && Model.EmployeeID != null) ? Model.EmployeeID : 0 });}
+                                    @Html.ValidationMessageFor(model => model.EmployeeID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            @*<div class="form-group">
+                                    @Html.LabelFor(model => model.Quantity, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-10">
+                                        @Html.ValidationMessageFor(model => model.Quantity, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>*@
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Amount, new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @if (IsAmountFieldEnable)
+                                    {
+                                       @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control input-sm  text-right" } })
+                                    }
+                                    else
+                                    {
+                                       @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control input-sm  text-right",@readonly="readonly" } })
+                                    }
+                                    @Html.HiddenFor(model => model.Quantity, new { htmlAttributes = new { @class = "form-control input-sm text-right", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="CategorywiseproductTable"
+                                   data-toggle="table"
+                                   data-search="true"
+                                   data-show-refresh="true"
+                                   data-show-toggle="true"
+                                   data-show-columns="true"
+                                   data-show-export="true"
+                                   data-detail-view="true"
+                                   data-pagination="false"
+                                   data-id-field="productName"
+                                   data-page-list="[10, 25, 50, 100, ALL]"
+                                   data-page-size="10"
+                                   class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Sl
+                                        </th>
+                                        <th data-field="Category"
+                                            data-sorter="sorter"
+                                            data-sortable="true">
+                                            Category Name
+                                        </th>
+                                        <th data-field="Qty"
+                                            data-sortable="true">
+                                            Qty
+                                        </th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model != null)
+                                    {
+                                        int count = 1;
+                                        foreach (var item in Model.CatergoryWiseDetails)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @count
+                                                </td>
+                                                <td>
+                                                    @item.CategoryName
+                                                </td>
+                                                <td>
+                                                    @item.Quantity
+                                                </td>
+                                                <td>
+                                                    @*@Html.ActionLink("Edit", "EditFromView", new { id = item.CategoryID, previousAction = "Edit" }, new { @class = "btn btn-xs btn-info" })*@
+                                                    @Html.ActionLink("Delete", "DeleteFromView", new { id = item.CategoryID, previousAction = "Edit" }, new { @class = "btn btn-xs btn-info" })
+                                                </td>
+                                            </tr>
+                                            count++;
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <div class="col-md-offset-2 col-md-10">
+                                    <input type="submit" value="Save" name="btnSave" id="btnSave" class="btn btn-primary btn-sm pull-right" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.CategoryID, new { @class = "control-label col-md-2" })
+                                        <div class="col-md-10">
+                                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Category, id = (Model != null && Model.CategoryID != null && Model.CategoryID != null) ? Model.CategoryID : "0" });}
+                                            @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="btn-group">
+                                        <input type="submit" name="btnSearch" id="btnSearch" value="Search" class="btn btn-sm btn-info" />
+                                        <input type="submit" name="btnAddProduct" id="btnAddProduct" value="Add" class="btn btn-sm btn-primary ml-2" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel">
+                            <table id="productTable"
+                                   data-toggle="table"
+                                   data-search="false"
+                                   data-show-refresh="false"
+                                   data-show-toggle="true"
+                                   data-show-columns="true"
+                                   data-show-export="false"
+                                   data-detail-view="false"
+                                   data-pagination="false"
+                                   data-id-field="productName"
+                                   data-page-list="[10, 25, 50, 100, ALL]"
+                                   data-page-size="10"
+                                   class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Sl
+                                        </th>
+                                        <th>
+                                            Select
+                                        </th>
+                                        <th data-field="code"
+                                            data-sortable="true">
+                                            Product Code
+                                        </th>
+                                        <th data-field="productName"
+                                            data-sorter="sorter"
+                                            data-sortable="true">
+                                            Product Name
+                                        </th>
+                                        <th data-field="companyName"
+                                            data-sortable="true">
+                                            Company Name
+                                        </th>
+                                        <th data-field="Quantity"
+                                            data-sortable="true">
+                                            Quantity
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model != null)
+                                    {
+                                        int count = 1;
+                                        for (int i = 0; i < Model.Products.Count(); i++)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @count
+                                                </td>
+                                                <td>
+                                                    @Html.EditorFor(item => item.Products[i].IsSelect)
+                                                    @Html.HiddenFor(item => item.Products[i].ProductId)
+                                                    @Html.HiddenFor(item => item.Products[i].CategoryID)
+                                                    @Html.HiddenFor(item => item.Products[i].CategoryName)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(item => item.Products[i].ProductCode)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(item => item.Products[i].ProductName)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(item => item.Products[i].CompanyName)
+                                                </td>
+                                                <td>
+                                                    @Html.EditorFor(item => item.Products[i].Quantity)
+                                                </td>
+                                            </tr>
+                                            count++;
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+}
+
+<script>
+    $('#TargetMonth').datetimepicker({
+        @{
+        if (Model == null || Model.TargetMonth == DateTime.MinValue)
+        {
+                @:defaultDate: moment(),
+                 }
+        else
+        {
+           @:defaultDate: '@Model.TargetMonth.ToString("MMM-yyyy")',
+                }
+         @:format: 'MMM-YYYY'
+                                            }
+    });
+
+    $("#CategoriesModal").on('hidden.bs.modal', function () {
+        //alert("category modal close");
+        //$("#myform").submit();
+    });
+
+</script>

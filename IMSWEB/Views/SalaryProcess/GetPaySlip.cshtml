@@ -1,0 +1,68 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.GetSalarySheetViewModel
+
+
+@{
+    ViewBag.Title = "Pay Slip";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("GetPaySlip", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+{
+    @Html.Hidden("EmployeeIdList");
+    <div class="row">
+        <div class="col-lg-5 col-md-5  col-sm-12 col-lg-offset-2 col-md-offset-2">
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table">
+                        <tr>
+                            <td>
+                                @Html.Label("Salary Month", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class='input-group date' id='SalaryMonth'>
+                                        <input type='text' class="input-sm form-control input-sm" name='SalaryMonth' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.Label("Employee", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && Model.EmployeeId != null) ? Model.EmployeeId : "0" });}
+                                @Html.ValidationMessageFor(model => model.EmployeeId, "", new { @class = "text-danger" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="col-sm-4">
+                                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                </div>
+                                <div class="col-sm-4">
+                                    <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    $(document).ready(function () {
+        $('#SalaryMonth').datetimepicker({
+            defaultDate: moment(),
+            format: 'MMMM YYYY'
+        });
+    });
+</script>

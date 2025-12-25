@@ -1,0 +1,54 @@
+﻿@model IMSWEB.DesWiseCommissionViewModel
+
+@{
+    ViewBag.Title = "Designation wise Commission";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllername = ViewContext.RouteData.Values["controller"].ToString();
+    
+}
+
+<h4 class="text-left inline-header">@ViewBag.Title</h4>
+
+@using (Html.BeginForm(actionName,controllername,FormMethod.Post))
+{
+
+    <div class="row">
+        <div class="col-md-offset-3 col-md-5">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.ID);
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.DesignationID, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.DropDownList("DesignationID", @ViewBag.Designations as SelectList, "--Select Designation--", new { @class = "form-control input-sm" })
+                                @Html.ValidationMessageFor(model => model.DesignationID, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CommissionPercent, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.CommissionPercent, new { htmlAttributes = new { @class = "form-control input-sm text-right", type = "number", step = "0.01", autofocus = "autofocus", Placeholder = "e.g. if 1% then input 0.01" } })
+                                @Html.ValidationMessageFor(model => model.CommissionPercent, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <input type="submit" value="Add Commission" class="btn btn-sm btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#DesignationID").select2();
+    });
+</script>

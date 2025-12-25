@@ -1,0 +1,21 @@
+select *from tempParentCategory
+select *From Categorys --where Description like 'Fridge%'
+
+--Insert into ParentCategories(Code,name,CreatedBy,CreateDate)
+--select Code,name,1019,GetDate()From tempParentCategory
+
+select *from ParentCategories
+--update Categorys set PCategoryID=9
+
+select *from tempCategory
+
+--update tempCategory set ParentID=pc.PCategoryID
+--from ParentCategories pc
+--join tempCategory tpc on pc.Name=tpc.ParentCategory
+
+--update Categorys set PCategoryID=tc.ParentID
+--from tempCategory tc 
+--join Categorys c on tc.Category=c.Description
+
+--update  Categorys set PCategoryID=1
+--where Description like 'Fridge%'

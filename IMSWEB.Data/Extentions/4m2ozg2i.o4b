@@ -1,0 +1,413 @@
+﻿
+using IMSWEB.Model;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace IMSWEB.Data
+{
+    public static class BankTransactionExtensions
+    {
+         public static async Task<IEnumerable<Tuple<int, string, decimal, DateTime?, string>>> 
+            GetAllBankTransactionAsync  
+                (this IBaseRepository<BankTransaction> bankTransactionRepository,
+                IBaseRepository<Bank> bankRepository   )
+          {
+            IQueryable<Bank> banks = bankRepository.All;
+
+
+            var items = await bankTransactionRepository.All.Join(banks,bt=>bt.BankID , b => b.BankID,  (bt, b) => new { BankTransaction =bt, Bank = b }).
+                Select(x => new
+                {
+                    BankTransactionId = x.BankTransaction.BankTranID,
+                    BankName = x.Bank.BankName,
+                    Amount=x.BankTransaction.Amount,
+                    TranDate=x.BankTransaction.TranDate,
+                    Remarks=x.BankTransaction.Remarks
+                    
+                }).ToListAsync();
+
+            return items.Select(x => new Tuple<int, string, decimal, DateTime?, string>
+                (
+
+                x.BankTransactionId,
+                x.BankName,
+                x.Amount,
+                x.TranDate,
+                x.Remarks
+                   
+                )).ToList();
+        }
+
+         public static  IEnumerable<Tuple<int, string, decimal, DateTime?, string>>
+              GetAllBankTransaction
+                  (this IBaseRepository<BankTransaction> bankTransactionRepository,
+                  IBaseRepository<Bank> bankRepository)
+         {
+             IQueryable<Bank> banks = bankRepository.All;
+
+
+             var items=   bankTransactionRepository.All.Join(banks, bt => bt.BankID, b => b.BankID, (bt, b) => new { BankTransaction = bt, Bank = b }).
+                 Select(x => new
+                 {
+                     BankTransactionId = x.BankTransaction.BankTranID,
+                     BankName = x.Bank.BankName,
+                     Amount = x.BankTransaction.Amount,
+                     TranDate = x.BankTransaction.TranDate,
+                     Remarks = x.BankTransaction.Remarks
+
+                 }).ToList();
+
+             return items.Select(x => new Tuple<int, string, decimal, DateTime?, string>
+                 (
+
+                 x.BankTransactionId,
+                 x.BankName,
+                 x.Amount,
+                 x.TranDate,
+                 x.Remarks
+
+                 )).ToList();
+         }
+        public static IEnumerable<Tuple<int, string, string, decimal,
+            string, string, string, Tuple<decimal?, string, decimal, int, int, string, string, Tuple<int, int, int, int>>>> GetAllProductFromDetail(this IBaseRepository<Product> productRepository,
+            IBaseRepository<Category> categoryRepository, IBaseRepository<Company> companyRepository, IBaseRepository<Color> colorRepository,
+            IBaseRepository<Stock> stockRepository, IBaseRepository<StockDetail> stockDetailRepository, IBaseRepository<SaleOffer> saleOfferRepository)
+        {
+            IQueryable<Product> products = productRepository.All;
+            IQueryable<Category> categories = categoryRepository.All;
+            IQueryable<Company> companies = companyRepository.All;
+            IQueryable<Color> colors = colorRepository.All;
+            IQueryable<Stock> stocks = stockRepository.All;
+            IQueryable<StockDetail> details = stockDetailRepository.All;
+
+            IQueryable<SaleOffer> saleOffer = saleOfferRepository.FindBy(x => x.FromDate <= DateTime.Today && x.ToDate >= DateTime.Today);
+            var items = details.Join(products, d => d.ProductID, p => p.ProductID,
+                (d, p) => new { Detail = d, Product = p }).
+                Join(companies, dp => dp.Product.CompanyID, c => c.CompanyID,
+                (dp, c) => new { Product = dp.Product, Detail = dp.Detail, Company = c }).
+                Join(categories, dpc => dpc.Product.CategoryID, c => c.CategoryID,
+                (dpc, c) => new { Product = dpc.Product, Detail = dpc.Detail, Company = dpc.Company, Category = c }).
+                Join(stocks, dpccm => dpccm.Detail.StockID, s => s.StockID,
+                (dpccm, s) => new { Product = dpccm.Product, Detail = dpccm.Detail, Company = dpccm.Company, Category = dpccm.Category, Stock = s }).
+                Join(colors, dpccms => dpccms.Detail.ColorID, c => c.ColorID,
+                (dpccms, c) => new { Product = dpccms.Product, Detail = dpccms.Detail, Company = dpccms.Company, Category = dpccms.Category, Stock = dpccms.Stock, Color = c }).
+                GroupJoin(saleOffer, dpccmsc => dpccmsc.Product.ProductID, o => o.ProductID,
+                (dpccmsc, o) => new { Product = dpccmsc.Product, Detail = dpccmsc.Detail, Company = dpccmsc.Company, Category = dpccmsc.Category, Stock = dpccmsc.Stock, dpccmsc.Color, Offer = o })
+                .SelectMany(
+          dpccmsc => dpccmsc.Offer.DefaultIfEmpty(),
+          (dpccmsc, o) => new { Product = dpccmsc.Product, Detail = dpccmsc.Detail, Company = dpccmsc.Company, Category = dpccmsc.Category, Stock = dpccmsc.Stock, dpccmsc.Color, Offer = o }).
+                Where(x => x.Detail.Status == 1).
+                Select(x => new
+                {
+                    DetailId = x.Detail.SDetailID,
+                    ProductId = x.Product.ProductID,
+                    ProductCode = x.Product.Code,
+                    x.Product.ProductName,
+                    x.Product.PWDiscount,
+                    x.Product.PicturePath,
+                    CategoryName = x.Category.Description,
+                    CompanyName = x.Company.Name,
+                    PreviousStock = x.Detail.Status,
+                    IMENO = x.Detail.IMENO,
+                    MRPRate = x.Detail.SRate,
+                    ColorId = x.Color.ColorID,
+                    ColorName = x.Color.Name,
+                    OfferDescription = x.Offer.Description,
+                    ProductType = x.Product.ProductType,
+                    x.Product.CompressorWarrentyMonth,
+                    x.Product.PanelWarrentyMonth,
+                    x.Product.MotorWarrentyMonth,
+                    x.Product.SparePartsWarrentyMonth
+                }).ToList();
+
+            return items.Select(x => new Tuple<int, string, string, decimal, string, string, string,
+                Tuple<decimal?, string, decimal, int, int, string, string, Tuple<int, int, int, int>>>
+                (
+                    x.ProductId,
+                    x.ProductCode,
+                    x.ProductName,
+                    x.PWDiscount,
+                    x.PicturePath,
+                    x.CategoryName,
+                    x.CompanyName,
+                    new Tuple<decimal?, string, decimal, int, int, string, string, Tuple<int, int, int, int>>(
+                        x.PreviousStock, x.IMENO, x.MRPRate, x.DetailId, x.ColorId, x.ColorName, x.OfferDescription,
+                        new Tuple<int, int, int, int>(x.CompressorWarrentyMonth, x.PanelWarrentyMonth, x.MotorWarrentyMonth, x.SparePartsWarrentyMonth)
+                        )
+                )).ToList();
+        }
+
+        public static IEnumerable<Tuple<int, string, string, decimal,
+               string, string, string, Tuple<decimal?, string, decimal, int, int, string, string, Tuple<decimal, int, int, int, int>>>> GetAllProductFromDetailForCredit(this IBaseRepository<Product> productRepository,
+               IBaseRepository<Category> categoryRepository, IBaseRepository<Company> companyRepository, IBaseRepository<Color> colorRepository,
+               IBaseRepository<Stock> stockRepository, IBaseRepository<StockDetail> stockDetailRepository, IBaseRepository<SaleOffer> saleOfferRepository)
+        {
+            IQueryable<Product> products = productRepository.All;
+            IQueryable<Category> categories = categoryRepository.All;
+            IQueryable<Company> companies = companyRepository.All;
+            IQueryable<Color> colors = colorRepository.All;
+            IQueryable<Stock> stocks = stockRepository.All;
+            IQueryable<StockDetail> details = stockDetailRepository.All;
+
+            IQueryable<SaleOffer> saleOffer = saleOfferRepository.FindBy(x => x.FromDate <= DateTime.Today && x.ToDate >= DateTime.Today);
+            var items = details.Join(products, d => d.ProductID, p => p.ProductID,
+                (d, p) => new { Detail = d, Product = p }).
+                Join(companies, dp => dp.Product.CompanyID, c => c.CompanyID,
+                (dp, c) => new { Product = dp.Product, Detail = dp.Detail, Company = c }).
+                Join(categories, dpc => dpc.Product.CategoryID, c => c.CategoryID,
+                (dpc, c) => new { Product = dpc.Product, Detail = dpc.Detail, Company = dpc.Company, Category = c }).
+                Join(stocks, dpccm => dpccm.Detail.StockID, s => s.StockID,
+                (dpccm, s) => new { Product = dpccm.Product, Detail = dpccm.Detail, Company = dpccm.Company, Category = dpccm.Category, Stock = s }).
+                Join(colors, dpccms => dpccms.Detail.ColorID, c => c.ColorID,
+                (dpccms, c) => new { Product = dpccms.Product, Detail = dpccms.Detail, Company = dpccms.Company, Category = dpccms.Category, Stock = dpccms.Stock, Color = c }).
+                GroupJoin(saleOffer, dpccmsc => dpccmsc.Product.ProductID, o => o.ProductID,
+                (dpccmsc, o) => new { Product = dpccmsc.Product, Detail = dpccmsc.Detail, Company = dpccmsc.Company, Category = dpccmsc.Category, Stock = dpccmsc.Stock, dpccmsc.Color, Offer = o })
+                .SelectMany(
+          dpccmsc => dpccmsc.Offer.DefaultIfEmpty(),
+          (dpccmsc, o) => new { Product = dpccmsc.Product, Detail = dpccmsc.Detail, Company = dpccmsc.Company, Category = dpccmsc.Category, Stock = dpccmsc.Stock, dpccmsc.Color, Offer = o }).
+                Where(x => x.Detail.Status == 1).
+                Select(x => new
+                {
+                    DetailId = x.Detail.SDetailID,
+                    ProductId = x.Product.ProductID,
+                    ProductCode = x.Product.Code,
+                    x.Product.ProductName,
+                    x.Product.PWDiscount,
+                    x.Product.PicturePath,
+                    CategoryName = x.Category.Description,
+                    CompanyName = x.Company.Name,
+                    PreviousStock = x.Detail.Status,
+                    IMENO = x.Detail.IMENO,
+                    MRPRate = x.Detail.CreditSRate,
+                    SalesRate = x.Detail.SRate,
+                    ColorId = x.Color.ColorID,
+                    ColorName = x.Color.Name,
+                    OfferDescription = x.Offer.Description,
+                    ProductType = x.Product.ProductType,
+                    x.Product.CompressorWarrentyMonth,
+                    x.Product.MotorWarrentyMonth,
+                    x.Product.PanelWarrentyMonth,
+                    x.Product.SparePartsWarrentyMonth
+                }).ToList();
+
+            return items.Select(x => new Tuple<int, string, string, decimal, string, string, string,
+                Tuple<decimal?, string, decimal, int, int, string, string, Tuple<decimal, int, int, int, int>>>
+                (
+                    x.ProductId,
+                    x.ProductCode,
+                    x.ProductName,
+                    x.PWDiscount,
+                    x.PicturePath,
+                    x.CategoryName,
+                    x.CompanyName,
+                    new Tuple<decimal?, string, decimal, int, int, string, string, Tuple<decimal, int, int, int, int>>(
+                        x.PreviousStock,
+                        x.IMENO,
+                        x.MRPRate,
+                        x.DetailId,
+                        x.ColorId,
+                        x.ColorName,
+                        x.OfferDescription,
+                        new Tuple<decimal, int, int, int, int>(x.SalesRate, x.CompressorWarrentyMonth, x.MotorWarrentyMonth, x.PanelWarrentyMonth, x.SparePartsWarrentyMonth)
+                        )
+                )).ToList();
+        }
+
+
+
+        public static IEnumerable<Tuple<int, string, string, decimal,
+    string, string, string, Tuple<decimal?, string, decimal, int, int, string, string>>> GetAllSalesProductFromDetailByCustomerID(this IBaseRepository<Product> productRepository,
+    IBaseRepository<Category> categoryRepository, IBaseRepository<Company> companyRepository, IBaseRepository<Color> colorRepository,
+    IBaseRepository<Stock> stockRepository, IBaseRepository<StockDetail> stockDetailRepository, IBaseRepository<SaleOffer> saleOfferRepository, IBaseRepository<SOrder> salesOrderRepository, IBaseRepository<SOrderDetail> salesOrderDetailsRepository, int CustomerID)
+        {
+            IQueryable<Product> products = productRepository.All;
+            IQueryable<Category> categories = categoryRepository.All;
+            IQueryable<Company> companies = companyRepository.All;
+            IQueryable<Color> colors = colorRepository.All;
+            IQueryable<Stock> stocks = stockRepository.All;
+            IQueryable<StockDetail> details = stockDetailRepository.All;
+            IQueryable<SOrderDetail> sOrderDetails = salesOrderDetailsRepository.All;
+
+            var CustomerAllSales = salesOrderRepository.FindBy(i => i.CustomerID == CustomerID);
+            var CustomerSalesDetails = (from so in CustomerAllSales.Where(i => i.Status == (int)EnumSalesType.Sales)
+                                        join sod in sOrderDetails on so.SOrderID equals sod.SOrderID
+                                        where sod.IsProductReturn == 0
+                                        select new
+                                        {
+                                            StockDetailID = sod.RStockDetailID == null ? sod.SDetailID : sod.RStockDetailID,
+                                            SalesPrice = sod.RStockDetailID == null ? sod.UTAmount : (decimal)sod.RepUnitPrice,
+                                        }).ToList();
+
+            //var repproduct = (from so in totalsales
+            //                  join sod in sOrderDetails on so.SOrderID equals sod.RepOrderID
+            //                  select new
+            //                  {
+            //                      StockDetailID = (int)sod.RStockDetailID,
+            //                      SalesPrice = (decimal)sod.UTAmount
+            //                  }).ToList();
+
+            //CustomerSalesDetails.AddRange(repproduct);
+
+            List<StockDetail> finaldetails = new List<StockDetail>();
+            foreach (var item in CustomerSalesDetails)
+            {
+                var stockdetails = details.FirstOrDefault(i => i.SDetailID == item.StockDetailID);
+                stockdetails.PRate = item.SalesPrice;
+                finaldetails.Add(stockdetails);
+            }
+
+
+
+            //.Where(i=>(cusStockDetailIDs.Select(j=>j.StockDetailID).Contains(i.SDetailID)))
+
+            IQueryable<SaleOffer> saleOffer = saleOfferRepository.FindBy(x => x.FromDate <= DateTime.Today && x.ToDate >= DateTime.Today);
+
+            var items = finaldetails.Join(products, d => d.ProductID, p => p.ProductID,
+                (d, p) => new { Detail = d, Product = p }).
+                Join(companies, dp => dp.Product.CompanyID, c => c.CompanyID,
+                (dp, c) => new { Product = dp.Product, Detail = dp.Detail, Company = c }).
+                Join(categories, dpc => dpc.Product.CategoryID, c => c.CategoryID,
+                (dpc, c) => new { Product = dpc.Product, Detail = dpc.Detail, Company = dpc.Company, Category = c }).
+                Join(stocks, dpccm => dpccm.Detail.StockID, s => s.StockID,
+                (dpccm, s) => new { Product = dpccm.Product, Detail = dpccm.Detail, Company = dpccm.Company, Category = dpccm.Category, Stock = s }).
+                Join(colors, dpccms => dpccms.Detail.ColorID, c => c.ColorID,
+                (dpccms, c) => new { Product = dpccms.Product, Detail = dpccms.Detail, Company = dpccms.Company, Category = dpccms.Category, Stock = dpccms.Stock, Color = c }).
+                GroupJoin(saleOffer, dpccmsc => dpccmsc.Product.ProductID, o => o.ProductID,
+                (dpccmsc, o) => new { Product = dpccmsc.Product, Detail = dpccmsc.Detail, Company = dpccmsc.Company, Category = dpccmsc.Category, Stock = dpccmsc.Stock, dpccmsc.Color, Offer = o })
+                .SelectMany(
+          dpccmsc => dpccmsc.Offer.DefaultIfEmpty(),
+          (dpccmsc, o) => new { Product = dpccmsc.Product, Detail = dpccmsc.Detail, Company = dpccmsc.Company, Category = dpccmsc.Category, Stock = dpccmsc.Stock, dpccmsc.Color, Offer = o }).
+                Where(x => x.Detail.Status == 2).
+                Select(x => new
+                {
+                    DetailId = x.Detail.SDetailID,
+                    ProductId = x.Product.ProductID,
+                    ProductCode = x.Product.Code,
+                    x.Product.ProductName,
+                    x.Product.PWDiscount,
+                    x.Product.PicturePath,
+                    CategoryName = x.Category.Description,
+                    CompanyName = x.Company.Name,
+                    PreviousStock = x.Detail.Status,
+                    IMENO = x.Detail.IMENO,
+                    MRPRate = x.Detail.PRate,
+                    ColorId = x.Color.ColorID,
+                    ColorName = x.Color.Name
+                    //OfferDescription = x.Offer.Description
+                }).ToList();
+
+            return items.Select(x => new Tuple<int, string, string, decimal, string, string, string,
+                Tuple<decimal?, string, decimal, int, int, string, string>>
+                (
+                    x.ProductId,
+                    x.ProductCode,
+                    x.ProductName,
+                    x.PWDiscount,
+                    x.PicturePath,
+                    x.CategoryName,
+                    x.CompanyName,
+                    new Tuple<decimal?, string, decimal, int, int, string, string>(
+                        x.PreviousStock, x.IMENO, x.MRPRate, x.DetailId, x.ColorId, x.ColorName, "")
+                )).ToList();
+        }
+
+
+
+        public static IEnumerable<Tuple<int, string, string, decimal,
+         string, string, string, Tuple<decimal?, string, decimal, int, int, string, string>>> SRWiseGetAllProductFromDetail(this IBaseRepository<Product> productRepository,
+         IBaseRepository<Category> categoryRepository, IBaseRepository<Company> companyRepository, IBaseRepository<Color> colorRepository,
+         IBaseRepository<Stock> stockRepository, IBaseRepository<StockDetail> stockDetailRepository, IBaseRepository<SaleOffer> saleOfferRepository,
+            IBaseRepository<SRVisit> SRvisitRepository, IBaseRepository<SRVisitDetail> SRVisitDetailRepository,
+            IBaseRepository<SRVProductDetail> SRVProductDetailRepository, int EmployeeID)
+        {
+            IQueryable<Product> products = productRepository.All;
+            IQueryable<Category> categories = categoryRepository.All;
+            IQueryable<Company> companies = companyRepository.All;
+            IQueryable<Color> colors = colorRepository.All;
+            IQueryable<Stock> stocks = stockRepository.All;
+            IQueryable<StockDetail> details = stockDetailRepository.All;
+
+            var SRVisitsDetails = from srv in SRvisitRepository.All.Where(i => i.EmployeeID == EmployeeID)
+                                  join srvd in SRVisitDetailRepository.All on srv.SRVisitID equals srvd.SRVisitID
+                                  join srvpd in SRVProductDetailRepository.All on srvd.SRVisitDID equals srvpd.SRVisitDID
+                                  join sd in details on srvpd.IMENO equals sd.IMENO
+                                  where sd.Status == (int)EnumStockStatus.Stock && srvpd.Status == (int)EnumStockStatus.Stock
+                                  select sd;
+
+
+
+            IQueryable<SaleOffer> saleOffer = saleOfferRepository.FindBy(x => x.FromDate <= DateTime.Today && x.ToDate >= DateTime.Today);
+
+            var items = SRVisitsDetails.Join(products, d => d.ProductID, p => p.ProductID,
+                (d, p) => new { Detail = d, Product = p }).
+                Join(companies, dp => dp.Product.CompanyID, c => c.CompanyID,
+                (dp, c) => new { Product = dp.Product, Detail = dp.Detail, Company = c }).
+                Join(categories, dpc => dpc.Product.CategoryID, c => c.CategoryID,
+                (dpc, c) => new { Product = dpc.Product, Detail = dpc.Detail, Company = dpc.Company, Category = c }).
+                Join(stocks, dpccm => dpccm.Detail.StockID, s => s.StockID,
+                (dpccm, s) => new { Product = dpccm.Product, Detail = dpccm.Detail, Company = dpccm.Company, Category = dpccm.Category, Stock = s }).
+                Join(colors, dpccms => dpccms.Detail.ColorID, c => c.ColorID,
+                (dpccms, c) => new { Product = dpccms.Product, Detail = dpccms.Detail, Company = dpccms.Company, Category = dpccms.Category, Stock = dpccms.Stock, Color = c }).
+                GroupJoin(saleOffer, dpccmsc => dpccmsc.Product.ProductID, o => o.ProductID,
+                (dpccmsc, o) => new { Product = dpccmsc.Product, Detail = dpccmsc.Detail, Company = dpccmsc.Company, Category = dpccmsc.Category, Stock = dpccmsc.Stock, dpccmsc.Color, Offer = o })
+                .SelectMany(
+          dpccmsc => dpccmsc.Offer.DefaultIfEmpty(),
+          (dpccmsc, o) => new { Product = dpccmsc.Product, Detail = dpccmsc.Detail, Company = dpccmsc.Company, Category = dpccmsc.Category, Stock = dpccmsc.Stock, dpccmsc.Color, Offer = o }).
+                Where(x => x.Detail.Status == 1).
+                Select(x => new
+                {
+                    DetailId = x.Detail.SDetailID,
+                    ProductId = x.Product.ProductID,
+                    ProductCode = x.Product.Code,
+                    x.Product.ProductName,
+                    x.Product.PWDiscount,
+                    x.Product.PicturePath,
+                    CategoryName = x.Category.Description,
+                    CompanyName = x.Company.Name,
+                    PreviousStock = x.Detail.Status,
+                    IMENO = x.Detail.IMENO,
+                    MRPRate = x.Detail.SRate,
+                    ColorId = x.Color.ColorID,
+                    ColorName = x.Color.Name,
+                    OfferDescription = x.Offer.Description,
+                    ProductType = x.Product.ProductType
+                }).ToList();
+
+            return items.Select(x => new Tuple<int, string, string, decimal, string, string, string,
+                Tuple<decimal?, string, decimal, int, int, string, string>>
+                (
+                    x.ProductId,
+                    x.ProductCode,
+                    x.ProductName,
+                    x.PWDiscount,
+                    x.PicturePath,
+                    x.CategoryName,
+                    x.CompanyName,
+                    new Tuple<decimal?, string, decimal, int, int, string, string>(
+                        x.PreviousStock, x.IMENO, x.MRPRate, x.DetailId, x.ColorId, x.ColorName, x.OfferDescription)
+                )).ToList();
+        }
+
+        public static IEnumerable<Tuple<int,string, string, string, string>> GetProductDetail(this IBaseRepository<Product> productRepository,
+            IBaseRepository<Category> categoryRepository, IBaseRepository<Company> companyRepository)
+        {
+            var result = (from p in productRepository.All
+                          join c in categoryRepository.All on p.CategoryID equals c.CategoryID
+                          join com in companyRepository.All on p.CompanyID equals com.CompanyID
+                          select new
+                              {
+                                  p.ProductID,
+                                  p.Code,
+                                  p.ProductName,
+                                  CategoryName = c.Description,
+                                  CompanyName = com.Name
+                              }).ToList();
+            return result.Select(i => new Tuple<int,string, string, string, string>(i.ProductID,i.Code, i.ProductName, i.CategoryName, i.CompanyName));
+        }
+
+    }
+}

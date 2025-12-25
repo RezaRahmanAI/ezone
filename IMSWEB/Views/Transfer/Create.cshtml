@@ -1,0 +1,834 @@
+﻿@model IMSWEB.TransferViewModel
+@using IMSWEB.Model
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Transfer";
+}
+
+<style>
+    div.disableConcern {
+        pointer-events: none;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+</style>
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+@using (Html.BeginForm(actionName, "Transfer", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @*@Html.ValidationSummary(false)*@
+    @Html.HiddenFor(m => m.Transfer.TransferID);
+    @Html.HiddenFor(m => m.Detail.IMENo);
+    @Html.HiddenFor(m => m.Detail.PRate);
+    @Html.HiddenFor(m => m.Detail.Quantity);
+    @Html.HiddenFor(m => m.Detail.UTAmount);
+    @Html.HiddenFor(m => m.Detail.ToGodownID);
+    <div class="row">
+        <div class="col-md-6">
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Transfer.TransferNo, htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(model => model.Transfer.TransferNo, new { htmlAttributes = new { @class = "form-control input-sm", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.Transfer.TransferNo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Transfer.TransferDate, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <div class='input-group date' id='TransferDate'>
+                                        <input type='text' class="input-sm form-control input-sm" name='TransferDate' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.Transfer.TransferDate, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Transfer.ToConcernID, htmlAttributes: new { @class = "control-label col-md-2 full-width-picker-label" })
+                                <div class="col-md-10 full-width-picker" id="dvNotAllowed">
+                                    @Html.DropDownListFor(model => model.Transfer.ToConcernID, new SelectList(Model.Transfer.SisterConcerns, "ConcernID", "Name"), "--Select Concern--", new { @class = "form-control input-sm" })
+                                    @Html.ValidationMessageFor(model => model.Transfer.ToConcernID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Detail.ToGodownID, new { @class = "control-label col-md-2 full-width-picker-label" })
+                                <div class="col-md-10 full-width-picker">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.GodownByConcern, id = (Model != null) ? Model.Detail.ToGodownID : 0 });}
+                                    @Html.ValidationMessageFor(m => m.Detail.ToGodownID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-md-6">
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-2 full-width-picker">
+                                <label>
+                                    <input type="checkbox" id="chkManualIMEIInput" name="chkManualIMEIInput" class="checkbox-inline" value="Manual" />
+                                    <span>Manual</span>
+                                </label>
+                            </div>
+                            <div class="col-md-10 full-width-picker" style="padding-left: 7px !important; padding-right: 0 !important;">
+                                <input autofocus="autofocus" placeholder="Enter IMEI" class="input-sm form-control text-box single-line" id="externalIMENo" name="externalIMENo" style="margin-left: 5px !important;margin-right: 5px !important; width:98%;" type="text" value="">
+                                <span style="display:none" class="text-danger" id="externalIMENoErrorID">IMEI not avaiable in stock.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Detail.ProductID, new { @class = "control-label col-md-2 full-width-picker-label" })
+                            <div class="col-md-10 full-width-picker" style="padding-left: 12px !important;">
+                                <span id="pickerSpace">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.OLDProductDetail, id = (Model != null) ? Model.Detail.ProductID : 0 });}
+                                </span>
+                                @Html.ValidationMessageFor(m => m.Detail.ProductID, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table id="productTable"
+                       data-toggle="table"
+                       data-height="172"
+                       class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="code"
+                                data-sortable="true">
+                                Product
+                            </th>
+                            <th data-field="productName"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Detail.IMENo)
+                            </th>
+                            <th data-field="qauntity"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Detail.Quantity)
+                            </th>
+                            <th data-field="unitPrice"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Detail.PRate)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Detail.UTAmount)
+                            </th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model.Details)
+                            {
+                                if (item.Status == EnumStatus.Updated || item.Status == EnumStatus.Deleted) { continue; }
+                                <tr>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ProductName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.IMENo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Quantity)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.PRate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.UTAmount)
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink("Delete", "DeleteFromView", new { id = item.ProductID, detailId = item.SDetailID, previousAction = actionName.ToLower() }, new { onclick = "if(!confirm('Do you want to delete this order?')) return false;" })
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="panel">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Transfer.Remarks, htmlAttributes: new { @class = "control-label col-md-3" })
+                            <div class="col-md-9">
+                                @Html.EditorFor(model => model.Transfer.Remarks, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                @Html.ValidationMessageFor(model => model.Transfer.Remarks, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Transfer.TotalAmount, htmlAttributes: new { @class = "control-label col-md-3" })
+                            <div class="col-md-9">
+                                @Html.EditorFor(model => model.Transfer.TotalAmount, new { htmlAttributes = new { @class = "form-control input-sm", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.Transfer.TotalAmount, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="padding-right: 5px !important;">
+                        <div class="text-right">
+                            <button type="submit" value="Save Transfer" name="submitButton" id="submitButton" class="btn btn-sm btn-primary pull-right">
+                                <i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save Transfer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+
+<script>
+    $(document).ready(function () {
+        $(window).keydown(function (event) {
+            if (event.keyCode == 112) {
+                $('#addButton').click();
+                event.preventDefault();
+                return false;
+            }
+            else if (event.keyCode == 113) {
+                $('#submitButton').click();
+                event.preventDefault();
+                return false;
+            }
+            else if (event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+
+
+        });
+    });
+    var godownId = $('#GodownsId').val();
+    if (godownId > 0) {
+        $('#dvNotAllowed').addClass('disableConcern');
+    } else {
+        $('#dvNotAllowed').removeClass('disableConcern');
+    }
+
+
+@if (Model.Details != null)
+{
+    foreach (var item in Model.Details)
+    {
+        @:var product = {
+        @:Code: '@item.ProductCode',
+        @:Name: '@item.ProductName',
+        @:Id: getDefaultIntIfEmpty('@item.ProductID'),
+        @:TDetailID: getDefaultIntIfEmpty('@item.TDetailID'),
+        @:ToProductID: getDefaultIntIfEmpty('@item.ToProductID'),
+        @:SDetailID: getDefaultIntIfEmpty('@item.SDetailID'),
+        @:ColorId: getDefaultIntIfEmpty('@item.ToColorID'),
+        @:GodownID: getDefaultIntIfEmpty('@item.ToGodownID'),
+        @:Quantity: getDefaultFloatIfEmpty('@item.Quantity'),
+        @:ColorName: '@item.ColorName',
+//        @:ColorName: '', // Adjust if ColorName is a required field, otherwise leave blank
+        @:PRate: getDefaultFloatIfEmpty('@item.PRate'),
+        @:UTAmount: getDefaultFloatIfEmpty('@item.UTAmount'),
+        @:IMENo: '@item.IMENo',
+        @:Status: getDefaultIntIfEmpty('@item.Status')
+        @:};
+        @:_detailsArrary.push(product);
+    }
+}
+
+        @if(Model!=null && Model.Detail!=null)
+        {
+            if(Model.Detail.TDetailID!=0)
+            {
+                @:$('#StockDetailsId').val("@Model.Detail.SDetailID");
+            }
+        }
+
+
+    $('#TransferDate').datetimepicker({
+        @{
+        if (Model == null || Model.Transfer.TransferDate == DateTime.MinValue)
+        {
+                @:defaultDate: moment(),
+        }
+                else
+                {
+                @:defaultDate: '@(Convert.ToDateTime(Model.Transfer.TransferDate).ToString("dd-MMM-yyyy"))',
+                }
+                @:format: 'DD-MMM-YYYY'
+        }
+    });
+
+    $("#Transfer_ToConcernID").select2();
+
+    //$('#GodownsId').change(function () {
+    //    var g = $("#GodownsId").val();
+    //    if (g !== "") {
+    //        $('#Transfer_ToConcernID').prop('disabled', true);
+    //    }
+    //});
+
+
+    //********************************************
+    //  get available qty for no barcode
+    //********************************************
+    function checkAvailability(e) {
+        var employeeID = getDefaultIntIfEmpty($("#EmployeesId").val());
+        //if (employeeID > 0) {
+        var productId = getDefaultFloatIfEmpty($(e).parents('tr').find('td:eq(0)').children('input:eq(0)').val());
+        var colorId = getDefaultFloatIfEmpty($(e).parents('tr').find('td:eq(0)').children('input:eq(1)').val());
+        var stockDetailsId = getDefaultFloatIfEmpty($(e).parents('tr').find('td:eq(0)').children('input:eq(3)').val());
+        var godownId = getDefaultFloatIfEmpty($(e).parents('tr').find('td:eq(0)').children('input:eq(6)').val());
+        var qty = e.value;
+
+        if (qty === null || qty === undefined || qty.trim() === "") {
+            toastr.warning("Quantity is required.");
+            return; // Exit the function if qty is invalid
+        }
+
+        $.ajax({
+            url: "/SalesOrder/CheckRemainingQtyForSale",
+            type: "GET",
+            async: false,
+            data: { 'qty': qty, 'colorId': colorId, 'productId': productId, 'godownId': godownId, 'employeeId': employeeID, 'stockDetailsId': stockDetailsId },
+            dataType: "json",
+            success: function (data) {
+                if (data.status == false) {
+                    toastr.error(data.msg);
+                    $("#submitButton").attr('disabled', 'disabled');
+                } else {
+                    $("#submitButton").attr('disabled', false);
+                }
+            },
+            error: function (err) {
+
+            }
+        });
+        //}
+    }
+
+
+    //*******************************************
+    //**********Scan IMEI Start******************
+    //*******************************************
+    var _detailsArrary = [];
+    var timer = null;
+
+    // IMEI Scanning with Delay
+    $("#externalIMENo").on("input", function () {
+        var timeDelay = 500;
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+
+        timer = setTimeout(function () {
+            scanIMEI();
+        }, timeDelay);
+
+        RegenerateTable();
+    });
+
+    // Function to handle IMEI scanning
+    function scanIMEI() {
+        var IMEI = $("#externalIMENo").val().trim();
+        if (!IMEI) {
+            toastr.error("Please enter IMEI");
+            return;
+        }
+
+        var allIMEIs = IMEI.split(" ");
+        allIMEIs.forEach(function (singleIMEI) {
+            if (!singleIMEI) return;
+
+            if (IsDuplicateIMEI(singleIMEI)) {
+                toastr.error("Duplicate IMEI");
+                return;
+            }
+
+            var counter = TableRowCount();
+
+            //counter = counter + 1;
+
+
+            GetIMEIDetails(singleIMEI, counter);
+
+        });
+
+
+
+    }
+
+    // Function to get IMEI details via AJAX
+
+    function GetIMEIDetails(IMEI, counter) {
+    $.ajax({
+        url: "/SalesOrder/GetProductDetailByIMEINo",
+        type: "GET",
+        data: { imeiNo: IMEI },
+        success: function (response) {
+            if (!response.status) {
+                toastr.error(response.msg);
+                $("#externalIMENo").val('');
+                return;
+            }
+
+            var product = response.data;
+            product.ActualPPOffer = product.PPOffer;
+            var toConcernId = getDefaultIntIfEmpty($('#Transfer_ToConcernID').val());
+
+            // Step 1: Local duplicate check
+            if (!IsValidProductForManual(product.Id, product.IMEINo, product.ColorId, product.GodownID)) {
+                $("#externalIMENo").val('');
+                return;
+            }
+
+            // Step 2: Server-side validation
+            $.ajax({
+                url: '@Url.Action("ValidateProductColorForConcern", "Transfer")',
+                type: "GET",
+                data: {
+                    toConcernId: toConcernId,
+                    productId: product.Id,
+                    colorId: product.ColorId
+                },
+                success: function (res) {
+                    if (res.status) {
+                        _detailsArrary.push(product);
+                        PopulateProductTable(counter + 1, product);
+                        RegenerateTable();
+                    } else {
+                        toastr.error(res.msg);
+                    }
+                    $("#externalIMENo").val('');
+                },
+                error: function () {
+                    toastr.error("Error validating product and color.");
+                    $("#externalIMENo").val('');
+                }
+            });
+        },
+        error: function (err) {
+            toastr.error("Error fetching product details.");
+            $("#externalIMENo").val('');
+        }
+    });
+}
+
+    //function GetIMEIDetails(IMEI, counter) {
+    //    console.log('f')
+    //    //counter = counter + 1;
+    //    //console.log(counter)
+    //    RegenerateTable();
+    //    $.ajax({
+    //        url: "/SalesOrder/GetProductDetailByIMEINo",
+    //        type: "GET",
+    //        data: { imeiNo: IMEI },
+    //        success: function (response) {
+    //            if (!response.status) {
+    //                toastr.error(response.msg);
+    //            } else {
+    //                response.data.ActualPPOffer = response.data.PPOffer;
+    //                _detailsArrary.push(response.data);
+    //                RegenerateTable();
+    //                //PopulateProductTable(counter, response.data);
+    //                //console.log("CounterCheck" + counter);
+    //            }
+    //            $("#externalIMENo").val('');
+    //        },
+    //        error: function (err) {
+    //            toastr.error("Error fetching product details.");
+    //        }
+
+    //    });
+
+    //}
+
+
+
+    function IsValidProductForManual(ProductID, imeiNo, ColorId, GodownID) {
+
+        var duplicate = _detailsArrary.find(x =>
+            x.Id === ProductID &&
+            x.ColorId === ColorId && x.GodownID === GodownID &&
+            ((imeiNo === '' && !x.IMEINo) || x.IMEINo === imeiNo)
+        );
+        //alert(duplicate);
+        if (duplicate) {
+            //alert("dupli");
+            toastr.error("Duplicate IMEI or No Barcode product");
+            return false;
+        }
+        return true;
+    }
+
+    //Nobarcode product select
+    $('#ProductDetailsId').on('input', function () {
+        //alert('hi');
+        var product = {
+            Code: $('#ProductDetailsCode').val(),
+            Name: $('#ProductDetailsName').val(),
+            Id: getDefaultIntIfEmpty($('#ProductDetailsId').val()),
+            StockDetailId: getDefaultIntIfEmpty($('#StockDetailsId').val()),
+            ColorId: getDefaultIntIfEmpty($('#ColorsId').val()),
+            GodownID: getDefaultIntIfEmpty($('#GodownID').val()),
+            ColorName: $('#Detail_ColorName').val(),
+            UTAmount: getDefaultFloatIfEmpty($('#Detail_PRate').val()),
+            Quantity: 1,
+            IMEINo: $('#Detail_IMENo').val(),
+            //ProductType: $('#SODetail_ProductType').val(),
+            PRate: getDefaultFloatIfEmpty($('#Detail_PRate').val()),
+
+        };
+
+
+
+        //$('#SalesOrder_OfferDescription').val($('#SODetail_OfferDescription_pp').val());
+        clearPickerControls();
+
+        var counter = TableRowCount();
+        if (IsValidProductForManual(product.Id, product.IMEINo, product.ColorId, product.GodownID)) {
+            //_detailsArrary.push(product);
+            //PopulateProductTable(counter + 1, product);
+            //RegenerateTable();
+
+            var toConcernId = getDefaultIntIfEmpty($('#Transfer_ToConcernID').val());
+
+            $.ajax({
+                url: '@Url.Action("ValidateProductColorForConcern", "Transfer")',
+                type: "GET",
+                data: {
+                    toConcernId: toConcernId,
+                    productId: product.Id,
+                    colorId: product.ColorId
+                },
+                success: function (response) {
+                    if (response.status) {
+                        if (IsValidProductForManual(product.Id, product.IMEINo, product.ColorId, product.GodownID)) {
+                            _detailsArrary.push(product);
+                            PopulateProductTable(counter + 1, product);
+                            RegenerateTable();
+                        }
+                    } else {
+                        toastr.error(response.msg);
+                    }
+                },
+                error: function () {
+                    toastr.error("Error validating product and color.");
+                }
+            });
+
+        }
+
+    });
+
+
+    // Function to check if an IMEI is duplicate
+    function IsDuplicateIMEI(IMEI) {
+        return _detailsArrary.some(item => item.IMEINo === IMEI);
+    }
+
+    function PopulateProductTable(counter, data) {
+
+        var index = 0;
+        if (counter > 0) index = counter - 1;
+
+
+        var newrow = $("<tr>");
+        var cols = "";
+
+        cols += `<td>
+        <input type="hidden" name="Details[${index}].ProductId" value="${data.Id}" />
+        <input type="hidden" name="Details[${index}].ColorId" value="${data.ColorId}" />
+        <input type="hidden" name="Details[${index}].ColorName" value="${data.ColorName}" />
+        <input type="hidden" name="Details[${index}].SDetailID" value="${getDefaultIntIfEmpty(data.StockDetailId)}" />
+        <input type="hidden" name="Details[${index}].Status" value="${getDefaultIntIfEmpty(data.Status)}" />
+        <input type="hidden" name="Details[${index}].ProductType" value="${getDefaultIntIfEmpty(data.ProductType)}" />
+        <input type="hidden" name="SODetails[${index}].GodownID" value="${data.GodownID}" />
+        <input type="hidden" name="SODetails[${index}].IMEINo" value="${data.IMEINo}" />
+        ${counter}
+        </td>`;
+
+        cols += `<td><input type="text" readonly class="form-control input-sm" name="Details[${index}].ProductName" value="${data.Name}" /></td>`;
+        cols += `<td><input type="text" readonly class="form-control input-sm" name="Details[${index}].IMENo" value="${data.IMEINo}" /></td>`;
+        //cols += `<td><input type="text" ${data.ProductType == 2 ? 'onchange="checkAvailability(this)"' : 'readonly'}
+        //        oninput="calculateRowTotal(this)" class="form-control input-sm"
+        //        name="Details[${index}].Quantity" id="Details_${index}__Quantity" value="${getDefaultIntIfEmpty(data.Quantity)}" /></td>`;
+        cols += `<td><input type="text" ${data.IMEINo === 'No Barcode' ? 'onchange="checkAvailability(this)"' : 'readonly'}
+            onchange="checkAvailability(this)" oninput="calculateRowTotal(this)"
+            class="form-control input-sm" name="Details[${index}].Quantity"
+            id="Details_${index}__Quantity" value="${getDefaultIntIfEmpty(data.Quantity)}" /></td>`;
+
+
+        cols += `<td><input type="text" class="form-control input-sm" oninput="calculateRowTotal(this)" name="Details[${index}].PRate" id="Details_${index}__PRate" value="${data.PRate}" /></td>`;
+        cols += `<td><input type="text" readonly class="form-control input-sm" name="Details[${index}].UTAmount" value="${data.UTAmount}" /></td>`;
+
+        // Updated Delete Button with ProductId and IMEINo
+        cols += `<td><button type="button" class="btn btn-danger btn-xs ml-1"
+            onclick="RemoveIMEI(${data.Id}, '${data.IMEINo}')">
+                <i class="fa fa-trash-o" aria-hidden="true"></i></button></td>`;
+
+        newrow.append(cols);
+        $("#productTable").prepend(newrow);
+
+        /*//alert("x" + counter);*/
+        DetailTotalCalculate();
+
+
+    }
+
+
+
+    function RegenerateTable() {
+
+        $("#productTable").find("tr").not(":first").remove();
+
+        _detailsArrary.forEach((data, index) => {
+            PopulateProductTable(index + 1, data);
+        });
+        DetailTotalCalculate();
+
+    }
+
+
+    function RemoveIMEI(productId, imeiNo) {
+        _detailsArrary = _detailsArrary.filter(item => !(item.Id === productId && item.IMEINo === imeiNo));
+        RegenerateTable();
+    }
+
+    function calculateRowTotal(e) {
+        console.log('calculateRowTotal called');
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            RowWiseTotalAndUpdateSameProductPPDiscount(e);
+        }, 1500);
+    }
+
+
+    function RowWiseTotalAndUpdateSameProductPPDiscount(e) {
+        var $row = $(e).closest('tr');
+        var sDetailID = getDefaultFloatIfEmpty($row.find('input[name*="SDetailID"]').val());
+        var quantity = getDefaultFloatIfEmpty($row.find('input[id*="__Quantity"]').val());
+        var pRate = getDefaultFloatIfEmpty($row.find('input[id*="__PRate"]').val());
+
+
+        const index = _detailsArrary.findIndex(item => item.StockDetailId === sDetailID);
+        if (index !== -1) {
+            _detailsArrary[index].Quantity = quantity;
+            _detailsArrary[index].PRate = pRate;
+            _detailsArrary[index].UTAmount = (quantity * pRate).toFixed(2);
+
+
+            $row.find('input[name*="UTAmount"]').val(_detailsArrary[index].UTAmount);
+
+            DetailTotalCalculate();
+
+
+        } else {
+            console.error("SDetailID not found in _detailsArrary");
+        }
+
+        // Logic for updating other rows with the same product and color (if needed)
+        var productId = getDefaultFloatIfEmpty($row.find('input[name*="ProductId"]').val());
+        var colorId = getDefaultFloatIfEmpty($row.find('input[name*="ColorId"]').val());
+        var godownID = getDefaultFloatIfEmpty($row.find('input[name*="GodownID"]').val());
+
+        if (_detailsArrary && _detailsArrary.length > 0) {
+            var allproducts = _detailsArrary.filter(x => (x.Id == productId && x.ColorId == colorId && x.GodownID == godownID && x.StockDetailId != sDetailID));
+            if (allproducts.length > 0) {
+                allproducts.forEach(function (data, index1) {
+                    var updateIndex = _detailsArrary.findIndex(i => i.StockDetailId == data.StockDetailId);
+                    if (updateIndex !== -1) {
+                        _detailsArrary[updateIndex].Quantity = quantity;
+                        _detailsArrary[updateIndex].PRate = pRate;
+                        _detailsArrary[updateIndex].UTAmount = ((pRate) * data.Quantity).toFixed(2);
+                    }
+                });
+                RegenerateTable();
+                DetailTotalCalculate();
+            }
+        }
+
+        console.table(_detailsArrary);
+    }
+
+
+
+    // Helper function to get the current row count of the table
+    function TableRowCount() {
+        $("#productTable").find(".no-records-found").remove();
+        var rowCounter = parseFloat($('#productTable >tbody >tr').length);
+        return rowCounter;
+        //return $('#productTable > tbody > tr').length;
+    }
+
+
+
+    function DetailTotalCalculate() {
+        var UTTotalInputList = $(document).find('input[id*="__UTAmount"');
+        var totalUTAmount = 0;
+        if (UTTotalInputList != null) {
+            UTTotalInputList.each(function (index, input) {
+                total += parseFloat(getDefaultFloatIfEmpty($(input).val()));
+            });
+        }
+        var QuantityInputList = $(document).find('input[id*="__Quantity"');
+
+        var UnitPriceTotalInputs = $(document).find('input[id*="__PRate"');
+        if (UnitPriceTotalInputs != null) {
+            UnitPriceTotalInputs.each(function (index, input) {
+                totalUTAmount += parseFloat(getDefaultFloatIfEmpty($(input).val())) * parseFloat(getDefaultFloatIfEmpty($(QuantityInputList[index]).val()));
+            });
+        }
+
+        //$("#Transfer_TotalAmount").val(total);
+        $("#Transfer_TotalAmount").val(totalUTAmount.toFixed(2)).trigger("input");
+    }
+
+
+
+
+    function clearPickerControls() {
+        $("#ProductDetailsCode").val('');
+        $("#ProductDetailsName").val('');
+        $("#ProductDetailsId").val('');
+        $("#StockDetailsId").val('');
+        $("#SalesOrder_OfferDescription").val('');
+        $("#Detail_Quantity").val('');
+        $("#Detail_IMENo").val('');
+        $("#Detail_PRate").val('');
+    }
+
+
+    //*******************************************
+    //**********Scan IMEI End********************
+    //*******************************************
+
+
+    //Add To Order Validation
+    $(document).on('click', '#addButton', function (e) {
+        var IsValid = true;
+        var CustomersId = $("#Transfer_ToConcernID").val();
+        if (CustomersId == "") {
+            e.preventDefault();
+            toastr.error("Please select Concern");
+            IsValid = false;
+            $("#Transfer_ToConcernID").focus()
+            return false;
+        }
+
+        if (IsValid) {
+            var ProductName = $("#ProductDetailsId").val();
+            if (ProductName == "") {
+                e.preventDefault();
+                toastr.error("Please select product");
+                IsValid = false;
+                $("#ProductDetailsCode").focus()
+                return false;
+            }
+        }
+
+
+        if (IsValid) {
+            var GodownsId = $("#GodownsId").val();
+            if (GodownsId == "") {
+                e.preventDefault();
+                toastr.error("Please select godown");
+                IsValid = false;
+                $("#GodownsCode").focus()
+                return false;
+            }
+        }
+
+        if (IsValid) {
+            var Quantity = $("#Detail_Quantity").val();
+            if (Quantity == "") {
+                e.preventDefault();
+                toastr.error("Please enter quantity");
+                IsValid = false;
+                $("#Detail_Quantity").focus()
+                return false;
+            }
+        }
+        if (IsValid) {
+            var counter = parseFloat($('#IMEITable >tbody >tr').length) + 1;
+            var ProductDetailsId = $("#ProductDetailsId").val();
+            if (!IsValidProduct(ProductDetailsId, counter)) {
+                e.preventDefault();
+                toastr.error("IMEI and Product don't match.");
+                IsValid = false;
+                $("#ProductDetailsCode").focus()
+                return false;
+            }
+        }
+
+
+    });
+    //$('#GodownsId').change(function () {
+    //    var g = $("#GodownsId").val();
+    //    if (g! == "") {
+    //        $('#Transfer_ToConcernID').prop('disabled', true);
+    //    }
+    //});
+    //$(document).on('change', '#GodownsId', function () {
+    //    PickerToggle();
+    //});
+
+    //function PickerToggle() {
+    //    var g = $("#GodownsId").val();
+    //    if (g !== "") {
+    //        $("#Transfer_ToConcernID").prop('disabled', true);
+    //    }
+
+    //}
+</script>

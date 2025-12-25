@@ -1,0 +1,69 @@
+﻿
+@using IMSWEB.Model
+@model IMSWEB.CreateCustomerViewModel
+
+
+@{
+    ViewBag.Title = "SR Wise Customer Due";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("MOWiseCustomerDue", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+{
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    Employee Name
+                </div>
+                <div class="col-sm-3">
+                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && Model.EmployeeId != null) ? Model.EmployeeId : "0" });}
+                    @Html.ValidationMessageFor(model => model.EmployeeId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-2">
+
+                </div>
+                <div class='col-sm-3 input-group' id='allMO'>
+                    <input id="rdioDetail" title="MO" type="radio" value="1" name="ReportType" />All MO
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                </div>
+                <div class="col-sm-4">
+                    <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+<script>
+
+    $('form').submit(function () {
+
+        // Get the Login Name value and trim it
+        var name = $.trim($('#EmployeesId').val());
+        var chk = $('#rdioDetail').prop("checked");
+        // Check if empty of not
+        if (name === '' && !chk) {
+            alert('No Employee Selected .');
+            return false;
+        }
+    });
+</script>

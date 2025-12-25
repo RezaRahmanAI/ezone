@@ -1,0 +1,309 @@
+﻿@model IEnumerable<GetCreditSalesOrderViewModel>
+@using IMSWEB.Model
+
+@{
+    ViewBag.Title = "Credit Sales Orders";
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+}
+<h4 class="text-left inline-header">Existing Hire sales orders.</h4>
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm("Index", controllerName, FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class='col-md-8 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                @Html.Label("Customer Name", htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <input type="text" name="CustomerName" id="CustomerName" class="form-control input-sm" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                @Html.Label("Invoice No", htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <input type="text" name="InvoiceNo" id="InvoiceNo" class="form-control input-sm" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class="col-md-8 input-group date" id='ToDate'>
+                                    <input type='text' class="input-sm form-control" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                @Html.Label("Contact No", htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <input type="text" name="ContactNo" id="ContactNo" class="form-control input-sm" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="AccountNo" class="control-label col-md-4">Account No</label>
+                                <div class="col-md-8">
+                                    <input type="text" name="AccountNo" id="AccountNo" class="form-control input-sm" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 col-md-offset-1" style="padding-left: 38px;">
+                            <div class="btn-group">
+                                <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                @Html.ActionLink("Create new order", "Create", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="panel-body">
+                <table id="salesOrderTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-detail-view="false"
+                       data-pagination="true"
+                       data-id-field="customerName"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="15"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                Sl
+                            </th>
+                            <th>Actions</th>
+                            <th data-field="invoiceNo"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.InvoiceNo)
+                            </th>
+                            <th data-field="orderDate"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.OrderDate)
+                            </th>
+                            <th data-field="CustomerCode"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.CustomerCode)
+                            </th>
+                            <th data-field="customerName"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.CustomerName)
+                            </th>
+                            <th data-field="contactNo"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.ContactNo)
+                            </th>
+                            <th data-field="dueAmount"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.DueAmount)
+                            </th>
+                            <th data-field="status"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Status)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @{
+                                            if ((item.Status.Equals(EnumSalesType.Sales.ToString())
+                                                            || item.Status.Equals(EnumSalesType.Pending.ToString())) && item.IsReturn == 0)
+                                            {
+                                                @Html.ActionLink("Ins. Payment", "Edit", new { orderId = item.SalesOrderId }, new { @class = "btn btn-xs btn-info" });
+                                                <span> | </span>
+                                            }
+
+                                            @Html.ActionLink("Invoice", "Invoice", new { orderId = item.SalesOrderId }, new { @class = "btn btn-xs btn-success" })
+                                            <span>|</span>
+                                            @Html.ActionLink("Money Rectp", "MoneyReceipt", new { orderId = item.SalesOrderId }, new { @class = "btn btn-xs btn-primary" })
+                                            <span>|</span>
+                                            @Html.ActionLink("Challan", "Challan", new { orderId = item.SalesOrderId }, new { @class = "btn btn-success btn-xs" })
+                                            <span>|</span>
+                                            @Html.ActionLink("Agreement INV", "Agreement", new { orderId = item.SalesOrderId }, new { @class = "btn btn-xs btn-info" });
+                                            if ((item.Status.Equals(EnumSalesType.Sales.ToString()) || item.Status.Equals(EnumSalesType.Pending.ToString())) && item.IsReturn == 0)
+                                            {
+                                                <span> | </span>
+                                                @Html.ActionLink("Return", "Delete", new { orderId = item.SalesOrderId }, new { onclick = "if(!confirm('Do you want to take rturn this order?')) return false;", @class = "btn btn-xs btn-danger" });
+                                            }
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.InvoiceNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.OrderDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CustomerCode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CustomerName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ContactNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DueAmount)
+                                    </td>
+                                    <td>
+                                        @*<span class="@item.Status">
+                                                @Html.DisplayFor(modelItem => item.Status)
+                                            </span>*@
+                                        @if ((item.Status == EnumSalesType.Sales.ToString() || item.Status == EnumSalesType.Pending.ToString()) && item.IsReturn == 0)
+                                        {
+                                            <span class="label label-success">Sales</span>
+                                        }
+                                        else if (item.IsReturn == 1)
+                                        {
+                                            <span class="label label-danger">Hire Return</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="label label-success">Sales</span>
+                                        }
+                                    </td>
+
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        @{
+    if (TempData.ContainsKey("IsCInvoiceReady") && Convert.ToBoolean(TempData["IsCInvoiceReady"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/EmobileCreditSalesInvoice",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+      }
+
+    if (TempData.ContainsKey("IsCInvoiceReadyById") && Convert.ToBoolean(TempData["IsCInvoiceReadyById"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/EmobileCreditSalesInvoiceReportByID",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+     }
+
+    if (TempData.ContainsKey("IsMoneyReceiptReadyByID") && Convert.ToBoolean(TempData["IsMoneyReceiptReadyByID"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/CreditSalesMoneyReceiptByID",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+             }
+
+
+                 if ( TempData.ContainsKey("IsChallanReadyById") && Convert.ToBoolean(TempData["IsChallanReadyById"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/CreditChallanById",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+         }
+
+}
+
+
+        $('#FromDate').datetimepicker({
+            defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+    format: 'DD-MMM-YYYY'
+    });
+
+    });
+</script>

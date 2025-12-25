@@ -1,0 +1,124 @@
+﻿@model IMSWEB.AdvanceSalaryViewModel
+@using IMSWEB.Model
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["Controller"].ToString();
+    ViewBag.Title = "Advance Salary";
+}
+
+<h4 class="text-left inline-header">Create Advance Salary</h4>
+<hr />
+<div class="row">
+    <div class="col-md-5 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Html.BeginForm(actionName, controllerName, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.ID)
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeID, new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && Model.EmployeeID != null) ? Model.EmployeeID : "0", tabindex = 1 });}
+                            @Html.ValidationMessageFor(model => model.EmployeeID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SalaryType, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EnumDropDownListFor(model => model.SalaryType, "--Select Salary Type--", new { @class = "form-control input-sm" })
+                            @Html.ValidationMessageFor(model => model.SalaryType, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Amount, new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", tabindex = 2 } })
+                            @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Date, new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            <div class='input-group date' id='Date'>
+                                <input type='text' class="input-sm form-control input-sm" name='Date' tabindex="3" />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+
+                            </div>
+                            @Html.ValidationMessageFor(model => model.Date, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Remarks, new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.Remarks, new { htmlAttributes = new { @class = "input-sm form-control input-sm", tabindex = 4 } })
+                            @Html.ValidationMessageFor(model => model.Remarks, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-check col-md-offset-4" id="IsAdvanceLoanPay">
+                        @Html.EditorFor(model => model.IsAdvanceLoanPay, new { htmlAttributes = new { @class = "form-check-input" } })
+                        @Html.LabelFor(model => model.IsAdvanceLoanPay, htmlAttributes: new { @class = "form-check-label" })
+                        @Html.ValidationMessageFor(model => model.IsAdvanceLoanPay, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" value="Create" class="btn btn-info btn-sm" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#Date').datetimepicker({
+        @{
+            if (Model == null || Model.Date == null) {
+                @:defaultDate: moment(),
+                                }
+                else
+                {
+                @:defaultDate: '@(Convert.ToDateTime(Model.Date).ToString("dd-MMM-yyyy"))',
+                                }
+                @:format: 'DD-MMM-YYYY'
+                    }
+    });
+
+     $(function () {
+        $("#SalaryType").change(function () {
+            var t = $(this).val();
+            Visable(t);
+        });
+    });
+
+    function Visable(t) {
+        if (t !== "") {
+            if (t == "1") {
+                $("#IsAdvanceLoanPay").show();
+
+            }
+            else if (t == "2") {
+                $("#IsAdvanceLoanPay").hide();
+            }
+            else if (t == "3") {
+                $("#IsAdvanceLoanPay").hide();
+            }
+            else {
+                $("#IsAdvanceLoanPay").hide();
+            }
+        }
+    }
+    $(document).ready(function () {
+        var t = $("#SalaryType").val();
+        if (t !== "") {
+            Visable(t);
+        }
+    });
+
+</script>

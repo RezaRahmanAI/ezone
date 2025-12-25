@@ -1,0 +1,83 @@
+﻿@using IMSWEB.Model
+@{
+    ViewBag.Title = "Admin Income Report";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-lg-5 col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Ajax.BeginForm("AdminExpenditureReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl },
+                    ajaxOptions: new AjaxOptions
+                    {
+                        HttpMethod = "Post",
+                        UpdateTargetId = "report",
+                        LoadingElementId = "spinningIcon"
+                    }, htmlAttributes: new { role = "form", @class = "form-horizontal" }))
+                {
+                    <div class="panel">
+                        <div class="panel-body">
+                            <input id="rdioIncome" title="Income" type="hidden" value="2" name="ReportType" />
+                            <div class="form-group">
+                                <label class="col-md-3">From Date</label>
+                                <div class="col-md-9">
+                                    <div class='input-group date' id='FromDate'>
+                                        <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3">To Date</label>
+                                <div class="col-md-9">
+                                    <div class='input-group date' id='ToDate'>
+                                        <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3">Concern</label>
+                                <div class="col-md-9">
+                                    @Html.DropDownList("ConcernID", @ViewBag.Concerns as SelectList, "--All Concerns--", new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-3">
+                                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                </div>
+                                <div class="col-md-9">
+                                    <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#ConcernID').select2();
+        $('#FromDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY'
+        });
+
+        $('#ToDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY'
+        });
+    })
+ 
+</script>
+

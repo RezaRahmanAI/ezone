@@ -1,0 +1,165 @@
+﻿@*@using PagedList.Mvc;
+@using PagedList;*@
+@model IEnumerable<IMSWEB.GetStockViewModel>
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Stocks";
+}
+<h4 class="text-left inline-header">Existing Stocks</h4>
+<hr />
+@*<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        @using (Html.BeginForm("Index", "Stock", FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                <label>Enter Product Name:</label>
+                            </td>
+                            <td>
+                                <input type='text' class="input-sm form-control input-sm" name='ProductName' placeholder="Enter Product Name" />
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                </div>
+                            </td>
+
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>*@
+<table id="StockTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="StockTable"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="15"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Code)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GodownName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ColorName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CompanyName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            @*<th>
+                    @Html.DisplayNameFor(model => model.MRPRate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.LPPrice)
+                </th>*@
+            <th>
+                @Html.DisplayNameFor(model => model.SalesRate)
+            </th>
+
+            @if (User.Identity.GetConcernId() == 1 || User.Identity.GetConcernId() == 5 || User.Identity.GetConcernId() == 6)
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.CreditSalesRate3)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreditSalesRate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreditSalesRate12)
+                </th>
+            }
+
+            @if (User.IsInRole(EnumUserRoles.Admin.ToString()) || User.IsInRole(EnumUserRoles.LocalAdmin.ToString()))
+            {
+                <th>S.Rate Update</th>
+            }
+        </tr>
+    </thead>
+    @{
+        int count = 1;
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @count
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.GodownName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ColorName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompanyName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SalesRate)
+                </td>
+
+                @if (User.Identity.GetConcernId() == 1 || User.Identity.GetConcernId() == 5 || User.Identity.GetConcernId() == 6)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreditSalesRate3)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreditSalesRate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreditSalesRate12)
+                    </td>
+                }
+
+                @if (User.IsInRole(EnumUserRoles.Admin.ToString()) || User.IsInRole(EnumUserRoles.LocalAdmin.ToString()))
+                {
+                    <td>
+                        <input type="button" class="btn btn-info btn-xs" data-concernid="@User.Identity.GetConcernId()" title="Update Sales Rate" id="showmodalbtn" value="Update" data-productname="@item.ProductName" data-productid=@item.ProductID data-colorid=@item.ColorID data-salesrate="@item.SalesRate" data-creditsalesrate6="@item.CreditSalesRate" data-creditsalesrate3="@item.CreditSalesRate3" data-creditsalesrate12="@item.CreditSalesRate12" />
+                    </td>
+                }
+            </tr>
+            count++;
+        }
+    }
+</table>
+@*@Html.PagedListPager(Model, page => Url.Action("Index", new { page }), new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayItemSliceAndTotal = true })*@
+
+
+@Html.Partial("_MRPUpdate");
+

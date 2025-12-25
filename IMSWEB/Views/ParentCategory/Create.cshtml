@@ -1,0 +1,52 @@
+﻿@model ParentCategoryViewModel
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string contollerName = ViewContext.RouteData.Values["controller"].ToString();
+    ViewBag.Title = actionName + "";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + " Parent Category.")</h4>
+<hr />
+<div class="row">
+    <div class="col-md-offset-3 col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Html.BeginForm(actionName, contollerName, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.PCategoryID);
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Code, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control input-sm", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-8">
+                            <input type="submit" value="Add Parent Category" class="btn btn-sm btn-primary" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#CommissionPercent").on('input', function () {
+            $("#CommissionAmt").val('0.00');
+        });
+        $("#CommissionAmt").on('input', function () {
+            $("#CommissionPercent").val('0.00');
+        });
+    })
+</script>

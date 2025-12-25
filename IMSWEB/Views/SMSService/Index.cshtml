@@ -1,0 +1,199 @@
+﻿@model IEnumerable< SMSStatusViewModel>
+@using IMSWEB.Model
+
+@{
+    ViewBag.Title = "SMS Inbox";
+}
+
+<h4 class="text-left inline-header">SMS Inbox</h4>
+<hr />
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        @using (Html.BeginForm("Index", "SMSService", FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.Label("Status", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                @Html.DropDownList("Status", EnumHelper.GetSelectList(typeof(EnumSMSSendStatus)), "--Select Status--", new { @class = "form-control input-sm" })
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button id="btnPreview" type="submit" class="btn btn-sm btn-info mr-2">
+                                        <i class="fa fa-search" aria-hidden="true">&nbsp;Search</i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<table id="customerTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="15"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            @*<th data-field="code"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Code)
+            </th>*@
+            <th data-field="SMSFormateDescription"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.SMSFormateDescription)
+            </th>
+            <th data-field="SendingStatus"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.SendingStatus)
+            </th>
+            <th data-field="NoOfSMS"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.NoOfSMS)
+            </th>
+            <th data-field="CustomerCode"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.ContactNo)
+            </th>
+            <th data-field="CustomerName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.CustomerName)
+            </th>
+            @if (User.IsInRole(EnumUserRoles.Admin.ToString()))
+            {
+                <th data-field="ResponseMsg"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.ResponseMsg)
+                </th>
+            }
+            <th data-field="SMS"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.SMS)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    @*<td>
+                        @Html.DisplayFor(modelItem => item.Code)
+                    </td>*@
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SMSFormateDescription)
+                    </td>
+                    <td>
+                        <span class="@item.SendingStatus">
+                            @Html.DisplayFor(modelItem => item.SendingStatus)
+                        </span>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NoOfSMS)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ContactNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CustomerName)
+                    </td>
+                    @if (User.IsInRole(EnumUserRoles.Admin.ToString()))
+                    {
+                        <td title="@item.ResponseMsg">
+                            <button class="btn btn-xs btn-primary btn-remarks" data-remarks="@item.ResponseMsg" data-header="Response">
+                                Response
+                            </button>
+                        </td>
+                    }
+                    <td title="@item.SMS">
+                        <button class="btn btn-xs btn-info btn-remarks" data-remarks="@item.SMS" data-header="SMS">SMS</button>
+                    </td>
+                </tr>
+                    count++;
+            }
+        }
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#FromDate').datetimepicker({
+            defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+            format: 'DD-MMM-YYYY'
+        });
+
+        $('#ToDate').datetimepicker({
+            defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+            format: 'DD-MMM-YYYY'
+        });
+    });
+
+    $(document).on('click', '.btn-sms', function () {
+        var sms = $(this).data("sms");
+        ShowSMS(sms);
+    });
+
+    function ShowSMS(SMS) {
+        var message = "";
+        if (typeof (SMS) === "object") {
+            SMS.forEach(function (data, row) {
+                message += (row + 1) + ": Mobile: " + data.MobileNumber + " " + data.SmsText + "\n";
+            });
+        }
+        else
+            message = SMS;
+        //alert(message);
+        $("#divSMS").text(message);
+        $("#SMSModal").modal("show");
+    }
+
+</script>

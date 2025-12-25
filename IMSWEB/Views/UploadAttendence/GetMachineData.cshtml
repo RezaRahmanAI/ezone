@@ -1,0 +1,185 @@
+﻿@model AttendenceMonthViewModel
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Employee Attendence";
+    int Counter = 1;
+}
+
+<h4 class="text-left inline-header">Attendence Month: @ViewBag.AttendencMonth.ToString("MMMM yyyy")</h4>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Html.BeginForm("GetMachineData", "UploadAttendence", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal" }))
+                {
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-1">
+                                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                </div>
+                                <div class="col-md-6">
+                                    <div class='input-group date' id='AttendencMonth'>
+                                        <input type='text' class="input-sm form-control input-sm" name='AttendencMonth' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 btn-group">
+                                    <input type="submit" value="Search" name="btnSearch" class="btn btn-sm btn-success mr-2" />
+                                    <input type="submit" value="Report" name="btnReport" class="btn btn-sm btn-primary mr-2" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table id="emplyeeattendenceTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="20"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th data-field="Sl"
+                                data-sortable="true">
+                                Sl
+                            </th>
+                            <th data-field="EmployeeNo"
+                                data-sortable="true">
+                                EmployeeNo
+                            </th>
+                            <th data-field="Name"
+                                data-sortable="true">
+                                Name
+                            </th>
+                            <th data-field="Date"
+                                data-sortable="true">
+                                Date
+                            </th>
+                            <th data-field="ClockIn"
+                                data-sortable="true">
+                                ClockIn
+                            </th>
+                            <th data-field="ClockOut"
+                                data-sortable="true">
+                                ClockOut
+                            </th>
+                            <th data-field="Department"
+                                data-sortable="true">
+                                Department
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            foreach (var item in Model.Attendences)
+                            {
+                                <tr>
+                                    <td>
+                                        @Counter
+                                    </td>
+                                    <td>
+                                        @item.EmployeeNo
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </td>
+                                    <td>
+                                        @item.Date.ToString("dd MMM yyyyy")
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ClockIn)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ClockOut)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Department)
+                                    </td>
+                                </tr>
+                                Counter++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        $('#AttendencMonth').datetimepicker({
+            @{
+            if (ViewBag.AttendencMonth == null)
+            {
+                @:defaultDate: moment(),
+                                                                                                                            }
+            else
+            {
+                @:defaultDate: '@(Convert.ToDateTime(ViewBag.AttendencMonth).ToString("MMMM-yyyy"))',
+                                                                                                                            }
+            @:format: 'MMMM-YYYY'
+                                                                                                                                        }
+        });
+
+
+        $(document).on('change', ':file', function () {
+            var input = $(this),
+                numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [numFiles, label]);
+
+            $("#filesize_Name").val(label)
+        });
+
+        $(document).on("submit", function (e) {
+            //var IsPrevent = $("#spinningIcon").val() == "" ? false : true;
+            //if (IsPrevent) {
+            //    e.preventDefault();
+            //}
+            $("#spinningIcon").show();
+        });
+
+    });
+
+
+    function PingDevice() {
+        $.ajax({
+            url: "/UploadAttendence/PingDevice",
+            type: "POST",
+            data: { 'IP': $("#IP").val(), 'PortNo': $("#PortNo").val(), 'MachineNo': $("#MachineNo").val() },
+            dataType: "json",
+            success: function (data) {
+                console.log(data);
+                toastr.success(data.message);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    }
+
+</script>

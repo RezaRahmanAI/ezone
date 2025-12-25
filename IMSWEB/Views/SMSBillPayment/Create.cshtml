@@ -1,0 +1,696 @@
+﻿@model IMSWEB.SMSBillPaymentViewModel
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+    ViewBag.Title = "SMS Bill Payment";
+}
+
+<style>
+    .Package-card {
+        padding: 0 15px !important;
+        box-shadow: 6px 8px 12px -2px #0d85bb !important;
+        border: 1px solid #fff !important;
+        cursor: pointer;
+        transition: 500ms;
+    }
+
+        .Package-card .card-body .card-title h3 {
+            color: #D32165;
+            font-weight: 600;
+        }
+
+        .Package-card .card-body .card-text p {
+            color: #0d85bb !important;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .Package-card:hover {
+            box-shadow: 0 0 0 0 #D32165 !important;
+            border: 1px solid #D32165 !important;
+        }
+
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .panel {
+        margin: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .card-body {
+        padding: 0;
+    }
+
+    .media {
+        padding: 20px;
+    }
+
+    .media-body {
+        text-align: left;
+    }
+
+    .txtCollection {
+        font-size: 36px;
+        color: #3498db;
+        margin-bottom: 5px;
+    }
+
+    span {
+        color: #7f8c8d;
+    }
+
+
+    table#paymentQuery td, table#paymentQuery th.spaceWord, table#paymentQuery th {
+        line-height: 14px !important;
+        padding: 5px !important;
+    }
+
+    table#paymentQuery {
+        white-space: normal !important;
+    }
+
+    #ConcernsTable input[name="btSelectAll"] {
+        display: none;
+    }
+
+    .centerItems {
+        height: 30vh;
+        display: flex;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+
+    #btnPayWithbKash {
+        background: #D32165;
+        border-color: #D32165;
+    }
+
+    table#paymentInfo tr, table#payErrorInfo tr, table#paymentQuery tr {
+        background: #FBEBF1;
+        color: #eb1a6a;
+    }
+
+        table#paymentInfo tr th {
+            color: #eb1a6a;
+        }
+
+        table#paymentInfo tr td, table#payErrorInfo tr th, table#paymentQuery tr th {
+            padding: 15px;
+        }
+
+        table#payErrorInfo tr th {
+            font-size: 20px;
+            font-weight: bold;
+            font-variant: small-caps;
+        }
+
+    /*Ajax overlay loader*/
+    #overlay {
+        position: fixed;
+        top: 0;
+        z-index: 100;
+        width: 100%;
+        height: 100%;
+        /*display: none;*/
+        background: rgba(0,0,0,0.6);
+    }
+
+    .cv-spinner {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px #ddd solid;
+        border-top: 4px #2e93e6 solid;
+        border-radius: 50%;
+        animation: sp-anime 0.8s infinite linear;
+    }
+
+    div#infoBlock table tr th {
+        text-align: right;
+    }
+
+    div#infoBlock table tr td {
+        text-align: left;
+    }
+
+    @@keyframes sp-anime {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+
+<div id="overlay">
+    <div class="cv-spinner">
+        <span class="spinner"></span>
+    </div>
+</div>
+
+
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-xl-3 col-sm-6 col-md-6">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="media ">
+                                <div class="media-body text-left">
+                                    <h3 class="txtCollection" id="txtCollection">  @ViewBag.TotalSMSBalance</h3>
+                                    <span>SMS Balance</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-md-6">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="media d-flex">
+                                <div class="align-self-center">
+                                    <i class="icon-graph warning font-large-2 float-left"></i>
+                                </div>
+                                <div class="media-body text-left">
+                                    <h3 class="txtCollection" id="txtDisburse"> @ViewBag.lastRechargeAmt</h3>
+                                    <span>Last Recharge Amount, </span>
+                                    <span id="txtDisburse"> ReceiptNo: @ViewBag.ReceiptNo</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@{
+    var smsService = ViewBag.IsMasking;
+    if (smsService != 4)
+    {
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="offerOne">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3>450 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>1000 SMS</p>
+                            <p>0.45 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="offerTwo">
+                    <div class="card-body">
+                        <div class="card-title ninwhundrad_tk">
+                            <h3>900 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>2000 SMS</p>
+                            <p>0.45 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="OfferThree">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3>2200 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>5000 SMS</p>
+                            <p>0.44 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="offerFour">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3>4000 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>10000 SMS</p>
+                            <p>0.40 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="offerFive">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3>17500 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>50000 SMS</p>
+                            <p>0.35 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-1">
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="offerOne">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3>750 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>1000 SMS</p>
+                            <p>0.75 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="offerTwo">
+                    <div class="card-body">
+                        <div class="card-title ninwhundrad_tk">
+                            <h3>1500 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>2000 SMS</p>
+                            <p>0.75 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="OfferThree">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3>3700 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>5000 SMS</p>
+                            <p>0.74 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="offerFour">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3>7000 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>10000 SMS</p>
+                            <p>0.70 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card Package-card" id="offerFive">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h3>13000 tk</h3>
+                        </div>
+                        <div class="card-text">
+                            <p>20000 SMS</p>
+                            <p>0.65 Poisa Per SMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-1">
+            </div>
+        </div>
+    }
+}
+
+
+
+
+
+
+
+<div class="row">
+
+    <div class="col-md-5 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label  col-md-3" })
+                    <div class="  col-md-9">
+                        @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control input-sm text-right", type = "number", autofocus = "autofocus" } })
+                        @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div id="payBtnBlock" class="col-md-5 col-md-offset-4">
+
+                <div class="panel-body text-center">
+                    <button type="button" id="btnPayWithbKash" class="btn btn-danger">Pay With bKash</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="panel panel-default">
+        <div class="col-md-4 col-md-offset-4" id="payInfoGrid" hidden>
+
+            <div class="panel-body">
+                <table class="table" id="paymentInfo">
+                    <tr>
+                        <td colspan="3" style="text-align: center; font-weight: bold">Payment Success! Please use this invoice number as further reference.</td>
+                    </tr>
+                    <tr>
+                        <th>Invoice</th>
+                        <td>:</td>
+                        <td><span id="payInvNo">001</span></td>
+                    </tr>
+                    <tr>
+                        <th>bKash No</th>
+                        <td>:</td>
+                        <td><span id="paybKashNo">01739408145</span></td>
+                    </tr>
+                    <tr>
+                        <th>Amount</th>
+                        <td>:</td>
+                        <td><span id="payAmount">500 BDT</span></td>
+                    </tr>
+                    <tr>
+                        <th>Trx Id</th>
+                        <td>:</td>
+                        <td><span id="payTrxId">SXWWJ256WS</span></td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td>:</td>
+                        <td><span id="payDate">21 Mar, 2023 01:53 PM</span></td>
+                    </tr>
+
+                    @*<tr>
+                            <th>You can</th>
+                            <td>:</td>
+                            <td><a href="/Account/Login" class="btn btn-danger btn-sm">Login</a></td>
+
+                        </tr>*@
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-4 col-md-offset-4" id="payErrorGrid" hidden>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table class="table" id="payErrorInfo">
+                    <tr>
+                        <th colspan="3">Payment Failed! Please retry!</th>
+                    </tr>
+                    <tr>
+                        <td>Reason</td>
+                        <th>:</th>
+                        <td><span id="payErrorMsg">N/A</span></td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+
+    $("#offerOne").on("click", function() {
+        var smsService = @ViewBag.IsMasking;
+        if (smsService != 4) {
+            $('#Amount').val(450).trigger("input");
+        }
+        else {
+            $('#Amount').val(750).trigger("input");
+        }
+    });
+
+
+    $("#offerTwo").on("click", function () {
+        var smsService = @ViewBag.IsMasking;
+        if (smsService != 4) {
+            $('#Amount').val(900).trigger("input");
+        }
+        else {
+            $('#Amount').val(1500).trigger("input");
+        }
+    });
+
+    $("#OfferThree").on("click", function () {
+       var smsService = @ViewBag.IsMasking;
+        if (smsService != 4) {
+            $('#Amount').val(2200).trigger("input");
+        }
+        else {
+            $('#Amount').val(3700).trigger("input");
+        }
+    });
+    $("#offerFour").on("click", function () {
+       var smsService = @ViewBag.IsMasking;
+        if (smsService != 4) {
+            $('#Amount').val(4000).trigger("input");
+        }
+        else {
+            $('#Amount').val(7000).trigger("input");
+        }
+    });
+
+    $("#offerFive").on("click", function () {
+      var smsService = @ViewBag.IsMasking;
+        if (smsService != 4) {
+            $('#Amount').val(17500).trigger("input");
+        }
+        else {
+            $('#Amount').val(13000).trigger("input");
+        }
+    });
+
+
+
+    $(document).ajaxStart(function () {
+        $("#overlay").show();
+    });
+
+    $(document).ajaxStop(function () {
+        $("#overlay").hide();
+    });
+
+    var PaymentAmount;
+
+    $("#Amount").on("input", function () {
+        PaymentAmount = getDefaultIntIfEmpty($("#Amount").val());
+        if (PaymentAmount > 449) {
+            $("#btnPayWithbKash").prop("disabled", false);
+        }
+        else {
+            $("#btnPayWithbKash").prop("disabled", false);
+        }
+    });
+
+
+    $(document).ready(function () {
+
+        $("#Amount").on("input", function () {
+            PaymentAmount = getDefaultIntIfEmpty($("#Amount").val());
+
+        });
+
+        $("#btnPayWithbKash").on("click", function () {
+            var receivedAmount = parseFloat($('#Amount').val());
+
+            if (receivedAmount > 449) {
+                getBkashToken(null, PaymentAmount);
+
+            }
+            else {
+                $("#btnPayWithbKash").prop("disabled", true);
+                toastr.error("Minimum Recharge Amount 450 Tk");
+            }
+
+        });
+
+
+        var paymentId = $.urlParam('paymentID');
+        var status = $.urlParam('status');
+        console.log(paymentId)
+        console.log(status)
+
+
+
+        // Check if the "paymentid" and "status" parameters exist
+        if (paymentId != null && status != null) {
+
+            removeQueryString();
+            if (status === 'success') {
+                getBkashToken(paymentId, PaymentAmount);
+            } else {
+                toastr.error('Payment failed! please try again!');
+
+            }
+
+        } else {
+            console.log('payment id or status not found!');
+        }
+
+    });
+
+    //var PaymentAmount;
+    //$("#Amount").on("input", function () {
+    //    PaymentAmount = getDefaultIntIfEmpty($("#Amount").val());
+    //});
+
+    function getBkashToken(paymentId, PaymentAmount) {
+        $("#overlay").show();
+        var bKashUrl = "";
+        $.ajax({
+            url: "/SMSBillPayment/GetBkashTokenOrConfirmPayment",
+            type: "GET",
+            async: false,
+            data: {
+                'paymentId': paymentId,
+                'amount': PaymentAmount
+            },
+            success: function (data) {
+                if (paymentId == null && data.bkashURL != null) {
+                    bKashUrl = data.bkashURL;
+
+                } else {
+                    if (paymentId == null) {
+                        toastr.error(data.statusMessage);
+                        //alert(data.statusMessage)
+                    } else {
+                        if (data.trxID != null) {
+                            toastr.success('payment successfull of ' + data.currency + " " + data.amount)
+                            console.log(data);
+                            showSuccessErrorData(data);
+                            $("#overlay").hide();
+                            $('div.modal-backdrop.fade.in').css('display', 'none');
+                        } else {
+                            toastr.error(data.statusMessage)
+                            //alert(data.statusMessage);
+                            showSuccessErrorData(data);
+
+                            if (typeof idsArray !== 'undefined' && idsArray.length > 1) {
+                                $('#ColorsModal').modal('show');
+
+                            } else {
+                                $('#trConcerSelection').css('display', 'none');
+                            }
+                        }
+                    }
+
+                }
+            },
+            error: function (err) {
+
+            },
+            complete: function () {
+                $("#overlay").hide();
+                $('div.modal-backdrop.fade in').css('display', 'none');
+                //alert(bKashUrl);
+                if (paymentId == null) {
+                    window.location.replace(bKashUrl);
+                } else {
+
+                }
+
+            }
+        });
+    }
+
+    // Function to get the value of a query string parameter
+    $.urlParam = function (name) {
+        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+        if (results == null) {
+            return null;
+        }
+        return decodeURI(results[1]) || 0;
+    };
+
+    function removeQueryString() {
+        if (window.location.href.indexOf('?') > -1) {
+            history.pushState('', document.title, window.location.pathname);
+        }
+    }
+
+    function showSuccessErrorData(data) {
+        var dateString = data.paymentExecuteTime;
+        var dateObj = moment(dateString, "YYYY-MM-DDTHH:mm:ss:SSS [GMT]ZZ");
+        var formattedDate = dateObj.format("DD MMM, YYYY h:mm A");
+        $('#payDate').text(formattedDate);
+        $('#payTrxId').text(data.trxID);
+        $('#payAmount').text(data.amount);
+        $('#paybKashNo').text(data.customerMsisdn);
+        $('#payInvNo').text(data.merchantInvoiceNumber);
+        $('#payErrorMsg').text(data.statusMessage);
+        if (data.trxID != null) {
+            $('#payInfoGrid').show(500);
+            $('#payErrorGrid').hide(500);
+            //$('#greetingsBlock').show(500);
+            $('#payBtnBlock').hide(500);
+            $('#infoBlock').hide(500);
+            $("#overlay").hide();
+        } else {
+            $('#payInfoGrid').hide(500);
+            $('#payErrorGrid').show(500);
+            $('#greetingsBlock').hide(500);
+            $('#payBtnBlock').show(500);
+            $('#infoBlock').show(500);
+        }
+    }
+
+
+</script>

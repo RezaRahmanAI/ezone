@@ -1,0 +1,159 @@
+﻿@model IEnumerable<GetProductViewModel>
+<div class="input-group">
+    <input type="text" class="input-sm form-control input-sm" id="ProductsCode" name="ProductsCode" value="@ViewBag.ProductsCode" readonly="readonly">
+    <span class="input-group-btn">
+        <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#ProductsModal"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Pick</button>
+    </span>
+    <input type="text" class="input-sm form-control input-sm" id="ProductsName" name="ProductsName" value="@ViewBag.ProductsName" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="ProductsId" name="ProductsId" value="@ViewBag.ProductsId" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="ProductsType" name="ProductsType" value="@ViewBag.ProductsType" readonly="readonly">
+</div>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-lg" id="ProductsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="myModalLabel">Existing Products</h5>
+            </div>
+            <div class="modal-body">
+                <div id="Productstoolbar">
+                    @Html.ActionLink("Create new", "Create", "Product", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm", target = "_blank" })
+                    <span class="text-warning">&nbsp;(Requires reload current page to get new item)</span>
+                </div>
+                <table id="ProductsTable"
+                       data-toolbar="#Productstoolbar"
+                       data-toggle="table"
+                       data-search="true"
+                       data-click-to-select="true"
+                       data-single-select="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="6"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th data-field="id" class="hidden">
+                            </th>
+                            <th data-checkbox="true">
+                            </th>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="code"
+                                data-sortable="true">
+                                Code
+                            </th>
+                            <th data-field="name"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Name
+                            </th>
+                            <th data-field="category"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Category
+                            </th>
+                            <th data-field="CompanyName"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Company
+                            </th>
+                            <th data-field="RP"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Pur. Rate
+                            </th>
+                            <th data-field="MRPRate"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                MRP
+                            </th>
+                            <th data-field="preStock"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Pre. Stock
+                            </th>
+                            <th data-field="ProductsType" class="hidden"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="hidden">
+                                        @item.ProductId
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @item.ProductCode
+                                    </td>
+                                    <td>
+                                        @item.ProductName
+                                    </td>
+                                    <td>
+                                        @item.CategoryName
+                                    </td>
+                                    <td>
+                                        @item.CompanyName
+                                    </td>
+                                    <td>
+                                        @item.RP
+                                    </td>
+                                    <td>
+                                        @item.MRPRate
+                                    </td>
+                                    <td>
+                                        @item.PreStock
+                                    </td>
+                                    <td class="hidden">
+                                        @item.ProductType
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var $table = $('#ProductsTable');
+    $(document).ready(function () {
+        $('[id*="_PreviousStock"]').val(@ViewBag.ProductsPreviousStock);
+    });
+    $table.on('check.bs.table', function (e, row) {
+        $('#ProductsCode').val($.trim(row.code));
+        $('#ProductsName').val($.trim(row.name));
+        $('#ProductsId').val($.trim(row.id));
+        $('#ProductsType').val($.trim(row.ProductsType));
+
+        $('[id*="_PreviousStock"]').val($.trim(row.preStock));
+        $('[id*="_MRPRate"]').val($.trim(row.RP)).trigger("input");
+        $('[id*="_ECOMRPRate"]').val($.trim(row.RP)).trigger("input");
+        $('[id*="_EMOBMRPRate"]').val($.trim(row.MRPRate));
+        $('[id*="_SalesRate"]').val($.trim(row.MRPRate));
+    });
+    $table.on('uncheck.bs.table', function (e, row) {
+        $('#ProductsCode').val('');
+        $('#ProductsName').val('');
+        $('#ProductsId').val('');
+        $('#ProductsType').val('');
+        $('[id*="_PreviousStock"]').val('');
+        $('[id*="_SalesRate"]').val('');
+        $('[id*="_MRPRate"]').val('').trigger("input");
+    });
+</script>

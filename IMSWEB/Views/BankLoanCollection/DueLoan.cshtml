@@ -1,0 +1,44 @@
+﻿@*@model IEnumerable<CreateCashCollectionViewModel>*@
+@model IEnumerable<IMSWEB.Model.TO.BankLoanCollectionTO>
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Due Loan";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+}
+<h4 class="text-left inline-header">All Due Loan</h4>
+<hr />
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @Html.ActionLink("Get Due Loan List", "DueLoan", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        @{
+
+            if (TempData.ContainsKey("IsPendingList"))
+            {
+                TempData.Remove("IsPendingList");
+                @:$.ajax({
+                    @:url: "/Report/GetAllPendingLoan",
+                    @:type: "GET",
+                    @:dataType: "html",
+                    @:success: function (data) {
+                        @:$('#report').html(data);
+                        @:},
+                    @:error: function (err) {
+                        @:console.error(JSON.stringify(err));
+                        @:}
+                    @:});
+            }
+        }
+
+    });
+
+</script>

@@ -1,0 +1,325 @@
+﻿
+<style>
+    .col-md-4 {
+        padding-right: 0px !important;
+    }
+
+    .col-md-8 {
+        padding-left: 0px !important;
+    }
+</style>
+@using IMSWEB.Model
+@model ROrderViewModel
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Return Order";
+}
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Html.BeginForm(actionName, "ReturnOrder", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @*@Html.Hidden("PrevQuantity", Model.PODetail != null ? !string.IsNullOrEmpty(Model.PODetail.Quantity) ? Model.PODetail.Quantity : string.Empty : string.Empty)*@
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ReturnOrder.InvoiceNo, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.ReturnOrder.InvoiceNo, new { htmlAttributes = new { @class = "input-sm form-control input-sm", autofocus = "autofocus" } })
+                                    @Html.ValidationMessageFor(m => m.ReturnOrder.InvoiceNo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ReturnOrder.SupplierId, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Supplier, id = (Model != null && !string.IsNullOrEmpty(Model.ReturnOrder.SupplierId)) ? Model.ReturnOrder.SupplierId : "0" });}
+                                    @Html.ValidationMessageFor(m => m.ReturnOrder.SupplierId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ReturnOrder.OrderDate, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    <div class='input-group date' id='OrderDate'>
+                                        <input type='text' class="input-sm form-control input-sm" name='OrderDate' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.ReturnOrder.OrderDate, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.RODetail.ProductId, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Product, id = (Model != null && !string.IsNullOrEmpty(Model.RODetail.ProductId)) ? Model.RODetail.ProductId : "0" });}
+                                    @Html.ValidationMessageFor(m => m.RODetail.ProductId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.RODetail.ColorId, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Color, id = (Model != null && !string.IsNullOrEmpty(Model.RODetail.ColorId)) ? Model.RODetail.ColorId : "0" });}
+                                    @Html.ValidationMessageFor(m => m.RODetail.ColorId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.RODetail.UnitPrice, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.RODetail.UnitPrice, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(m => m.RODetail.UnitPrice, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.RODetail.Quantity, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.RODetail.Quantity, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number" } })
+                                    @Html.ValidationMessageFor(m => m.RODetail.Quantity, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.RODetail.UTAmount, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.RODetail.UTAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(m => m.RODetail.UTAmount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table id="productTable"
+                   data-toggle="table"
+                   data-height="280"
+                   class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>
+                            Sl
+                        </th>
+                        <th data-field="name"
+                            data-sortable="true">
+                            @Html.DisplayNameFor(model => model.RODetail.ProductName)
+                        </th>
+                        <th data-field="color"
+                            data-sortable="true">
+                            @Html.DisplayNameFor(model => model.RODetail.ColorName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.RODetail.Quantity)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.RODetail.UnitPrice)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.RODetail.UTAmount)
+                        </th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                                    int c = 1;
+                                    foreach (var item in Model.RODetails)
+                                    {
+                                        if (item.Status == EnumStatus.Updated || item.Status == EnumStatus.Deleted) { continue; }
+                                        <tr>
+                                            <td>
+                                                @c
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ProductName)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ColorName)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Quantity)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.UnitPrice)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.UTAmount)
+                                            </td>
+                                            <td>
+                                                @Html.ActionLink("Edit", "EditFromView", new { id = item.ProductId, cid = item.ColorId, previousAction = actionName.ToLower() }, new { @class = "btn btn-xs btn-info" })
+                                            </td>
+                                            <td>
+                                                @Html.ActionLink("Delete", "DeleteFromView", new { id = item.ProductId, cid = item.ColorId, previousAction = actionName.ToLower() }, new { onclick = "if(!confirm('Do you want to delete this item?')) return false;" })
+                                            </td>
+                                        </tr>
+                                        c++;
+                                    }
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.PurchaseOrder.GrandTotal, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.PurchaseOrder.GrandTotal, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(m => m.PurchaseOrder.TotalAmount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table id="productIdentifierTable"
+                   data-toggle="table"
+                   data-height="255"
+                   class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>
+                            Sl
+                        </th>
+                        <th data-field="code">
+                            Name
+                        </th>
+                        <th data-field="iemi">
+                            IMEI /Barcode
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                                    int i = 1;
+                                    if (TempData["ROProductDetails"] != null)
+                                    {
+                                        foreach (var item in (List<POProductDetail>)TempData["ROProductDetails"])
+                                        {
+                                            <tr>
+                                                <td width="9.97%">@i</td>
+                                                <td width="26.84%">@Model.RODetail.ProductName</td>
+                                                <td width="63.18%">
+                                                    <input type="text" class="form-control input-sm input-sm" value="@item.IMENO" name="@("IMEINo" +  i.ToString())" />
+                                                </td>
+                                            </tr>
+                                            i++;
+                                        }
+                                    }
+                    }
+                </tbody>
+            </table>
+            <br />
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="pull-right">
+                        <input type="submit" class="btn btn-sm btn-primary" name="addButton" value="Add to order" />
+                        <button type="reset" class="btn btn-sm btn-danger">Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">                                                                                    
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ReturnOrder.PaidAmount, new { @class = "control-label col-md-4" })
+                                <div class="col-md-8">
+                                    @Html.EditorFor(m => m.ReturnOrder.PaidAmount, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(m => m.ReturnOrder.PaidAmount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-offset-4 col-md-8">
+                                    <button type="button" class="btn btn-sm btn-info pull-right">Preview</button>
+                                    <input type="submit" class="btn btn-sm btn-primary pull-right" name="submitButton" value="Save order" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+<script>
+    $('#ReturnDate').datetimepicker({
+            @{
+                if (Model == null || Model.ReturnOrder.ReturnDate == null)
+                {
+                    @:defaultDate: moment(),
+                    }
+                else
+                {
+            @:defaultDate:'@(Convert.ToDateTime(Model.ReturnOrder.ReturnDate).ToString("dd-MMM-yyyy"))',
+            }
+            @:format: 'DD-MMM-YYYY'
+                    }
+    });
+    $("#RODetail_Quantity").on("input", function () {
+        var purchaseRate = $("#RODetail_UnitPrice").val();
+        $("#RODetail_UTAmount").val(parseInt($(this).val()) * parseFloat(purchaseRate));
+
+        var productName = $('#ProductsName').val();
+        if (productName == '') {
+            toastr['error']('Please pick a product first.');
+            return;
+        }
+
+        $("#productIdentifierTable > tbody").html('');
+        var newRow = $("<tr>");
+        var cols = "";
+
+        for (var counter = 1; counter <= $(this).val(); counter++) {
+            newRow = $("<tr>");
+            cols = "";
+            cols += '<td width="9.97%">' + counter + '</td>';
+            cols += '<td width="26.84%">' + productName + '</td>';
+            cols += '<td width="63.18%"><input type="text" class="form-control input-sm input-sm" name="IMEINo' + counter + '"/></td>';
+            newRow.append(cols);
+            $("#productIdentifierTable").append(newRow);
+        }
+    });
+
+    $("#RODetail_UnitPrice").on("input", function () {
+        var quantity = getDefaultIntIfEmpty($("#RODetail_Quantity").val());
+        var mrpRate = getDefaultFloatIfEmpty($(this).val());        
+        var total = (quantity * mrpRate).toFixed(2);
+        
+
+        $("#RODetail_UTAmount").val(getDefaultFloatIfEmpty(total));
+    });
+
+
+    //$("#PurchaseOrder_LabourCost").on("input", function () {
+    //    var totalAmount = getDefaultFloatIfEmpty($("#PurchaseOrder_GrandTotal").val());
+    //    var totalDiscountAmount = getDefaultFloatIfEmpty($("#PurchaseOrder_TotalDiscountAmount").val());
+    //    calculateVariousValue(totalDiscountAmount, totalAmount);
+    //});
+
+
+    //$("#PurchaseOrder_RecieveAmount").on("input", function () {
+    //    var totalAmount = getDefaultFloatIfEmpty($("#PurchaseOrder_GrandTotal").val());
+    //    var totalDiscountAmount = getDefaultFloatIfEmpty($("#PurchaseOrder_TotalDiscountAmount").val());
+    //    calculateVariousValue(totalDiscountAmount, totalAmount);
+    //});
+
+
+</script>

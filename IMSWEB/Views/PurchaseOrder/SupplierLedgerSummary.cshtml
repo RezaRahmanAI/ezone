@@ -1,0 +1,90 @@
+﻿@using IMSWEB.Model
+@model PurchaseOrderViewModel
+
+
+@{
+    ViewBag.Title = "Supplier Ledger Summary";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("SupplierLedger", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon", OnBegin = "return ValidationFun()" }, htmlAttributes: new { role = "form" }))
+{
+    <input type="hidden" name="ReportType" value="2" />
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(m => m.PurchaseOrder.SupplierId, new { @class = "control-label col-sm-2" })
+                <div class="col-sm-4">
+                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Supplier, id = (Model != null && !string.IsNullOrEmpty(Model.PurchaseOrder.SupplierId)) ? Model.PurchaseOrder.SupplierId : "0" });}
+                    @Html.ValidationMessageFor(m => m.PurchaseOrder.SupplierId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                </div>
+                <div class='col-sm-4 input-group date' id='FromDate'>
+                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                    <span class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </span>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                </div>
+                <div class='col-sm-4 input-group date' id='ToDate'>
+                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                    <span class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-1">
+                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                </div>
+                <div class="col-sm-4">
+                    <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    function ValidationFun() {
+        var SUPID = $("#SuppliersId").val();
+        if (SUPID == '' || SUPID == undefined) {
+            toastr.info("Please Select Supplier.");
+            return false;
+        }
+        return true;
+    }
+</script>

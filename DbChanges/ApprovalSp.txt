@@ -1,0 +1,1372 @@
+-------------------------
+----[AddPendingSalesOrder]-----
+Date:10-09-2021-------------    
+
+
+USE [EZONE]
+GO
+/****** Object:  StoredProcedure [dbo].[AddPendingSalesOrder]    Script Date: 10-09-2021 08:26:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+ALTER PROCEDURE [dbo].[AddPendingSalesOrder] (
+	@SalesOrder [INSERTSALESORDERTABLE] readonly,
+	@SODetails [INSERTSODETAILTABLE] readonly,
+	@RemindDate DATE
+	
+	)
+AS
+DECLARE @SalesOrderId INT
+
+
+BEGIN TRY
+	BEGIN TRANSACTION
+
+	
+	INSERT INTO sorders (
+		invoicedate,
+		invoiceno,
+		customerid,
+		vatpercentage,
+		vatamount,
+		grandtotal,
+		tdpercentage,
+		tdamount,
+		netdiscount,
+		totalamount,
+		paymentdue,
+		recamount,
+		adjamount,
+		totaldue,
+		STATUS,
+		concernid,
+		createdby,
+		createdate,
+		totaloffer,
+		Remarks,
+		CardTypeSetupID,
+		CardPaidAmount,
+		DepositChargePercent
+		
+		) (
+		SELECT invoicedate,
+		invoiceno,
+		customerid,
+		vatpercentage,
+		vatamount,
+		grandtotal,
+		tdiscountpercentage,
+		tdiscountamount,
+		netdiscount,
+		totalamount,
+		paymentdue,
+		recamt,
+		adjamount,
+		totaldue,
+		5, --for pending status
+		concernid,
+		createdby,
+		createdate,
+		totaloffer,
+		Remarks,
+		CardTypeSetupID,
+		CardPaidAmount,
+		DepositChargePercent
+		 FROM @SalesOrder
+		)
+
+	SET @SalesOrderId = Scope_identity()
+
+	INSERT INTO SOrderDetails (
+		ProductID,
+		Quantity,
+		UnitPrice,
+		UTAmount,
+		PPDPercentage,
+		PPDAmount,
+		MPRate,
+		SOrderID,
+		SDetailId,
+		PPOffer,
+		SRate,
+		PRate,
+		Compressor,
+		Motor,
+		Panel,
+		Spareparts,
+		Service
+		) (
+		SELECT SOD.ProductId,
+		SOD.Quantity,
+		SOD.UnitPrice,
+		SOD.TAmount,
+		SOD.PPDisPer,
+		SOD.PPDisAmt,
+		SOD.MrpRate,
+		@SalesOrderId SOrderID,
+		SOD.StockDetailId,
+		SOD.PPOffer,
+		(SOD.UnitPrice - SOD.PPDisAmt),
+		STD.PRate,
+		p.CompressorWarrentyMonth,
+		p.PanelWarrentyMonth,
+		p.MotorWarrentyMonth,
+		p.SparePartsWarrentyMonth,
+		p.ServiceWarrentyMonth FROM @SODetails SOD INNER JOIN StockDetails STD
+		ON STD.SDetailID = SOD.StockDetailId INNER JOIN Products p
+		ON STD.ProductID = p.ProductID )--WHERE P.ProductType = 1 OR p.ProductType = 3
+		
+
+	
+
+	
+
+COMMIT
+
+	RETURN 1;
+END TRY
+
+BEGIN CATCH
+	IF @@TRANCOUNT > 0
+		ROLLBACK
+
+	DECLARE @CreatedBy INT
+	DECLARE @CreatedDate DATETIME
+
+	SELECT @CreatedBy = CreatedBy,
+		@CreatedDate = CreateDate
+	FROM @SalesOrder
+
+	INSERT INTO Errors (
+		Message,
+		StackTrace,
+		CreatedBy,
+		CreateDate
+		)
+	VALUES (
+		ERROR_MESSAGE(),
+		ERROR_PROCEDURE() + ':' + CONVERT(VARCHAR(10), ERROR_LINE()) + '-' + ERROR_MESSAGE(),
+		@CreatedBy,
+		@CreatedDate
+		)
+
+	RETURN 0;
+
+END CATCH
+
+
+-------------------------
+--UpdatePendingSalesOrder-----
+----------------------------
+USE [EZONE]
+GO
+/****** Object:  StoredProcedure [dbo].[UpdatePendingSalesOrder]    Script Date: 10-09-2021 08:28:03 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[UpdatePendingSalesOrder] (
+	@UserId int,
+	@SalesOrderId int,
+	@SalesOrder [InsertSalesOrderTable] readonly,
+	@SODetails [InsertSODetailTable] readonly,
+	@BankTrans [InsertBankTransTable] readonly
+	)
+AS
+BEGIN TRY
+	BEGIN TRANSACTION
+
+	--status New=3,Updated=4,Deleted=5
+	
+	UPDATE SOrders
+	SET InvoiceDate = s.InvoiceDate,
+		InvoiceNo = s.InvoiceNo,
+		CustomerID = s.CustomerID,
+		VATPercentage = s.VATPercentage,
+		VATAmount = s.VATAmount,
+		GrandTotal = s.GrandTotal,
+		TDPercentage = s.TDiscountPercentage,
+		TDAmount = s.TDiscountAmount,
+		NetDiscount = s.NetDiscount,
+		TotalAmount = s.TotalAmount,
+		PaymentDue = s.PaymentDue,
+		RecAmount = s.RecAmt,
+		AdjAmount = s.AdjAmount,
+		TotalDue = s.TotalDue,
+		STATUS = s.STATUS,
+		ConcernID = s.ConcernID,
+		ModifiedBy = s.CreatedBy,
+		ModifiedDate = s.CreateDate,
+		Remarks = s.Remarks,
+		CardTypeSetupID=s.CardTypeSetupID,
+		CardPaidAmount=s.CardPaidAmount,
+		DepositChargePercent=s.DepositChargePercent
+		
+	FROM @SalesOrder s
+	WHERE SOrderID = @SalesOrderId
+
+
+
+	--delete
+	DELETE FROM SOrderDetails 
+	WHERE SOrderDetailID IN 
+	(SELECT SOrderDetailID 
+	FROM @SODetails 
+	WHERE Status = 5)
+
+	--Barcode update
+	UPDATE sod
+	SET sod.ProductID = SD.ProductId,
+		sod.Quantity = SD.Quantity,
+		sod.UnitPrice = SD.UnitPrice,
+		sod.UTAmount = SD.TAmount,
+		sod.PPDPercentage = SD.PPDisPer,
+		sod.PPDAmount = SD.PPDisAmt,
+		sod.MPRate = SD.MrpRate,
+		sod.SOrderID = @SalesOrderId,
+		sod.SDetailID = SD.StockDetailId,
+		sod.Compressor = p.CompressorWarrentyMonth,
+		sod.Motor = p.MotorWarrentyMonth,
+		sod.Panel = p.PanelWarrentyMonth,
+		sod.Spareparts = p.SparePartsWarrentyMonth,
+		sod.Service = p.ServiceWarrentyMonth,
+		sod.PRate = std.PRate
+	FROM @SODetails SD
+	JOIN SOrderDetails sod on SD.SOrderDetailID = sod.SOrderDetailID
+	Join StockDetails std on SD.StockDetailId = std.SDetailID
+	INNER JOIN Products p ON SD.ProductId = p.ProductID
+	WHERE SD.STATUS = 4 --and p.ProductType!=2
+
+	--Barcode Insert
+	INSERT INTO SOrderDetails 
+	(ProductID, Quantity, UnitPrice, UTAmount, PPDPercentage, 
+	PPDAmount, MPRate, SOrderID, SDetailId, PPOffer, 
+	SRate, PRate,Compressor, Motor, Panel,
+    Spareparts, Service) 
+	(SELECT
+	 SOD.ProductId, SOD.Quantity, SOD.UnitPrice, SOD.TAmount, SOD.PPDisPer,
+	 SOD.PPDisAmt, SOD.MrpRate, @SalesOrderId SOrderID, SOD.StockDetailId, SOD.PPOffer,
+	 (SOD.UnitPrice - SOD.PPDisAmt), STD.PRate,p.CompressorWarrentyMonth, p.PanelWarrentyMonth,
+	 p.MotorWarrentyMonth, p.SparePartsWarrentyMonth, p.ServiceWarrentyMonth FROM @SODetails SOD 
+	JOIN StockDetails STD ON STD.SDetailID = SOD.StockDetailId 
+	JOIN Products p ON STD.ProductID = p.ProductID
+	where (P.ProductType!=2 and SOD.Status=3)
+	)
+
+	
+	COMMIT
+
+	RETURN 1;
+END TRY
+
+BEGIN CATCH
+	IF @@TRANCOUNT > 0
+		ROLLBACK
+		Declare @CreatedDate datetime,@CreatedBy int
+
+		select @CreatedBy=CreatedBy,@CreatedDate=CreateDate from @SalesOrder 
+		INSERT INTO Errors(Message,StackTrace,CreatedBy,CreateDate)
+		VALUES(ERROR_MESSAGE(),ERROR_PROCEDURE()+':'+CONVERT(Varchar(10),ERROR_LINE())+'-'+ERROR_MESSAGE(),@CreatedBy,GETDATE())
+	RETURN 0;
+END CATCH
+
+------------------------------------
+-------AppprovedSalesOrder-----------
+------------------------------------
+USE [EZONE]
+GO
+/****** Object:  StoredProcedure [dbo].[ApprovedSalesOrder]    Script Date: 10-09-2021 08:28:54 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROC [dbo].[ApprovedSalesOrder] (
+	@SalesOrder [INSERTSALESORDERTABLE] readonly,
+	@SODetails [INSERTSODETAILTABLE] readonly,
+	@BankTrans [InsertBankTransTable] readonly,
+	@SalesOrderId int 
+	)
+AS
+DECLARE @CardTypeSetupID INT
+DECLARE @BankTransID INT
+
+BEGIN TRY
+	BEGIN TRANSACTION
+
+	--------------------------------------------------
+	-----------Card Payment Bank Deposit--------------
+	--------------------------------------------------
+	set @BankTransID=0
+	SET @CardTypeSetupID = ISNULL((
+				SELECT CardTypeSetupID
+				FROM SOrders where SOrderID=@SalesOrderId
+				), 0)
+
+	IF (@CardTypeSetupID > 0)
+	BEGIN
+			INSERT INTO BankTransactions (
+			Amount,
+			AnotherBankID,
+			BankID,
+			ChecqueNo,
+			ConcernID,
+			CustomerID,
+			Remarks,
+			SupplierID,
+			TranDate,
+			TransactionNo,
+			TransactionType
+			) (
+			SELECT Amount,
+			AnotherBankID,
+			BankID,
+			ChecqueNo,
+			ConcernID,
+			CustomerID,
+			Remarks,
+			SupplierID,
+			TranDate,
+			TransactionNo,
+			TransactionType FROM @BankTrans
+			)
+
+		SET @BankTransID = SCOPE_IDENTITY();
+
+		UPDATE Banks
+		SET TotalAmount = TotalAmount + bt.Amount
+		FROM BankTransactions bt
+		JOIN Banks b ON bt.BankID = b.BankID
+		WHERE bt.BankTranID = @BankTransID
+	END
+
+	--------------------------------------------------
+	-----------Card Payment Bank Deposit--------------
+	--------------------------------------------------
+	
+	DECLARE @ModifiedDate DATETIME
+	DECLARE @ModifiedBy INT
+
+	SET @ModifiedDate = ISNULL((
+				SELECT CreateDate
+				FROM @SalesOrder
+				), GETDATE())
+	SET @ModifiedBy = ISNULL((
+				SELECT CreatedBy
+				FROM @SalesOrder
+				), 0)
+
+	UPDATE SOrders
+	SET STATUS = 1,
+		BankTransID=@BankTransID,
+		ModifiedDate = @ModifiedDate,
+		ModifiedBy = @ModifiedBy
+	WHERE SOrderID = @SalesOrderId AND STATUS = 5
+
+	--Delete Only Nobarcode products
+	DELETE  sod
+	from SOrderDetails sod
+	join Products p on sod.ProductID = p.ProductID
+	WHERE SOrderID = @SalesOrderId and P.ProductType = 2
+
+
+	UPDATE customers
+	SET customers.totaldue = (customers.totaldue + s.totaldue)
+	FROM @SalesOrder s
+	JOIN customers ON customers.customerid = s.customerid
+
+	--Stock Update 
+	CREATE TABLE #tmpStock (
+		ProductID INT,
+		ColorID INT,
+		GodownID INT,
+		Qty DECIMAL(18, 2)
+		)
+
+	INSERT INTO #tmpStock (
+		ProductID,
+		ColorID,
+		GodownID,
+		Qty
+		) (
+		SELECT s.ProductID,
+		s.ColorID,
+		s.Compressor,
+		SUM(s.Quantity) FROM @SODetails s 
+		GROUP BY s.ProductId,
+		s.ColorId,
+		s.Compressor
+		)
+
+	UPDATE st
+	SET st.Quantity = (st.Quantity - sod.Qty)
+	FROM #tmpStock sod
+	INNER JOIN Stocks st
+		ON st.ProductID = sod.ProductID AND st.ColorID = sod.ColorID AND st.GodownID = sod.GodownID
+
+	--For barCode Product 
+	UPDATE stockdetails
+	SET stockdetails.STATUS = 2
+	FROM @SODetails s
+	JOIN stockdetails ON stockdetails.sdetailid = s.stockdetailid
+	JOIN products ON stockdetails.productid = products.productid
+	WHERE products.producttype = 1 OR products.producttype = 3
+
+	--*****************FIFO for Nobarcode************************** 
+	DECLARE @ProductID INT
+	DECLARE @StockID INT
+	DECLARE @SDetailID INT
+	DECLARE @ColorID INT
+	DECLARE @SalesRate INT
+	DECLARE @PRate INT
+	DECLARE @POrderDetailID INT
+	DECLARE @SOrderDetailID INT
+	DECLARE @Quantity INT
+	DECLARE @SQty INT
+	DECLARE @UnitPrice INT
+	DECLARE @MRPRate INT
+
+	DECLARE cur CURSOR LOCAL
+	FOR
+	SELECT s.productid,
+		colorid,
+		quantity,
+		sorderdetailid
+	FROM @SODetails s
+	JOIN products ON products.productid = s.productid
+	WHERE products.producttype = 2
+
+	OPEN cur
+
+	FETCH NEXT
+	FROM cur
+	INTO @ProductID,
+		@ColorID,
+		@Quantity,
+		@SOrderDetailID
+
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+		WHILE @Quantity != 0
+		BEGIN
+			SET @SDetailID = (
+					SELECT Min(sdetailid)
+					FROM stockdetails
+					WHERE productid = @ProductID AND colorid = @ColorID AND quantity != 0 AND STATUS = 1
+					)
+			SET @SQty = (
+					SELECT quantity
+					FROM stockdetails
+					WHERE sdetailid = @SDetailID
+					)
+
+			IF (@SQty > @Quantity)
+			BEGIN
+				SET @SQty = @SQty - @Quantity
+
+				UPDATE stockdetails
+				SET quantity = @SQty
+				WHERE sdetailid = @SDetailID
+
+				INSERT INTO sorderdetails (
+					productid,
+					quantity,
+					unitprice,
+					utamount,
+					ppdpercentage,
+					ppdamount,
+					mprate,
+					sorderid,
+					sdetailid,
+					ppoffer,
+					srate,
+					prate,
+					compressor,
+					motor,
+					panel,
+					spareparts,
+					service
+					
+					) (
+					SELECT SOD.productid,
+					@Quantity,
+					SOD.unitprice,
+					SOD.tamount,
+					SOD.ppdisper,
+					SOD.ppdisamt,
+					SOD.mrprate,
+					@SalesOrderId SOrderID,
+					@SDetailID,
+					
+					STD.prate,
+					p.compressorwarrentymonth,
+					p.panelwarrentymonth,
+					p.motorwarrentymonth,
+					p.sparepartswarrentymonth,
+					p.servicewarrentymonth,
+					SOD.unitPrice * 13.043 / 100,
+					SOD.UnitPrice - SOD.unitPrice * 13.043 / 100
+					
+					 FROM @SODetails SOD JOIN stockdetails STD ON STD.sdetailid = SOD.stockdetailid JOIN products p ON STD.productid = p.productid WHERE SOD.productid = @ProductID AND SOD.colorid = @ColorID
+					)
+
+				SET @Quantity = 0
+			END
+			ELSE IF (@SQty < @Quantity)
+			BEGIN
+				SET @Quantity = @Quantity - @SQty
+
+				UPDATE stockdetails
+				SET quantity = 0,
+					STATUS = 2
+				WHERE sdetailid = @SDetailID
+
+				INSERT INTO sorderdetails (
+					productid,
+					quantity,
+					unitprice,
+					utamount,
+					ppdpercentage,
+					ppdamount,
+					mprate,
+					sorderid,
+					sdetailid,
+					ppoffer,
+					srate,
+					prate,
+					compressor,
+					motor,
+					panel,
+					spareparts,
+					service
+					
+					) (
+					SELECT SOD.productid,
+					@SQty,
+					SOD.unitprice,
+					SOD.tamount,
+					SOD.ppdisper,
+					SOD.ppdisamt,
+					SOD.mrprate,
+					@SalesOrderId SOrderID,
+					@SDetailID,
+					SOD.ppoffer,
+					(SOD.unitprice - SOD.ppdisamt),
+					STD.prate,
+					p.compressorwarrentymonth,
+					p.panelwarrentymonth,
+					p.motorwarrentymonth,
+					p.sparepartswarrentymonth,
+					p.servicewarrentymonth
+					 FROM @SODetails SOD JOIN stockdetails STD ON STD.sdetailid = SOD.stockdetailid JOIN products p ON STD.productid = p.productid WHERE SOD.productid = @ProductID AND SOD.colorid = @ColorID
+					)
+			END
+			ELSE
+			BEGIN
+				UPDATE stockdetails
+				SET quantity = 0,
+					STATUS = 2
+				WHERE sdetailid = @SDetailID
+
+				INSERT INTO sorderdetails (
+					productid,
+					quantity,
+					unitprice,
+					utamount,
+					ppdpercentage,
+					ppdamount,
+					mprate,
+					sorderid,
+					sdetailid,
+					ppoffer,
+					srate,
+					prate,
+					compressor,
+					motor,
+					panel,
+					spareparts,
+					service
+					
+					) (
+					SELECT SOD.productid,
+					@Quantity,
+					SOD.unitprice,
+					SOD.tamount,
+					SOD.ppdisper,
+					SOD.ppdisamt,
+					SOD.mrprate,
+					@SalesOrderId SOrderID,
+					@SDetailID,
+					SOD.ppoffer,
+					(SOD.unitprice - SOD.ppdisamt),
+					STD.prate,
+					p.compressorwarrentymonth,
+					p.panelwarrentymonth,
+					p.motorwarrentymonth,
+					p.sparepartswarrentymonth,
+					p.servicewarrentymonth
+					FROM @SODetails SOD JOIN stockdetails STD ON STD.sdetailid = SOD.stockdetailid JOIN products p ON STD.productid = p.productid WHERE SOD.productid = @ProductID AND SOD.colorid = @ColorID
+					)
+
+				SET @Quantity = 0
+			END
+		END
+
+		FETCH NEXT
+		FROM cur
+		INTO @ProductID,
+			@ColorID,
+			@Quantity,
+			@SOrderDetailID
+	END
+
+	--For barCode Product SRVisit Status update 
+	UPDATE srvproductdetails
+	SET srvproductdetails.STATUS = 2
+	FROM @SODetails s
+	JOIN srvproductdetails ON srvproductdetails.sdetailid = s.stockdetailid AND srvproductdetails.STATUS = 1
+	JOIN products ON srvproductdetails.productid = products.productid
+	WHERE products.producttype = 1 OR products.producttype = 3
+
+	
+
+
+	COMMIT
+
+	RETURN 1;
+END TRY
+
+BEGIN CATCH
+	IF @@TRANCOUNT > 0
+		ROLLBACK
+
+	DECLARE @CreatedBy INT
+	DECLARE @CreatedDate DATETIME
+
+	SELECT @CreatedBy = CreatedBy,
+		@CreatedDate = CreateDate
+	FROM @SalesOrder
+
+	INSERT INTO Errors (
+		Message,
+		StackTrace,
+		CreatedBy,
+		CreateDate
+		)
+	VALUES (
+		ERROR_MESSAGE(),
+		ERROR_PROCEDURE() + ':' + CONVERT(VARCHAR(10), ERROR_LINE()) + '-' + ERROR_MESSAGE(),
+		@CreatedBy,
+		@CreatedDate
+		)
+
+	RETURN 0;
+
+	RETURN 0;
+END CATCH
+-------------------------------
+--AddPendingCreditSalesOrder-----
+-----------------------------------
+USE [EZONE]
+GO
+/****** Object:  StoredProcedure [dbo].[AddPendingCreditSalesOrder]    Script Date: 10-09-2021 08:29:40 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[AddPendingCreditSalesOrder] (
+	@CSalesOrder [dbo].[INSERTCREDITSALESORDERTABLE] readonly,
+	@CSODetails [INSERTCSODETAILTABLE] readonly,
+	@CSSchedules [INSERTCSSCHEDULESTABLE] readonly
+	)
+AS
+DECLARE @CreditSalesId INT
+
+BEGIN TRY
+	BEGIN TRANSACTION
+
+	INSERT INTO creditsales (
+		invoiceno,
+		customerid,
+		tsalesamt,
+		noofinstallment,
+		intallmentprinciple,
+		issuedate,
+		username,
+		remaining,
+		interestrate,
+		interestamount,
+		salesdate,
+		downpayment,
+		winterestamt,
+		fixedamt,
+		isstatus,
+		unexinstallment,
+		quantity,
+		discount,
+		netamount,
+		isunexpected,
+		remarks,
+		vatpercentage,
+		vatamount,
+		STATUS,
+		concernid,
+		createdby,
+		createdate,
+		totaloffer,
+		installmentperiod,
+		CardTypeSetupID,
+		CardPaidAmount,
+		DepositChargePercent
+		
+		) (
+		SELECT invoiceno,
+		customerid,
+		tsalesamt,
+		noofinstallment,
+		installmentprinciple,
+		issuedate,
+		username,
+		remaining,
+		interestrate,
+		interestamount,
+		salesdate,
+		downpayment,
+		winterestamt,
+		fixedamount,
+		5,---pending status
+		unexinstallment,
+		quantity,
+		discount,
+		netamount,
+		isunexpected,
+		remarks,
+		vatpercentage,
+		vatamount,
+		Status,
+		concernid,
+		createdby,
+		createdate,
+		totaloffer,
+		installmentperiod,
+		CardTypeSetupID,
+		CardPaidAmount,
+		DepositChargePercent
+		
+		FROM @CSalesOrder
+		)
+
+	SET @CreditSalesId = Scope_identity()
+
+	INSERT INTO CreditSaleDetails (
+		ProductID,
+		UnitPrice,
+		Quantity,
+		UTAmount,
+		CreditSalesID,
+		MPRateTotal,
+		MPRate,
+		StockDetailID,
+		PPOffer,
+		IntPercentage,
+		IntTotalAmt,
+		Compressor,
+		Motor,
+		Panel,
+		Spareparts,
+		Service
+		
+		) (
+		SELECT sd.ProductID,
+		UnitPrice,
+		Quantity,
+		UTAmount,
+		@CreditSalesId CreditSalesID,
+		MPRateTotal,
+		MrpRate,
+		StockDetailID,
+		PPOffer,
+		IntPercentage,
+		IntTotalAmt,
+		p.CompressorWarrentyMonth,
+		p.MotorWarrentyMonth,
+		p.PanelWarrentyMonth,
+		p.SparePartsWarrentyMonth,
+		p.ServiceWarrentyMonth
+		
+		 FROM @CSODetails sd INNER JOIN Products p ON sd.ProductID = p.ProductID 
+		--WHERE p.ProductType != 2
+		)
+
+	INSERT INTO creditsalesschedules (
+		monthdate,
+		balance,
+		installmentamt,
+		paymentdate,
+		creditsalesid,
+		paymentstatus,
+		interestamount,
+		closingbalance,
+		scheduleno,
+		remarks,
+		isunexpected,
+		hirevalue,
+		netvalue
+		
+		) (
+		SELECT monthdate,
+		balance,
+		installmentamt,
+		paymentdate,
+		@CreditSalesId CreditSalesID,
+		paymentstatus,
+		interestamount,
+		closingbalance,
+		scheduleno,
+		remarks,
+		isunexpected,
+		hirevalue,
+		netvalue
+		FROM @CSSchedules
+		)
+
+	COMMIT
+
+	RETURN 1;
+END TRY
+
+BEGIN CATCH
+	IF @@TRANCOUNT > 0
+		ROLLBACK
+
+	RETURN 0;
+END CATCH
+------------------
+---InstallmentApproved---
+-------------------
+USE [EZONE]
+GO
+/****** Object:  StoredProcedure [dbo].[InstallmentApproved]    Script Date: 10-09-2021 08:31:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-----------------------------------------------------------
+ALTER PROC [dbo].[InstallmentApproved]
+(
+	@SalesOrderId int,
+	@ScheduleID int,
+	@InstallmentAmount decimal(18,2),
+	@LastPayAdjustment decimal(18,2),
+    @BankTrans [InsertBankTransTable] readonly,
+	@CardTypeSetupID int
+)
+  
+AS 
+BEGIN TRY
+ BEGIN TRANSACTION 
+
+ -----------------Card Payment Bank Deposit--------------
+DECLARE @BankTransID INT
+
+	SET @BankTransID = 0;
+
+	IF (@CardTypeSetupID > 0)
+	BEGIN
+		INSERT INTO BankTransactions (
+			Amount,
+			AnotherBankID,
+			BankID,
+			ChecqueNo,
+			ConcernID,
+			CustomerID,
+			Remarks,
+			SupplierID,
+			TranDate,
+			TransactionNo,
+			TransactionType
+			) 
+			(
+			SELECT Amount,
+			AnotherBankID,
+			BankID,
+			ChecqueNo,
+			ConcernID,
+			CustomerID,
+			Remarks,
+			SupplierID,
+			TranDate,
+			TransactionNo,
+			TransactionType FROM @BankTrans
+			)
+
+		SET @BankTransID = SCOPE_IDENTITY();
+
+		UPDATE Banks
+		SET TotalAmount = TotalAmount + bt.Amount
+		FROM BankTransactions bt
+		INNER JOIN Banks b
+			ON bt.BankID = b.BankID
+		WHERE bt.BankTranID = @BankTransID
+	END
+
+------------------Card Payment Bank Deposit--------------
+
+UPDATE CreditSales SET Remaining = (Remaining - (@InstallmentAmount+@LastPayAdjustment)),LastPayAdjAmt=@LastPayAdjustment
+Where CreditSalesID = @SalesOrderId
+
+Declare @CustomerID int,@RemainingAmount decimal(18,2),@LastScheduleID int
+set @CustomerID=(Select CustomerID from CreditSales where CreditSalesID=@SalesOrderId)
+
+
+UPDATE Customers Set CreditDue = (CreditDue - (@InstallmentAmount+@LastPayAdjustment)) where CustomerID=@CustomerID
+
+
+update CreditSalesSchedules set PaymentStatus='Paid', BankTransID=@BankTransID where CSScheduleID=@ScheduleID
+
+
+UPDATE CreditSales SET LastPayAdjAmt=LastPayAdjAmt+Remaining WHERE (Remaining<1 AND Remaining>-1) AND Remaining!=0
+UPDATE CreditSales SET Remaining=0 WHERE (Remaining<1 AND Remaining>-1) AND Remaining!=0
+
+set @RemainingAmount = (Select Remaining from CreditSales where CreditSalesID=@SalesOrderId)
+
+IF (@RemainingAmount=0)
+BEGIN
+ Update CreditSalesSchedules set PaymentStatus='Paid',InstallmentAmt=0,PaymentDate=GETDATE() where CreditSalesID=@SalesOrderId and PaymentStatus='Due'
+END
+
+COMMIT
+
+RETURN 1
+
+END TRY
+
+BEGIN CATCH
+  IF(@@TRANCOUNT>0)
+    ROLLBACK
+	RETURN 0
+END CATCH
+----------------------
+--ApprovedCreditSalesOrder-
+----------------------------
+USE [EZONE]
+GO
+/****** Object:  StoredProcedure [dbo].[ApprovedCreditSalesOrder]    Script Date: 10-09-2021 08:32:21 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[ApprovedCreditSalesOrder] (
+	@CSalesOrder [dbo].[INSERTCREDITSALESORDERTABLE] readonly,
+	@CSODetails [INSERTCSODETAILTABLE] readonly,
+	@CSSchedules [INSERTCSSCHEDULESTABLE] readonly,
+	@BankTrans [InsertBankTransTable] readonly,
+	@CreditSalesId int 
+	)
+AS
+DECLARE @CardTypeSetupID INT
+DECLARE @BankTransID INT
+
+BEGIN TRY
+	BEGIN TRANSACTION
+
+	-----------------Card Payment Bank Deposit--------------
+	SET @BankTransID=0
+	SET @CardTypeSetupID = ISNULL((
+				SELECT CardTypeSetupID
+				FROM CreditSales where CreditSalesID=@CreditSalesId
+				), 0)
+
+	IF (@CardTypeSetupID > 0)
+	BEGIN
+			INSERT INTO BankTransactions (
+			Amount,
+			AnotherBankID,
+			BankID,
+			ChecqueNo,
+			ConcernID,
+			CustomerID,
+			Remarks,
+			SupplierID,
+			TranDate,
+			TransactionNo,
+			TransactionType
+			) (
+			SELECT Amount,
+			AnotherBankID,
+			BankID,
+			ChecqueNo,
+			ConcernID,
+			CustomerID,
+			Remarks,
+			SupplierID,
+			TranDate,
+			TransactionNo,
+			TransactionType FROM @BankTrans
+			)
+
+		SET @BankTransID = SCOPE_IDENTITY();
+
+		UPDATE Banks
+		SET TotalAmount = TotalAmount + bt.Amount
+		FROM BankTransactions bt
+		INNER JOIN Banks b ON bt.BankID = b.BankID
+		WHERE bt.BankTranID = @BankTransID
+	END
+
+	------------------Card Payment Bank Deposit--------------
+	DECLARE @ModifiedDate DATETIME
+	DECLARE @ModifiedBy INT
+
+	SET @ModifiedDate = ISNULL((
+				SELECT CreateDate
+				FROM @CSalesOrder
+				), GETDATE())
+	SET @ModifiedBy = ISNULL((
+				SELECT CreatedBy
+				FROM @CSalesOrder
+				), 0)
+
+	UPDATE CreditSales
+	SET IsSTATUS = 1,
+		BankTransID=@BankTransID,
+		ModifiedDate = @ModifiedDate,
+		ModifiedBy = @ModifiedBy
+	WHERE CreditSalesID = @CreditSalesId and  IsSTATUS = 5
+
+	UPDATE customers
+	SET customers.CreditDue = (customers.CreditDue + s.Remaining)
+	FROM @CSalesOrder s
+	INNER JOIN customers ON customers.customerid = s.customerid
+
+   --Delete Only Nobarcode products
+	DELETE  sod
+	from CreditSaleDetails sod
+	join Products p on sod.ProductID = p.ProductID
+	WHERE CreditSalesID = @CreditSalesId and P.ProductType = 2
+
+	--Stock Update 
+	CREATE TABLE #tmpStock (
+		ProductID INT,
+		ColorID INT,
+		GodownID INT,
+		Qty DECIMAL(18, 2)
+		)
+
+	INSERT INTO #tmpStock (
+		ProductID,
+		ColorID,
+		GodownID,
+		Qty
+		) (
+		SELECT s.ProductID,
+		s.ColorID,
+		s.Compressor,
+		SUM(s.Quantity) FROM @CSODetails s 
+		GROUP BY s.ProductId,
+		s.ColorId,
+		s.Compressor
+		)
+
+	UPDATE st
+	SET st.Quantity = (st.Quantity - sod.Qty)
+	FROM #tmpStock sod
+	INNER JOIN Stocks st
+		ON st.ProductID = sod.ProductID AND st.ColorID = sod.ColorID AND st.GodownID = sod.GodownID
+
+
+	UPDATE StockDetails
+	SET StockDetails.STATUS = 2
+	FROM @CSODetails s
+	INNER JOIN StockDetails ON StockDetails.SDetailID = s.StockDetailId
+	INNER JOIN Products ON StockDetails.ProductID = Products.ProductID
+	WHERE Products.ProductType != 2
+
+	--***************FIFO for Nobarcode Product**********************
+	DECLARE @ProductID INT
+	DECLARE @StockID INT
+	DECLARE @SDetailID INT
+	DECLARE @ColorID INT
+	DECLARE @SalesRate INT
+	DECLARE @PRate INT
+	DECLARE @POrderDetailID INT
+	DECLARE @CreditSaleProductsID INT
+	DECLARE @Quantity INT
+	DECLARE @SQty INT
+	DECLARE @UnitPrice INT
+	DECLARE @MRPRate INT
+
+	DECLARE cur CURSOR LOCAL
+	FOR
+	SELECT s.productid,
+		s.colorid,
+		s.quantity,
+		creditsalesdetailsid
+	-- from   InsertCSODetailTable SOD join CreditSales SO on SO.CreditSalesID=SOD.CreditSalesID where SO.Status=1
+	FROM @CSODetails s
+	INNER JOIN stockdetails ON stockdetails.sdetailid = s.stockdetailid
+	INNER JOIN products ON stockdetails.productid = products.productid
+	WHERE Products.ProductType = 2
+
+	OPEN cur
+
+	FETCH NEXT
+	FROM cur
+	INTO @ProductID,
+		@ColorID,
+		@Quantity,
+		@CreditSaleProductsID
+
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+		WHILE @Quantity != 0
+		BEGIN
+			SET @SDetailID = (
+					SELECT Min(sdetailid)
+					FROM stockdetails
+					WHERE productid = @ProductID AND colorid = @ColorID AND quantity != 0 AND STATUS = 1
+					)
+			SET @SQty = (
+					SELECT quantity
+					FROM stockdetails
+					WHERE sdetailid = @SDetailID
+					)
+
+			IF (@SQty > @Quantity)
+			BEGIN
+				SET @SQty = @SQty - @Quantity
+
+				UPDATE stockdetails
+				SET quantity = @SQty
+				WHERE sdetailid = @SDetailID
+
+				INSERT INTO creditsaledetails (
+					productid,
+					unitprice,
+					quantity,
+					utamount,
+					creditsalesid,
+					mpratetotal,
+					mprate,
+					stockdetailid,
+					ppoffer,
+					intpercentage,
+					inttotalamt,
+					compressor,
+					motor,
+					panel,
+					spareparts,
+					service
+					
+					) (
+					SELECT sd.productid,
+					unitprice,
+					@Quantity,
+					utamount,
+					@CreditSalesId CreditSalesID,
+					mpratetotal,
+					mrprate,
+					@SDetailID,
+					ppoffer,
+					intpercentage,
+					inttotalamt,
+					p.compressorwarrentymonth,
+					p.motorwarrentymonth,
+					p.panelwarrentymonth,
+					p.sparepartswarrentymonth,
+					p.servicewarrentymonth
+
+					FROM @CSODetails sd INNER JOIN products p ON sd.productid = p.productid WHERE sd.productid = @ProductID AND sd.colorid = @ColorID
+					)
+
+				-- update CreditSaleDetails set StockDetailID=@SDetailID where CreditSaleDetailsID  =@CreditSaleProductsID
+				SET @Quantity = 0
+			END
+			ELSE IF (@SQty < @Quantity)
+			BEGIN
+				SET @Quantity = @Quantity - @SQty
+
+				UPDATE stockdetails
+				SET quantity = 0,
+					STATUS = 2
+				WHERE sdetailid = @SDetailID
+
+				INSERT INTO creditsaledetails (
+					productid,
+					unitprice,
+					quantity,
+					utamount,
+					creditsalesid,
+					mpratetotal,
+					mprate,
+					stockdetailid,
+					ppoffer,
+					intpercentage,
+					inttotalamt,
+					compressor,
+					motor,
+					panel,
+					spareparts,
+					service
+					
+					) (
+					SELECT sd.productid,
+					unitprice,
+					@SQty,
+					utamount,
+					@CreditSalesId CreditSalesID,
+					mpratetotal,
+					mrprate,
+					@SDetailID,
+					ppoffer,
+					intpercentage,
+					inttotalamt,
+					p.compressorwarrentymonth,
+					p.motorwarrentymonth,
+					p.panelwarrentymonth,
+					p.sparepartswarrentymonth,
+					p.servicewarrentymonth
+					
+					 FROM @CSODetails sd INNER JOIN products p ON sd.productid = p.productid WHERE sd.productid = @ProductID AND sd.colorid = @ColorID
+					)
+			END
+			ELSE
+			BEGIN
+				UPDATE stockdetails
+				SET quantity = 0,
+					STATUS = 2
+				WHERE sdetailid = @SDetailID
+
+				INSERT INTO creditsaledetails (
+					productid,
+					unitprice,
+					quantity,
+					utamount,
+					creditsalesid,
+					mpratetotal,
+					mprate,
+					stockdetailid,
+					ppoffer,
+					intpercentage,
+					inttotalamt,
+					compressor,
+					motor,
+					panel,
+					spareparts,
+					service
+					
+					) (
+					SELECT sd.productid,
+					unitprice,
+					@SQty,
+					utamount,
+					@CreditSalesId CreditSalesID,
+					mpratetotal,
+					mrprate,
+					@SDetailID,
+					ppoffer,
+					intpercentage,
+					inttotalamt,
+					p.compressorwarrentymonth,
+					p.motorwarrentymonth,
+					p.panelwarrentymonth,
+					p.sparepartswarrentymonth,
+					p.servicewarrentymonth
+					
+					 FROM @CSODetails sd INNER JOIN products p ON sd.productid = p.productid WHERE sd.productid = @ProductID AND sd.colorid = @ColorID
+					)
+
+				SET @Quantity = 0
+			END
+		END
+
+		FETCH NEXT
+		FROM cur
+		INTO @ProductID,
+			@ColorID,
+			@Quantity,
+			@CreditSaleProductsID
+	END
+
+	COMMIT
+
+	RETURN 1;
+END TRY
+
+BEGIN CATCH
+	IF @@TRANCOUNT > 0
+		ROLLBACK
+
+	RETURN 0;
+END CATCH
+------------------------------
+---PendingInstalmentPayment---
+----------------------------
+
+USE [EZONE]
+GO
+/****** Object:  StoredProcedure [dbo].[PendingInstallmentPayment]    Script Date: 10-09-2021 08:38:19 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROC [dbo].[PendingInstallmentPayment]
+(
+	@SalesOrderId int,
+	@InstallmentAmount decimal(18,2),
+	@Schedules [InsertCSSchedulesTable] readonly,
+	@LastPayAdjustment decimal(18,2),
+	@CardTypeSetupID int
+)
+  
+AS 
+BEGIN TRY
+ BEGIN TRANSACTION 
+
+Declare @CustomerID int,@RemainingAmount decimal(18,2),@LastScheduleID int
+
+DELETE CreditSalesSchedules WHERE CreditSalesID = @SalesOrderId
+
+INSERT INTO CreditSalesSchedules
+(
+MonthDate, Balance, InstallmentAmt, PaymentDate, 
+CreditSalesID, PaymentStatus, InterestAmount, ClosingBalance,
+ScheduleNo, Remarks, IsUnExpected,HireValue,NetValue,ExpectedInstallment,
+CardPaidAmount,CardTypeSetupID,DepositChargePercent,BankTransID
+)
+(
+Select MonthDate, Balance, InstallmentAmt, PaymentDate, 
+@SalesOrderId CreditSalesID, PaymentStatus, InterestAmount, ClosingBalance, 
+ScheduleNo, Remarks, IsUnExpected,HireValue,NetValue,ExpectedInstallment,
+CardPaidAmount,CardTypeSetupID,DepositChargePercent,BankTransID
+from @Schedules
+)
+
+set @LastScheduleID=ISNULL((select TOP 1 CSScheduleID from CreditSalesSchedules where CreditSalesID=@SalesOrderId and InstallmentAmt>0 and PaymentStatus='Paid' order by ScheduleNo desc),0)
+update CreditSalesSchedules set LastPayAdjust=@LastPayAdjustment where CSScheduleID=@LastScheduleID
+
+
+UPDATE CreditSales SET LastPayAdjAmt=LastPayAdjAmt+Remaining WHERE (Remaining<1 AND Remaining>-1) AND Remaining!=0
+UPDATE CreditSales SET Remaining=0 WHERE (Remaining<1 AND Remaining>-1) AND Remaining!=0
+
+set @RemainingAmount = (Select Remaining from CreditSales where CreditSalesID=@SalesOrderId)
+
+IF (@RemainingAmount=0)
+BEGIN
+ Update CreditSalesSchedules set PaymentStatus='Paid',InstallmentAmt=0,PaymentDate=GETDATE() where CreditSalesID=@SalesOrderId and PaymentStatus='Due'
+END
+
+COMMIT
+
+RETURN 1
+
+END TRY
+
+BEGIN CATCH
+  IF(@@TRANCOUNT>0)
+    ROLLBACK
+	RETURN 0
+END CATCH
+--------------------------

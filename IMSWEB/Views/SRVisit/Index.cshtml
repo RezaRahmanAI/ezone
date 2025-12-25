@@ -1,0 +1,129 @@
+﻿
+@model IEnumerable<GetSRVisitViewModel>
+
+    @{
+        ViewBag.Title = "SR Visit";
+    }
+    <h4 class="text-left inline-header">Existing SR Visit Data.</h4>
+    @Html.ActionLink("Create new order", "Create", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+    <hr />
+    <table id="SRVisitTable"
+           data-toggle="table"
+           data-search="true"
+           data-show-refresh="true"
+           data-show-toggle="true"
+           data-show-columns="true"
+           data-show-export="true"
+           data-detail-view="true"
+           data-pagination="true"
+           data-id-field="productName"
+           data-page-list="[10, 25, 50, 100, ALL]"
+           data-page-size="15"
+           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>
+                    Sl
+                </th>
+                <th data-field="challanNo"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.ChallanNo)
+                </th>
+                <th data-field="VisitDate"
+                    data-sorter="sorter"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.VisitDate)
+                </th>
+                <th data-field="EmpName"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.EmpName)
+                </th>
+                <th data-field="ContactNo"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.ContactNo)
+                </th>
+                @*<th data-field="status"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>*@
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int count = 1;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @count
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ChallanNo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.VisitDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.EmpName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ContactNo)
+                        </td>
+                        @*<td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>*@
+                        <td>
+                            @{
+                    if (item.Status.Equals("Live"))
+                    {
+                        @*@Html.ActionLink("Edit", "Edit", new { orderId = item.SRVisitID })
+                                <span>|</span>*@
+                                @Html.ActionLink("Cancel", "Delete", new { orderId = item.SRVisitID }, new { onclick = "if(!confirm('Do you want to delete this order?')) return false;" })
+                                <span>|</span>
+                                @Html.ActionLink("Invoice", "Invoice", new { orderId = item.SRVisitID })
+                    }
+                            }
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+        </tbody>
+    </table>
+
+<script>
+$(document).ready(function () {
+@{
+    if (TempData.ContainsKey("IsInvoiceReady") && Convert.ToBoolean(TempData["IsInvoiceReady"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/SRVisitInvoice",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+     }
+
+    if (TempData.ContainsKey("IsInvoiceReadyById") && Convert.ToBoolean(TempData["IsInvoiceReadyById"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/SRVisitInvoiceByID",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+     }
+}
+    });
+</script>

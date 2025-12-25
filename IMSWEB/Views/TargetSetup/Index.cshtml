@@ -1,0 +1,107 @@
+﻿@model IEnumerable<IMSWEB.TargetSetupViewModel>
+
+@{
+    ViewBag.Title = "Target Setup";
+    int Counter = 1;
+}
+
+<h4 class="text-left inline-header">Existing Target Setup</h4>
+@Html.ActionLink("Create new Target", "Create", "TargetSetup", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+<hr />
+<table id="companyTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th data-field="sl"
+                data-sortable="true">
+               Sl
+            </th>
+            <th data-field="EmployeeName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.EmployeeName)
+            </th>
+            <th data-field="DesignationName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.DesignationName)
+            </th>
+            <th data-field="DepartmentName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.DepartmentName)
+            </th>
+            <th data-field="TargetMonth"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.TargetMonth)
+            </th>
+            <th data-field="Quantity"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th data-field="Amount"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th data-field="Status"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th data-field="Action"
+                data-sortable="true">
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Counter
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmployeeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DesignationName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DepartmentName)
+                </td>
+                <td>
+                    @item.TargetMonth.ToString("MMMM yyyy")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+                <td>
+                    @if(item.Status==1)
+                    {
+                        <span>Active</span>
+                    }
+                    else
+                    {
+                        <span>In Active</span>
+                    }
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { TID = item.TID, previousAction="Edit" }, new { @class = "btn btn-sm btn-info" }) |
+                    @Html.ActionLink("Delete", "Delete", new { TID = item.TID }, new { @class = "btn btn-sm btn-danger", onclick = "if(!confirm('Do you want to delete this target?')) return false;" })
+                </td>
+            </tr>
+            Counter++;
+        }
+    </tbody>
+</table>

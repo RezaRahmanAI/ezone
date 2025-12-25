@@ -1,0 +1,93 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.GetCustomerViewModel
+@{
+    ViewBag.Title = "Admin Cash Collection Report";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        @using (Ajax.BeginForm("AdminCashColletions", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="control-label">Customer Type</label>
+                            </td>
+                            <td>
+                                @Html.EnumDropDownListFor(i => i.CustomerType, "--All customer type--", new { @class = "form-control input-sm" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="col-sm-12">Concern</label>
+                            </td>
+                            <td>
+                                @Html.DropDownList("ConcernID", @ViewBag.Concerns as SelectList, "--All Concerns--", new { @class = "form-control input-sm" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="control-label col-sm-3 col-md-3">Customer Name</label>
+
+                            </td>
+                            <td>
+                                        @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.CustomerPostLoad, id = "0" });}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+</script>

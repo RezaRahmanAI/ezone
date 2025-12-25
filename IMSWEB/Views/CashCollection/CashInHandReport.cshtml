@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "Cash In Hand";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<div class="row">
+    <div class="col-lg-4 col-md-4  col-md-9 col-lg-offset-4 col-md-offset-4">
+        @using (Ajax.BeginForm("CashInHandReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        <label class="control-label col-md-3">
+                            <input id="ReportType" type="radio" title="Day" value="1" name="ReportType" checked />
+                            <span>Day</span>
+                        </label>
+                        <div class='col-md-9 input-group date' id='FromDate'>
+                            <input type='text' class="input-sm form-control" name='FromDate' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-3">
+                            <input id="ReportType" type="radio" title="Month" value="2" name="ReportType" />
+                            <span>Month</span>
+                        </label>
+                        <div class='col-md-9 input-group date' id='Month'>
+                            <input type='text' class="input-sm form-control" name='Month' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-3">
+                            <input id="ReportType" type="radio" title="Year" value="3" name="ReportType" />
+                            <span>Year</span>
+                        </label>
+                        <div class='col-md-9 input-group date' id='Year'>
+                            <input type='text' class="input-sm form-control" name='Year' />
+                            <span class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-4">
+
+                        </div>
+                        <div class='input-group date' id='FromDate'>
+                            <input id="rdoExel" type="radio" title="Exel" value="1" name="FileType" />Excel &nbsp;&nbsp;
+                            <input id="rdoPDF" title="PDF" type="radio" value="2" name="FileType" checked />PDF
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                        </div>
+                        <div class="col-md-9">
+                            <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        $('#Month').datetimepicker({
+            defaultDate: moment(),
+            format: 'MMM-YYYY',
+            viewMode: "months",
+            toolbarPlacement: "top",
+            allowInputToggle: true,
+        });
+
+        $('#FromDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY',
+        });
+
+
+        $('#Year').datetimepicker({
+            defaultDate: moment(),
+            format: 'YYYY',
+            viewMode: "years",
+        });
+    });
+
+</script>

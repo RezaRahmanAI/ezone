@@ -1,0 +1,79 @@
+﻿@using IMSWEB.Model
+
+@{
+    ViewBag.Title = "Daily Attendence Report";
+}
+
+<h4 class="text-left inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-lg-4 col-md-4  col-sm-12 col-lg-offset-4 col-md-offset-4">
+        @using (Ajax.BeginForm("DailyAttendence", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("Department", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Department, id = "0" });}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.Label("Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <div class='col-sm-10 input-group col-sm-offset-2' id='rbType'>
+                                        <input id="rdoAll" type="checkbox" title="All" value="1" name="IsPresent" checked />Present &nbsp;&nbsp;
+                                        <input id="rdoRetail" title="Retail" type="checkbox" value="2" name="IsAbsent" checked />Absent &nbsp;&nbsp;
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="col-sm-4">
+                                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                </div>
+                                <div class="col-sm-4">
+                                    <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<script>
+    $('#FromDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: moment(),
+        format: 'DD-MMM-YYYY'
+    });
+</script>

@@ -1,0 +1,134 @@
+﻿@using IMSWEB.Model
+@{
+    ViewBag.Title = "Admin Stock Summary Report";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Ajax.BeginForm("AdminStockSummaryReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+                {
+                    <table class="table">
+                        <tr>
+                            <td>
+                                Concerns
+                            </td>
+                            <td>
+                                @Html.DropDownList("ConcernID", ViewBag.Concerns as SelectList, "--Select Concern--", new { @class = "form-control input-sm" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input id="rdoProduct" type="radio" title="All Product" value="0" name="ReportType" />
+                                Product Wise Stock
+                            </td>
+                            <td>
+                                <span id="pickerSpace">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Product, id = "0" });}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td> <input id="rdoCompany" type="radio" title="Company Wise Stock" value="1" name="ReportType" />Company Wise Stock</td>
+                            <td>
+                                <span id="pickerSpace">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Company, id = "0" });}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input id="rdoCategory" title="Category Wise Stock" type="radio" value="2" name="ReportType" />Category Wise Stock</td>
+                            <td>
+                                <span id="pickerSpace">
+                                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Category, id = "0" });}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-sm-4">
+                                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+
+                                    <div class="col-sm-4">
+                                        <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#CompaniesId").val(0);
+        $("#CategoriesId").val(0);
+        $("#ProductsId").val(0);
+
+        $('input[type=radio][name=ReportType]').change(function () {
+            ClearPickerData();
+        });
+
+        $("#ConcernID").select2();
+
+    });
+
+    function ClearPickerData() {
+        $('#CategoriesCode').val('');
+        $('#CategoriesName').val('');
+        $('#CategoriesId').val('');
+
+        $('#CompaniesCode').val('');
+        $('#CompaniesName').val('');
+        $('#CompaniesId').val(0);
+
+        $('#ProductsCode').val('');
+        $('#ProductsName').val('');
+        $('#ProductsId').val('');
+
+    }
+
+    $('.modal').on('hidden.bs.modal', function () {
+        var modalname = $(this).attr('id');
+        if (modalname == "ProductsModal") {
+            $('#CategoriesCode').val('');
+            $('#CategoriesName').val('');
+            $('#CategoriesId').val('');
+            $('#CompaniesCode').val('');
+            $('#CompaniesName').val('');
+            $('#CompaniesId').val(0);
+            $("#rdoProduct").prop("checked", true);
+        }
+        else if (modalname == "CategoriesModal") {
+            $('#CompaniesCode').val('');
+            $('#CompaniesName').val('');
+            $('#CompaniesId').val('');
+            $('#ProductsCode').val('');
+            $('#ProductsName').val('');
+            $('#ProductsId').val('');
+            $("#rdoCategory").prop("checked", true);
+
+        }
+        else if (modalname == "CompaniesModal") {
+            $('#ProductsCode').val('');
+            $('#ProductsName').val('');
+            $('#ProductsId').val('');
+            $('#CategoriesCode').val('');
+            $('#CategoriesName').val('');
+            $('#CategoriesId').val('');
+            $("#rdoCompany").prop("checked", true);
+
+        }
+    })
+</script>

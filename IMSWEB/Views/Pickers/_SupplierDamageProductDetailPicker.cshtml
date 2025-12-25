@@ -1,0 +1,168 @@
+﻿<div class="input-group">
+    <input type="text" class="input-sm form-control input-sm" id="ProductDetailsCode" name="ProductDetailsCode" value="@ViewBag.PDetailsCode" readonly="readonly">
+    <span class="input-group-btn">
+        <button type="button" class="btn btn-sm btn-info" onclick="GetSupplierProducts()"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Pick</button>
+    </span>
+    <input type="text" class="input-sm form-control input-sm" id="ProductDetailsName" name="ProductDetailsName" value="@ViewBag.PDetailsName" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="ProductId" name="ProductId" value="@ViewBag.PDetailsId" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="StockDetailsId" name="StockDetailsId" value="@ViewBag.PDetailsStockDetailId" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="Offer" name="OfferDescription" value="@ViewBag.OfferDescription" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="ProductType" name="ProductType" value="@ViewBag.ProductType" readonly="readonly">
+</div>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-lg" id="ProductDetailsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="myModalLabel">Existing ProductDetails</h5>
+            </div>
+            <div class="modal-body">
+                <div id="ProductDetailstoolbar">
+                    @Html.ActionLink("Create new", "Create", "Product", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm", target = "_blank" })
+                    <span class="text-warning">&nbsp;(Requires reload current page to get new item)</span>
+                </div>
+                <table id="ProductDetailsTable"
+                       data-toolbar="#ProductDetailstoolbar"
+                       data-toggle="table"
+                       data-search="true"
+                       data-click-to-select="true"
+                       data-single-select="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="6"
+                       class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th data-field="ProductId" class="hidden">
+                            <th data-field="ProductType" class="hidden">
+                            </th>
+                            <th data-checkbox="true">
+                            </th>
+                            <th data-field="ProductCode"
+                                data-sortable="true">
+                                Code
+                            </th>
+                            <th data-field="ProductName"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Name
+                            </th>
+                            <th data-field="CategoryName"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Category
+                            </th>
+                            <th data-field="StockDetailsId" class="hidden">
+                            </th>
+                            <th data-field="ColorId" class="hidden">
+                            </th>
+                            <th data-field="IMENo"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                IMEI
+                            </th>
+                            <th data-field="ColorName"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Color
+                            </th>
+                            <th data-field="MRPRate"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                MRP Rate
+                            </th>
+                            <th data-field="PreStock"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                PreStock
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('[id*="_OfferDescription"]').text(@ViewBag.OfferDescription);
+        //$('[id*="_CurrentDue"]').trigger("input");
+        var ProductType = $("#ProductType").val();
+        if (ProductType == "2") {
+            $('[id*="_Quantity"]').attr("readonly", false);
+        }
+    });
+
+    var $table = $('#ProductDetailsTable');
+    $table.on('check.bs.table', function (e, row) {
+        $('#ProductDetailsCode').val($.trim(row.ProductCode));
+        $('#ProductDetailsName').val($.trim(row.ProductName));
+        $('#ProductId').val($.trim(row.ProductId)).trigger("input");
+        $('#StockDetailsId').val($.trim(row.StockDetailsId));
+        $('#ProductType').val($.trim(row.ProductType));
+        $('[id*="_ColorsId"]').val($.trim(row.ColorId));
+        //$('#OfferDescription').val($.trim(row.));
+        $('[id*="_IMENo"]').val($.trim(row.IMENo));
+        $('[id*="_ColorName"]').val($.trim(row.ColorName));
+        $('[id*="_PreviousStock"]').val($.trim(row.PreStock));
+        $('[id*="_MRPRate"]').val($.trim(row.MRPRate)).trigger("input");
+        $('[id*="_Quantity"]').val($.trim(row.PreStock));
+
+        if ($.trim(row.IMENo) == "No Barcode") {
+            $('[id*="_Quantity"]').attr("readonly", false);
+        }
+        else {
+            $('[id*="_Quantity"]').attr("readonly", true);
+        }
+    });
+
+    $table.on('uncheck.bs.table', function (e, row) {
+        $('#ProductDetailsCode').val('');
+        $('#ProductDetailsName').val('');
+        $('#ProductId').val('');
+        $('#StockDetailsId').val('');
+        $('#ColorsId').val('');
+        $('[id*="_IMENo"]').val('');
+        $('[id*="_ColorName"]').val('');
+        $('[id*="_PreviousStock"]').val('');
+        $('[id*="_MRPRate"]').val('').trigger("input");
+        $('[id*="_Quantity"]').val('');
+        $('[id*="_OfferDescription"]').text('');
+    });
+
+    function GetSupplierProducts() {
+        var SupplierID = $("#SuppliersId").val();
+        if (SupplierID == "" || SupplierID == undefined) {
+            toastr.error("Please select Supplier.");
+            return;
+        }
+
+        $.ajax({
+            url: "/DamagePOReturn/GetStockProductsBySupplier",
+            type: "GET",
+            data: { 'SuppplierID': SupplierID },
+            dataType: "json",
+            success: function (data) {
+                if (data == false) {
+                    toastr.error("Products are not found.")
+                    return;
+                }
+                $table.bootstrapTable('load', data)
+                $('#ProductDetailsModal').modal('toggle');
+            },
+            error: function (err) {
+                console.error(JSON.stringify(err));
+            }
+        });
+
+    }
+
+</script>

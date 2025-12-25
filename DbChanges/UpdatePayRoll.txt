@@ -1,0 +1,123 @@
+
+
+/****** Object:  Table [dbo].[MonthlyAttendences]    Script Date: 13-09-2021 06:39:50 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[MonthlyAttendences](
+	[MAID] [int] IDENTITY(1,1) NOT NULL,
+	[Month] [date] NOT NULL,
+	[EmployeeID] [int] NOT NULL,
+	[Days] [int] NOT NULL,
+	[OTDays] [int] NOT NULL,
+	[ConcernID] [int] NOT NULL,
+	[CreatedBy] [int] NOT NULL,
+	[CreateDate] [datetime] NOT NULL,
+	[ModifiedBy] [int] NULL,
+	[ModifiedDate] [datetime] NULL,
+ CONSTRAINT [PK_MonthlyAttendences] PRIMARY KEY CLUSTERED 
+(
+	[MAID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[MonthlyAttendences]  WITH CHECK ADD  CONSTRAINT [FK_MonthlyAttendences_Employees] FOREIGN KEY([EmployeeID])
+REFERENCES [dbo].[Employees] ([EmployeeID])
+GO
+
+ALTER TABLE [dbo].[MonthlyAttendences] CHECK CONSTRAINT [FK_MonthlyAttendences_Employees]
+GO
+
+ALTER TABLE [dbo].[MonthlyAttendences]  WITH CHECK ADD  CONSTRAINT [FK_MonthlyAttendences_SisterConcerns] FOREIGN KEY([ConcernID])
+REFERENCES [dbo].[SisterConcerns] ([ConcernID])
+GO
+
+ALTER TABLE [dbo].[MonthlyAttendences] CHECK CONSTRAINT [FK_MonthlyAttendences_SisterConcerns]
+GO
+
+
+----------------------------------
+
+
+/****** Object:  Table [dbo].[ManualAttendences]    Script Date: 13-09-2021 06:41:26 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[ManualAttendences](
+	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[Date] [datetime] NOT NULL,
+	[EmployeeID] [int] NOT NULL,
+	[OnDuty] [varchar](250) NULL,
+	[OffDuty] [varchar](250) NULL,
+	[ClockIn] [varchar](250) NULL,
+	[ClockOut] [varchar](250) NULL,
+	[ConcernID] [int] NOT NULL,
+	[CreatedBy] [int] NOT NULL,
+	[CreateDate] [datetime] NOT NULL,
+	[ModifiedBy] [datetime] NULL,
+	[ModifiedDate] [datetime] NULL,
+ CONSTRAINT [PK_ManualAttendences] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[ManualAttendences]  WITH CHECK ADD  CONSTRAINT [FK_ManualAttendences_SisterConcerns] FOREIGN KEY([ConcernID])
+REFERENCES [dbo].[SisterConcerns] ([ConcernID])
+GO
+
+ALTER TABLE [dbo].[ManualAttendences] CHECK CONSTRAINT [FK_ManualAttendences_SisterConcerns]
+GO
+
+
+--------------------------------
+
+
+
+/****** Object:  Table [dbo].[EmployeeCommissions]    Script Date: 13-09-2021 06:42:16 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[EmployeeCommissions](
+	[ECID] [int] IDENTITY(1,1) NOT NULL,
+	[CommissionMonth] [date] NOT NULL,
+	[EmployeeID] [int] NOT NULL,
+	[CommissionAmt] [decimal](18, 2) NOT NULL,
+	[ConcernID] [int] NOT NULL,
+	[CreatedBy] [int] NOT NULL,
+	[CreateDate] [datetime] NOT NULL,
+	[ModifiedBy] [int] NULL,
+	[ModifiedDate] [datetime] NULL,
+ CONSTRAINT [PK_EmployeeCommissions] PRIMARY KEY CLUSTERED 
+(
+	[ECID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[EmployeeCommissions]  WITH CHECK ADD  CONSTRAINT [FK_EmployeeCommissions_Employees] FOREIGN KEY([EmployeeID])
+REFERENCES [dbo].[Employees] ([EmployeeID])
+GO
+
+ALTER TABLE [dbo].[EmployeeCommissions] CHECK CONSTRAINT [FK_EmployeeCommissions_Employees]
+GO
+
+ALTER TABLE [dbo].[EmployeeCommissions]  WITH CHECK ADD  CONSTRAINT [FK_EmployeeCommissions_SisterConcerns] FOREIGN KEY([ConcernID])
+REFERENCES [dbo].[SisterConcerns] ([ConcernID])
+GO
+
+ALTER TABLE [dbo].[EmployeeCommissions] CHECK CONSTRAINT [FK_EmployeeCommissions_SisterConcerns]
+GO
+
+

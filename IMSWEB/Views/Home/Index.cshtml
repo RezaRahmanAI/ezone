@@ -1,0 +1,869 @@
+﻿@{
+    ViewBag.Title = "Home";
+    int Counter = 0;
+}
+@model IEnumerable<IMSWEB.Model.UpcommingScheduleReport>
+
+
+<style>
+
+    h1 {
+        text-align: center;
+    }
+
+    .container {
+        top: 30%;
+        left: 50%;
+        position: absolute;
+        text-align: center;
+        transform: translate(-50%, -50%);
+    }
+
+
+    .ui-widgets {
+        position: relative;
+        display: inline-block;
+        width: 12rem;
+        height: 12rem;
+        border-radius: 9rem;
+        margin: 1.5rem;
+        border: 1.2rem solid palegreen;
+        box-shadow: inset 0 0 7px grey;
+        border-left-color: palegreen;
+        border-top-color: chartreuse;
+        border-right-color: darkgreen;
+        border-bottom-color: white;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+
+        .ui-widgets:nth-child(2) {
+            border-top-color: chartreuse;
+            border-right-color: white;
+            border-left-color: palegreen;
+            border-bottom-color: white;
+        }
+
+        .ui-widgets .ui-values {
+            top: 40px;
+            position: absolute;
+            left: 10px;
+            right: 0;
+            font-weight: 700;
+            font-size: 2.0rem;
+        }
+
+        .ui-widgets .ui-labels {
+            left: 0;
+            bottom: -16px;
+            text-shadow: 0 0 4px grey;
+            color: black;
+            position: absolute;
+            width: 100%;
+            font-size: 16px;
+        }
+
+    .d-flex {
+        display: flex;
+        align-items: center;
+    }
+
+    .justify-content-btween {
+        justify-content: space-between;
+    }
+
+    .modal-dialog {
+        margin-left: 257px !important;
+    }
+
+    .panel-heading {
+        padding: 4px 15px !important;
+    }
+
+    .to-days-data {
+        color: #0d85bb;
+        font-weight: bold;
+        font-family: math;
+    }
+
+    .row {
+        padding: 0 !important;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+@*dashboard start here*@
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel round--shape">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-primary to-days-data">Todays data</h5>
+                            </div>
+                            <div class="col-md-6 ">
+
+                                <div class="btn-group pull-right">
+                                    <button type="button" class="btn btn-primary btn-sm mr-2" title="Search Stock" id="btnStockCheck">
+                                        <i class="fa fa-search" aria-hidden="true"></i> Search Stock
+                                    </button>
+                                    <button type="button" class="btn btn-info btn-sm mr-2" title="Advance Search" id="btnAdvanceSearch">
+                                        <i class="fa fa-search" aria-hidden="true"></i>&nbsp; Advance Search
+                                    </button>
+                                    <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#exampleModalLong">
+                                        Todays Installment
+                                    </button>
+                                </div>
+
+                                <div>
+
+
+                                    <div class="modal fade " id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Today's Installment(@ViewBag.LocalDateTime.ToString("dd MMM yyyy"))</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="panel panel-info">
+                                                        <div class="panel-heading">
+                                                            <div class="row">
+
+                                                                <div class=" col-md-12">
+                                                                    @using (Ajax.BeginForm("UpComingScheduleReport", "Home", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+                                                                    {
+                                                                        <div class="col-sm-4">
+                                                                            <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                                                        </div>
+                                                                        <div class="col-sm-8 text-right">
+                                                                            <input id="btnPreview" type="submit" value="Print" class="btn btn-sm btn-info" />
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="panel-body">
+                                                            <div class="table-responsive" style="max-height:400px;">
+                                                                <table class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                                                                    <thead>
+                                                                        <tr style="border-top:1px solid #ff6a00">
+                                                                            <th>Sl</th>
+                                                                            <th>Action</th>
+                                                                            <th>Invoice No</th>
+                                                                            <th>Sales Date</th>
+                                                                            <th>Payment Date</th>
+                                                                            <th>Remind Date</th>
+                                                                            <th>Code</th>
+                                                                            <th>Customer Name</th>
+                                                                            <th>Address & Contact</th>
+                                                                            @*<th>Ref Name & Contact</th>*@
+                                                                            <th>Product Name</th>
+                                                                            <th>Installment</th>
+                                                                            <th>Default Amount</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @if (Model != null)
+                                                                        {
+                                                                            foreach (var item in Model)
+                                                                            {
+                                                                                Counter = Counter + 1;
+                                                                                <tr>
+                                                                                    <td>@Counter</td>
+                                                                                    <td>
+                                                                                        <button type="button" class="btn btn-info btn-xs" title="Update Remind Date" id="btnShowRemindModal" data-csscheduleid="@item.CSScheduleID" data-customerid="@item.CustomerID" data-code="@item.CustomerCode" data-name="@item.CustomerName" data-totaldue="@item.TotalPaymentDue">
+                                                                                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                                                                        </button>
+                                                                                    </td>
+                                                                                    <td>@item.InvoiceNo</td>
+                                                                                    <td>@item.SalesDate</td>
+                                                                                    <td>
+                                                                                        @if (item.PaymentDate != DateTime.MinValue)
+                                                                                        {
+                                                                                            @item.PaymentDate.ToString("dd MMM yyyy")
+                                                                                        }
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @if (item.RemaindDate != null)
+                                                                                        {
+                                                                                            <text>@item.RemaindDate.Value.ToString("dd MMM yyyy")</text>
+                                                                                        }
+                                                                                    </td>
+                                                                                    <td>@item.CustomerCode</td>
+                                                                                    <td>@item.CustomerName</td>
+                                                                                    <td>@item.CustomerAddress<span>&</span>@item.CustomerConctact</td>
+                                                                                    @*<td>@item.CustomerRefName <span>&</span> @item.CustomerRefContact</td>*@
+                                                                                    <td>
+                                                                                        @foreach (var p in item.ProductName)
+                                                                                        {
+                                                                                            <text>@p</text>
+                                                                                        }
+
+                                                                                    </td>
+                                                                                    <td>@item.TotalPaymentDue.ToString("F")</td>
+                                                                                    <td>@item.DefaultAmount.ToString("F")</td>
+
+                                                                                </tr>
+                                                                            }
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card--wrapper">
+                            <div class="payment--card light--red">
+                                <div class="card--header">
+                                    <div class="amount">
+                                        <span class="title">Sales amount</span>
+                                        <span class="amount--value">
+                                            <img src="~/Content/images/tk_icon.png" alt=""><span id="dailySalesAmt"> </span>
+                                        </span>
+                                    </div>
+                                    @*<i class="fa-solid fa-dollar-sign "></i>*@
+                                    <span class="material-symbols-outlined dollar--icon">
+                                        real_estate_agent
+                                    </span>
+                                </div>
+                                <span class="card--detail">
+                                    **** **** **** ****
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card--wrapper">
+                            <div class="payment--card light--purple">
+                                <div class="card--header">
+                                    <div class="amount">
+                                        <span class="title">Purchase amount</span>
+                                        <span class="amount--value">
+                                            <img src="~/Content/images/tk_icon.png" alt=""><span id="dailyPurchaseAmt"> </span>
+                                        </span>
+                                    </div>
+                                    @*<i class="fa-solid fa-dollar-sign  dark--purple"></i>*@
+                                    <span class="material-symbols-outlined dollar--icon dark--purple">
+                                        shopping_cart_checkout
+                                    </span>
+                                </div>
+                                <span class="card--detail">
+                                    **** **** **** ****
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card--wrapper">
+                            <div class="payment--card light--green ">
+                                <div class="card--header">
+                                    <div class="amount">
+                                        <span class="title">Expense amount</span>
+                                        <span class="amount--value">
+                                            <img src="~/Content/images/tk_icon.png" alt=""><span id="txtExpense"></span>
+                                        </span>
+                                    </div>
+                                    @*<i class="fa-regular fa-file-pen dollar--icon dark--green"></i>*@
+
+                                    <span class="dollar--icon dark--green">
+                                        <img src="~/Content/images/amounts.png" alt="">
+                                    </span>
+
+                                    @*<span class="material-symbols-outlined dollar--icon dark--green">
+                                            stylus_note
+                                        </span>*@
+                                </div>
+                                <span class="card--detail">
+                                    **** **** **** ****
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card--wrapper">
+                            <div class="payment--card light--blue">
+                                <div class="card--header">
+                                    <div class="amount">
+                                        <span class="title">Collection amount</span>
+                                        <span class="amount--value">
+                                            <img src="~/Content/images/tk_icon.png" alt=""><span id="txtCashCollection"></span>
+                                        </span>
+                                    </div>
+                                    <div class="fa-solid fa-sack-dollar dollar--icon dark--blue"></div>
+                                </div>
+                                <span class="card--detail">
+                                    **** **** **** ****
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel round--shape">
+            <div class="panel-body">
+                <div class="">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="chartCard">
+                                <h2 class="chartTitle">Sales Performance</h2>
+                                <div id="barchart"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chartCard">
+                                <h2 class="chartTitle">Expense and Income</h2>
+                                <div id="areachart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*dashboard End here*@
+
+
+
+
+
+<div id="remindDateChangeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Remind Date Update</h5>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <input type="hidden" class="form-control input-sm" id="CustomerID" />
+                    <div class="form-group">
+                        <label class="control-label col-md-3">Customer Code:</label>
+                        <div class="col-md-6">
+                            <input type="text" readonly class="form-control input-sm" id="Code" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3">Customer Name:</label>
+                        <div class="col-md-6">
+                            <input type="text" readonly class="form-control input-sm" id="Name" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3">Total Due:</label>
+                        <div class="col-md-6">
+                            <input type="number" readonly class="form-control input-sm input-sm" id="TotalDue" />
+                            <input type="hidden" name="CSScheduleId" id="CSScheduleId" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3">Remind Date:</label>
+                        <div class="col-md-6">
+                            <div class='input-group date' id='RemindDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='RemindDate' id="RemindDate" />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Close</button>
+                <button type="button" id="Submitbtn" class="btn btn-info  btn-xs" data-dismiss="modal">Update</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="stockModal" class="modal fade bs-example-modal-lg" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Stock</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Product Name:</label>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control input-sm" autofocus id="ProductName" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <table id="tblStock"
+                               data-toggle="table"
+                               data-search="false"
+                               data-click-to-select="true"
+                               data-single-select="true"
+                               data-detail-view="true"
+                               data-pagination="true"
+                               data-id-field="name"
+                               data-page-list="[10, 25, 50, 100, ALL]"
+                               data-page-size="6"
+                               class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    @*<th data-field="ProductCode"
+                                            data-sortable="true">
+                                            Code
+                                        </th>*@
+                                    <th data-field="ProductName"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        Name
+                                    </th>
+                                    <th data-field="GodownName"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        Godown Name
+                                    </th>
+                                    <th data-field="CompanyName"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        Company
+                                    </th>
+                                    <th data-field="CategoryName"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        Category
+                                    </th>
+                                    <th data-field="ColorName"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        Color
+                                    </th>
+                                    <th data-field="ProMRP"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        MRP Rate
+                                    </th>
+                                    <th data-field="StockQty"
+                                        data-sorter="sorter"
+                                        data-sortable="true">
+                                        Stock Qty
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="advanceSearchModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Advance Search</h5>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("_AdvanceSearch")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#RemindDate').datetimepicker({
+            defaultDate: moment(),
+            format: 'DD-MMM-YYYY'
+        });
+    });
+
+
+    $(document).on("click", "#btnShowRemindModal", function () {
+        var CustomerID = $(this).data("customerid");
+        var Code = $(this).data("code");
+        var Name = $(this).data("name");
+        var TotalDue = $(this).data("totaldue");
+        var csscheduleid = $(this).data("csscheduleid");
+
+        $("#CustomerID").val(CustomerID);
+        $("#Code").val(Code);
+        $("#Name").val(Name);
+        $("#TotalDue").val(TotalDue);
+        $("#CSScheduleId").val(csscheduleid);
+        $("#remindDateChangeModal").modal("show");
+        //alert(ProductID);
+    });
+
+    $(document).on("click", "#Submitbtn", function () {
+
+        var CustomerID = $("#CustomerID").val();
+        var RemindDate = $("#RemindDate").find("input").val();
+        var cssid = $("#CSScheduleId").val();
+        if (CustomerID == "" || CustomerID == 0)
+        {
+            toastr.error("Only Cash Sales remind date can be changed.");
+            return;
+        }
+
+        $.ajax({
+            url: "@Url.Action("ChangeRemindDate", "Home")",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify({
+                'CustomerID': CustomerID, 'RemindDate': RemindDate, 'CSScheduleID': cssid }),
+            success: function (data) {
+                console.log(data);
+                if (data == true) {
+                    $("#remindDateChangeModal").modal("hide");
+                    toastr.info("update successfull");
+                    ClearTextBox();
+                }
+                location.reload();
+            },
+            error: function (data) {
+                console.log(data);
+                location.reload();
+                toastr.error("Update Failed");
+            }
+
+        });
+
+    });
+
+
+    function ClearTextBox() {
+        $("#CustomerID").val("");
+        $("#Code").val("");
+        $("#Name").val("");
+        $("#TotalDue").val("");
+    }
+
+
+    $(document).on("click", "#btnStockCheck", function () {
+        $("#stockModal").modal("show");
+        var $table = $("#tblStock");
+        $table.bootstrapTable('removeAll')
+        setTimeout(function () {
+            $('#ProductName').val("");
+            $('#ProductName').focus();
+        }, 500);
+    });
+
+    $(document).on("click", "#btnAdvanceSearch", function () {
+        $("#advanceSearchModal").modal("show");
+        setTimeout(function () {
+            $("#SearchIMEI").focus();
+        }, 500);
+    });
+
+
+     //Product Auto get by name
+    $('input[id="ProductName"]').autocomplete({
+        source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("GetProductByName", "Product")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { ProductName: request.term },
+                    success: function (data) {
+                        if (data.result == false) {
+                            toastr.error("Product is not found in the stock.");
+                            return;
+                        }
+                        response($.map(data, function (item) {
+                            return { label: item.ProductName, value: item.ProductName, ID: item.ProductID };
+                        }))
+                    }
+                });
+            },
+            minLength: 3,
+            select: function (event, ui) {
+                $("#ProductName").val(ui.item.label);
+                if (ui.item.ID != "")
+                    GetStockByProductID(ui.item.ID);
+            },
+            maxShowItems: 5
+    });
+
+
+   function GetStockByProductID(ProductID) {
+    $.ajax({
+        url: "@Url.Action("GetProductByID", "Stock")",
+        type: "GET",
+        dataType: "json",
+        data: { "ProductID": ProductID },
+        success: function (data) {
+            if (data.result == false) {
+                toastr.error("DO not found");
+                return;
+            }
+            var $table = $("#tblStock");
+            $table.bootstrapTable('removeAll')
+            $table.bootstrapTable('load', data);
+        }
+    });
+}
+
+
+
+
+</script>
+
+
+
+<!-- Load ApexCharts library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.48.0/apexcharts.min.js"></script>
+
+
+<script type="text/javascript">
+
+
+    $(function () {
+        function fetchAndRenderCharts() {
+            $.ajax({
+                url: '/Home/GetYearlyData',
+                type: 'GET',
+                data: { dataLength: '365' },  // Assuming 365 days for yearly data
+                success: function (response) {
+                    var salesData = new Array(12).fill(0);
+                    var purchaseData = new Array(12).fill(0);
+                    var incomeData = new Array(12).fill(0);
+                    var expenseData = new Array(12).fill(0);
+                    var cashCollectionData = new Array(12).fill(0);
+
+                    response.forEach(function (item) {
+                        if (item.TrType === 'SalesAmount') {
+                            salesData[item.Month - 1] = item.Amount;
+                        } else if (item.TrType === 'PurchaseAmount') {
+                            purchaseData[item.Month - 1] = item.Amount;
+                        } else if (item.TrType === 'Income') {
+                            incomeData[item.Month - 1] = item.Amount;
+                        } else if (item.TrType === 'Expense') {
+                            expenseData[item.Month - 1] = item.Amount;
+                        } else if (item.TrType === 'CashCollection') {
+                            cashCollectionData[item.Month - 1] = item.Amount;
+                        }
+                    });
+
+                    var barChartOptions = {
+                        series: [{
+                            name: 'Sale',
+                            data: salesData
+                        }],
+                        chart: {
+                            height: 300,
+                            type: 'bar',
+                            toolbar: {
+                                show: false
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                columnWidth: '45%',
+                                borderRadius: 4,
+                                horizontal: false,
+                                distributed: true,
+                            }
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        legend: {
+                            show: true
+                        },
+                        xaxis: {
+                            categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                            labels: {
+                                style: {
+                                    fontSize: '12px'
+                                }
+                            }
+                        },
+                        yaxis: {
+                            title: {
+                                text: "Amount"
+                            }
+                        }
+                    };
+
+                    var barChart = new ApexCharts(document.querySelector("#barchart"), barChartOptions);
+                    barChart.render();
+
+                    // Update area chart options with fetched data
+                    areaChartOptions.series[0].data = expenseData;
+                    areaChartOptions.series[1].data = incomeData;
+
+                    var areaChart = new ApexCharts(document.querySelector("#areachart"), areaChartOptions);
+                    areaChart.render();
+                },
+                error: function (error) {
+                    console.log("Error fetching data:", error);
+                }
+            });
+        }
+
+        // Initial area chart options
+        var areaChartOptions = {
+            series: [{
+                name: 'Expense',
+                data: [] // Initial empty data, will be filled dynamically
+            }, {
+                name: 'Income',
+                data: [] // Initial empty data, will be filled dynamically
+            }],
+            chart: {
+                height: 300,
+                type: 'area'
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            xaxis: {
+                categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                labels: {
+                    style: {
+                        fontSize: '12px'
+                    }
+                }
+            },
+        };
+
+        // Fetch and render the charts
+        fetchAndRenderCharts();
+    });
+
+
+
+ //Progress Bar start
+
+    const progress = document.querySelector('.progress-bar');
+    const count = document.querySelector('.count');
+
+    let progressValue = 0;
+
+    function updateProgress() {
+        const circumference = 2 * Math.PI * 40; // Circumference of the circle with radius 40
+        const dashOffset = circumference - (progressValue / 70) * circumference;
+
+        //progress.setAttribute('stroke-dasharray', `${dashOffset} ${circumference}`);
+        //count.textContent = `${progressValue}%`;
+
+        if (progressValue < 70) {
+            progressValue++;
+            requestAnimationFrame(updateProgress);
+        }
+    }
+
+    updateProgress();
+
+    //Progress Bar end
+
+
+
+
+    $(document).ready(function () {
+        GetDailySalesAmt();
+
+     /*   GetDailyPurchaseAmt();*/
+    });
+
+
+
+
+    function GetDailySalesAmt() {
+
+        var dataLength = "d7";
+
+        $.ajax({
+            url: "@Url.Action("GetDailySalesAmt", "Home")",
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: { dataLength: dataLength },
+            success: function (widgets) {
+            if (widgets.length > 0) {
+            $(widgets).each(function (index, element) {
+            var action = element.TrType;
+
+            switch (action) {
+            case "SalesAmount":
+            $("#dailySalesAmt").text(getDefaultFloatIfEmpty(element.Amount));
+            break;
+            case "PurchaseAmount":
+            $("#dailyPurchaseAmt").text(getDefaultFloatIfEmpty(element.Amount));
+            break;
+            case "Income":
+            $("#txtIncome").text(getDefaultFloatIfEmpty(element.Amount));
+            break;
+            case "Expense":
+            $("#txtExpense").text(getDefaultFloatIfEmpty(element.Amount));
+            break;
+            case "CashCollection":
+            $("#txtCashCollection").text(getDefaultFloatIfEmpty(element.Amount));
+            break;
+
+            default:
+            console.log("Invalid action");
+            }
+            });
+            } else {
+            console.log("No items in the widgets array to iterate over.");
+            }
+
+            },
+            error: function (data) {
+            console.log(data);
+            location.reload();
+            }
+
+            });
+            }
+</script>
+

@@ -1,0 +1,54 @@
+﻿
+@using IMSWEB.Model
+@model PurchaseOrderViewModel
+
+
+@{
+    ViewBag.Title = "Supplier Due Report";
+}
+
+<h4>@(ViewBag.Title + ".")</h4>
+<hr />
+@using (Ajax.BeginForm("ConcernWiseSupplierDueRpt", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+{
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(m => m.PurchaseOrder.SupplierId, new { @class = "control-label col-sm-2" })
+                <div class="col-sm-4">
+                    @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Supplier, id = (Model != null && !string.IsNullOrEmpty(Model.PurchaseOrder.SupplierId)) ? Model.PurchaseOrder.SupplierId : "0" });}
+                    @Html.ValidationMessageFor(m => m.PurchaseOrder.SupplierId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-2">
+
+                </div>
+                <div class='col-sm-4 input-group' id='SDueRpt'>
+                    <input id="rdoAllSup" type="radio" title="All Supplier" value="1" name="ReportType" />All Supplier
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-2">
+
+                </div>
+                
+                <div class="col-sm-6">
+                    <div class="col-sm-4">
+                        <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                    </div>
+                    <div class="col-sm-4">
+                        <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-info" />
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </div>
+}
+
+

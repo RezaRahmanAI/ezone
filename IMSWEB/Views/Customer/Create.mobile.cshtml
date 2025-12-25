@@ -1,0 +1,258 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.CreateCustomerViewModel
+
+
+
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Customer";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+
+@using (Html.BeginForm(actionName, "Customer", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id);
+    @Html.HiddenFor(m => m.PhotoPath);
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Code, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                        @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                @if (User.Identity.GetConcernId() == 25 || User.Identity.GetConcernId() == 5173 || User.Identity.GetConcernId() == 5178)
+                {
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.MemberID, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.MemberID, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                            @Html.ValidationMessageFor(model => model.MemberID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                }
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control input-sm", autofocus = "autofocus" } })
+                        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CustomerType, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @if (ViewBag.IsSalesOrCollectionExist && !string.IsNullOrEmpty(Model.Id))
+                        {
+                            @Html.EnumDropDownListFor(model => model.CustomerType, "--Select a type--", new { @class = "form-control input-sm", tabindex = 7, @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.CustomerType);
+                        }
+                        else
+                        {
+                            @Html.EnumDropDownListFor(model => model.CustomerType, "--Select a type--", new { @class = "form-control input-sm", tabindex = 7 })
+                        }
+                        @Html.ValidationMessageFor(model => model.CustomerType, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ContactNo, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.ContactNo, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 3 } })
+                        @Html.ValidationMessageFor(model => model.ContactNo, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Address, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.TextAreaFor(model => model.Address, new { @class = "form-control input-sm", rows = "3", tabindex = 13 })
+                        @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.FName, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.FName, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 1 } })
+                        @Html.ValidationMessageFor(model => model.FName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmailId, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.EmailId, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 4 } })
+                        @Html.ValidationMessageFor(model => model.EmailId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OpeningDue, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @if (actionName.ToLower().Equals("create"))
+                        {
+                            @Html.EditorFor(model => model.OpeningDue, new { htmlAttributes = new { @class = "form-control input-sm text-right", type = "number", tabindex = 6 } });
+                        }
+                        else
+                        {
+                            @Html.EditorFor(model => model.OpeningDue, new { htmlAttributes = new { @class = "form-control input-sm text-right", type = "number", @readonly = "readonly" } });
+                        }
+                        @Html.ValidationMessageFor(model => model.OpeningDue, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TotalDue, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.TotalDue, new { htmlAttributes = new { @class = "form-control input-sm text-right", type = "number", @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.TotalDue, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.PhotoPath, new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        <input class="form-control input-sm" id="Photo" name="Photo" type="file" accept="image/*"
+                               onchange="document.getElementById('customerPicture').src = window.URL.createObjectURL(this.files[0]);
+    document.getElementById('PhotoPath').value = window.URL.createObjectURL(this.files[0]);">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-3 col-md-9">
+                        <img id="customerPicture" src="/Content/photos/customers/@(Model != null ? Model.PhotoPath : string.Empty)" alt="Uploaded picture will appear here." height="200" tabindex="13" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-md-6">
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.RefName, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.RefName, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 9 } })
+                        @Html.ValidationMessageFor(model => model.RefName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.RefContact, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.RefContact, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 11 } })
+                        @Html.ValidationMessageFor(model => model.RefContact, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.RefAddress, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.TextAreaFor(model => model.RefAddress, new { @class = "form-control input-sm", rows = "2", tabindex = 12 })
+                        @Html.ValidationMessageFor(model => model.RefAddress, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CompanyId, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.CompanyId, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 2 } })
+                        @Html.ValidationMessageFor(model => model.CompanyId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeId, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && Model.EmployeeId != null) ? Model.EmployeeId : "0" });}
+                        @Html.ValidationMessageFor(model => model.EmployeeId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NId, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.NId, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 5 } })
+                        @Html.ValidationMessageFor(model => model.NId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CusDueLimit, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.CusDueLimit, new { htmlAttributes = new { @class = "form-control input-sm text-right", type = "number", tabindex = 8 } })
+                        @Html.ValidationMessageFor(model => model.CusDueLimit, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.RefFName, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.RefFName, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 10 } })
+                        @Html.ValidationMessageFor(model => model.RefFName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Remarks, htmlAttributes: new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.Remarks, new { htmlAttributes = new { @class = "form-control input-sm", tabindex = 10 } })
+                        @Html.ValidationMessageFor(model => model.Remarks, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <input type="submit" value="Add Customer" class="btn btn-sm btn-primary" tabindex="14" />
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+<script>
+    $(function () {
+        $("#CustomerType").select2();
+    });
+    $("#OpeningDue").on("input", function () {
+        var amount = getDefaultFloatIfEmpty($(this).val()).toFixed(2);
+        $("#TotalDue").val(amount);
+    });
+
+    $("#CustomerType").on('change', function () {
+        //alert(this.value);
+        if (this.value == 0) {
+            toastr.info("Please select type.");
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "/Customer/GetUniqueCodeByType",
+            data: { CustomerType: this.value },
+            contentType: "application/json",
+            dataType: "json",
+            success: function (data) {
+                $("#Code").val(data);
+            }
+        });
+    });
+</script>

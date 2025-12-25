@@ -1,0 +1,40 @@
+﻿@using Microsoft.AspNet.Identity
+@if (Request.IsAuthenticated)
+{
+    <ul class="list-unstyled components" style="display: none;">
+        <li>
+            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <a href="#userSubmenu" data-toggle="collapse" id="btnUser" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-user"></i>
+                    @User.Identity.GetUserName()
+                </a>
+                <ul class="collapse list-unstyled" id="userSubmenu">
+                    <li>
+                        <a href="/Manage/ChangePassword/"><i class="fa fa-user-circle-o" aria-hidden="true"></i>Change Password</a>
+                    </li>
+                    <li>
+                        <a id="btnLogoff" href="javascript:document.getElementById('logoutForm').submit()"><i class="fa fa-sign-out" aria-hidden="true"></i> Log off</a>
+                    </li>
+                </ul>
+            }
+        </li>
+    </ul>
+
+}
+    @*else
+        {
+            <ul class="nav navbar-nav navbar-right">
+                <li>@Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
+                <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+            </ul>
+        }*@
+
+<script>
+    $(document).on("click", "#btnLogoff", function () {
+        localStorage.clear();
+        //alert("log out btn clicked.");
+    });
+</script>

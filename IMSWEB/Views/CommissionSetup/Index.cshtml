@@ -1,0 +1,104 @@
+﻿@model IEnumerable<CommissionSetupViewModel>
+
+    @{
+        ViewBag.Title = "Index";
+        int Counter = 1;
+    }
+
+<h4 class="text-left inline-header">Existing Commission Setup</h4>
+@Html.ActionLink("Create new", "Create", "CommissionSetup", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+<hr />
+    <table id="companyTable"
+           data-toggle="table"
+           data-search="true"
+           data-show-refresh="true"
+           data-show-toggle="true"
+           data-show-columns="true"
+           data-show-export="true"
+           data-detail-view="true"
+           data-pagination="true"
+           data-id-field="name"
+           data-page-list="[10, 25, 50, 100, ALL]"
+           data-page-size="10"
+           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th data-field="sl"
+                    data-sortable="true">
+                   Sl
+                </th>
+                <th data-field="EmployeeID"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.EmployeeName)
+                </th>
+                <th data-field="AchievedPercentStart"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.AchievedPercentStart)
+                </th>
+                <th data-field="AchievedPercentEnd"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.AchievedPercentEnd)
+                </th>
+                <th data-field="CommissionMonth"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.CommissionMonth)
+                </th>
+                <th data-field="CommisssionAmt"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.CommisssionAmt)
+                </th>
+                <th data-field="CommissionPercent"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.CommissionPercent)
+                </th>
+                <th data-field="Status"
+                    data-sortable="true">
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Counter
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EmployeeName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AchievedPercentStart)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AchievedPercentEnd)
+                    </td>
+                    <td>
+                        @item.CommissionMonth.ToString("dd MMM yyyy")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CommisssionAmt)
+                    </td>
+                    <td>
+                        @item.CommissionPercent
+                    </td>
+                    <td>
+                        @if(item.Status.Equals("1"))
+                        {
+                            <span class="label label-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="label label-danger">Inactive</span>
+                        }
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.CSID }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.CSID }, new {onclick="if(!confirm('Do you want to delete?')) return false;" })
+                    </td>
+                </tr>
+                Counter++;
+            }
+        </tbody>
+    </table>

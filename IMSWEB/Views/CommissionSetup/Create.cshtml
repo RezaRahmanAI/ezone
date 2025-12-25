@@ -1,0 +1,104 @@
+﻿@model CommissionSetupViewModel
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Commission Setup";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+}
+
+<h4>Commission Setup</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Html.BeginForm(actionName, controllerName, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "myform" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.CSID)
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeID, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Employee, id = (Model != null && Model.EmployeeID != null && Model.EmployeeID != null) ? Model.EmployeeID : 0 });}
+                            @Html.ValidationMessageFor(model => model.EmployeeID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AchievedPercentStart, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.AchievedPercentStart, new { htmlAttributes = new { @class = "form-control input-sm  text-right", type = "number" } })
+                            @Html.ValidationMessageFor(model => model.AchievedPercentStart, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AchievedPercentEnd, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.AchievedPercentEnd, new { htmlAttributes = new { @class = "form-control input-sm  text-right", type = "number" } })
+                            @Html.ValidationMessageFor(model => model.AchievedPercentEnd, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CommissionMonth, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            <div class='input-group date' id='CommissionMonth'>
+                                <input type='text' class="input-sm form-control input-sm" name='CommissionMonth' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.CommissionMonth, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CommisssionAmt, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.CommisssionAmt, new { htmlAttributes = new { @class = "form-control input-sm  text-right",type="number" } })
+                            @Html.ValidationMessageFor(model => model.CommisssionAmt, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                       <div class="form-group">
+                        @Html.LabelFor(model => model.CommissionPercent, new { @class = "control-label col-md-3" })
+                        <div class="col-md-9">
+                            @Html.EditorFor(model => model.CommissionPercent, new { htmlAttributes = new { @class = "form-control input-sm text-right", type = "number", Placeholder = "e.g. if 1% then input 0.01" } })
+                            @Html.ValidationMessageFor(model => model.CommissionPercent, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-3 col-md-9" >
+                            <input type="submit" value="Create" class="btn btn-primary btn-sm" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#CommissionMonth').datetimepicker({
+        @{
+         if (Model == null || Model.CommissionMonth == DateTime.MinValue)
+     {
+         @:defaultDate: moment(),
+                 }
+         else
+         {
+         @:defaultDate: '@Model.CommissionMonth.ToString("MMM-yyyy")',
+                 }
+         @:format: 'MMM-YYYY'
+            }
+    });
+
+
+    $(document).on('change', '#CommisssionAmt', function () {
+        $("#CommissionPercent").val(0.00);
+    });
+    $(document).on('change', '#CommissionPercent', function () {
+        $("#CommisssionAmt").val(0.00);
+    });
+</script>

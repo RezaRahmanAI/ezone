@@ -1,0 +1,200 @@
+﻿@using IMSWEB.Model
+@{
+    ViewBag.Title = "Stock Summary Report";
+}
+
+<h4 class="inline-header">@(ViewBag.Title + ".")</h4>
+
+@using (Ajax.BeginForm("StockSummaryReport", "Report", new { ReturnUrl = ViewBag.ReturnUrl }, ajaxOptions: new AjaxOptions { HttpMethod = "Post", UpdateTargetId = "report", LoadingElementId = "spinningIcon" }, htmlAttributes: new { role = "form" }))
+{
+    <div class="row">
+        <div class="col-md-6 col-md-offset-2">
+            <table class="table text-nowrap">
+                <tr>
+                    <td>
+                        <input id="rdoProduct" type="radio" title="All Product" value="0" name="ReportType" />
+                        Product Wise Stock
+                    </td>
+                    <td>
+                        <span id="pickerSpace">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Product, id = "0" });}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td> <input id="rdoCompany" type="radio" title="Company Wise Stock" value="1" name="ReportType" />Company Wise Stock</td>
+                    <td>
+                        <span id="pickerSpace">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Company, id = "0" });}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input id="rdoCategory" title="Category Wise Stock" type="radio" value="2" name="ReportType" />Category Wise Stock</td>
+                    <td>
+                        <span id="pickerSpace">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Category, id = "0" });}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input id="rdoGodown" title="Godown Wise Stock" type="radio" value="3" name="ReportType" />Godown Wise Stock</td>
+                    <td>
+                        <span id="pickerSpace">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Godown, id = "0" });}
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><input id="rdoPCategory" title="Parent Category Wise Stock" type="radio" value="5" name="ReportType" />Parent Category Wise Stock</td>
+                    <td>
+                        <span id="pickerSpace">
+                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.PCategory, id = "0" });}
+                        </span>
+                    </td>
+                </tr>
+                @*<tr>
+                        <td><input id="rdoColor" title="Color Wise Stock" type="radio" value="4" name="ReportType" />Color Wise Stock</td>
+                        <td>
+                            <span id="pickerSpace">
+                                @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Color, id = "0" });}
+                            </span>
+                        </td>
+                    </tr>*@
+
+                <tr>
+                    <td>
+                        <label>Stock Type</label>
+                    </td>
+                    <td>
+                        <select class="form-control input-sm" id="stockType" name="stockType">
+                            <option selected value="1">No Damage</option>
+                            <option value="2">Damage</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <div class="col-md-4">
+
+                            </div>
+                            <div class='input-group date' id='FromDate'>
+                                <input id="rdoExel" type="radio" title="Exel" value="1" name="FileType" />Excel &nbsp;&nbsp;
+                                <input id="rdoPDF" title="PDF" type="radio" value="2" name="FileType" checked />PDF
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <div class="col-sm-4">
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </div>
+                            <div class="col-sm-4">
+                                <input id="btnPreview" type="submit" value="Preview" class="btn btn-sm btn-primary" />
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+}
+<script>
+    $(document).ready(function () {
+        $("#CompaniesId").val(0);
+        $("#CategoriesId").val(0);
+        $("#ProductsId").val(0);
+        $("#GodownsId").val(0);
+        //$('input[type=radio][name=ReportType]').change(function () {
+        //    ClearPickerData();
+        //});
+        $("#PCategoriesId").val(0);
+
+    });
+
+    function ClearPickerData() {
+        $('#CategoriesCode').val('');
+        $('#CategoriesName').val('');
+        $('#CategoriesId').val('');
+
+        $('#CompaniesCode').val('');
+        $('#CompaniesName').val('');
+        $('#CompaniesId').val(0);
+
+        $('#ProductsCode').val('');
+        $('#ProductsName').val('');
+        $('#ProductsId').val('');
+
+        $('#GodownsCode').val('');
+        $('#GodownsName').val('');
+        $('#GodownsId').val('');
+
+        $('#PCategoriesCode').val('');
+        $('#PCategoriesName').val('');
+        $('#PCategoriesId').val(0);
+
+
+    }
+
+    //$('.modal').on('hidden.bs.modal', function () {
+    //    var modalname = $(this).attr('id');
+    //    if (modalname == "ProductsModal") {
+    //        $('#CategoriesCode').val('');
+    //        $('#CategoriesName').val('');
+    //        $('#CategoriesId').val('');
+    //        $('#CompaniesCode').val('');
+    //        $('#CompaniesName').val('');
+    //        $('#CompaniesId').val(0);
+    //        $('#GodownsName').val('');
+    //        $('#GodownsId').val('');
+    //        $("#rdoProduct").prop("checked", true);
+    //    }
+
+    //    else if (modalname == "CompaniesModal") {
+    //        $('#ProductsCode').val('');
+    //        $('#ProductsName').val('');
+    //        $('#ProductsId').val('');
+    //        $('#CategoriesCode').val('');
+    //        $('#CategoriesName').val('');
+    //        $('#CategoriesId').val('');
+    //        $('#GodownsName').val('');
+    //        $('#GodownsId').val('');
+    //        $("#rdoCompany").prop("checked", true);
+
+    //    }
+
+    //    else if (modalname == "CompaniesModal") {
+    //        $('#ProductsCode').val('');
+    //        $('#ProductsName').val('');
+    //        $('#ProductsId').val('');
+    //        $('#CategoriesCode').val('');
+    //        $('#CategoriesName').val('');
+    //        $('#CategoriesId').val('');
+    //        $('#GodownsName').val('');
+    //        $('#GodownsId').val('');
+    //        $("#rdoCompany").prop("checked", true);
+
+    //    }
+
+    //    else if (modalname == "GodownsModal") {
+
+    //        $('#ProductsCode').val('');
+    //        $('#ProductsName').val('');
+    //        $('#CompaniesCode').val('');
+    //        $('#CompaniesName').val('');
+    //        $('#CompaniesId').val('');
+    //        $('#ProductsCode').val('');
+    //        $('#ProductsName').val('');
+    //        $('#ProductsId').val('');
+    //        $("#rdoGodown").prop("checked", true);
+
+    //    }
+
+    //})
+</script>

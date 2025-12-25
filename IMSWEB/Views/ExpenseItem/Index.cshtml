@@ -1,0 +1,75 @@
+﻿@model IEnumerable<IMSWEB.CreateExpenseItemViewModel>
+
+@{
+    ViewBag.Title = "Expense Items";
+}
+<h4 class="text-left inline-header">Existing expense items</h4>
+@Html.ActionLink("Create new item", "Create", "ExpenseItem", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right",id="toolbar" })
+<table id="expenseItemTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       data-toolbar="#toolbar"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="code"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Code)
+            </th>
+            <th data-field="name"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th data-field="status"
+                data-sorter="sorter"
+                data-sortable="true">
+                Type
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Code)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    @if (User.IsInRole("LocalAdmin") || User.IsInRole("Admin") || User.IsInRole("hoqueLocalAdmin"))
+                    {
+                        <td>
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                            @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { onclick = "if(!confirm('Do you want to delete this item?')) return false;" })
+                        </td>
+                    }
+                </tr>
+                count++;
+            }
+        }
+    </tbody>
+</table>
+

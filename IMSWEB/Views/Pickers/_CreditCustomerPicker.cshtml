@@ -1,0 +1,353 @@
+﻿@model dynamic
+
+<style>
+
+    #CustomersTable thead th {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #CustomersTable tbody td {
+        text-align: center;
+        vertical-align: middle;
+        /*min-height: 30px;*/
+        max-height: 30px;
+    }
+
+    #CustomersTable tbody > tr > td:last-child {
+        white-space: nowrap;
+    }
+
+    #CustomersTable {
+        border-collapse: collapse;
+    }
+
+
+        #CustomersTable thead tr {
+            background-color: #0d85bb !important;
+            color: white !important;
+        }
+
+    .dt-search {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+        .dt-search label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .dt-search .dt-input {
+            width: 175px;
+            height: 30px;
+            font-size: 12px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+
+    .dt-paging .dt-paging-button {
+        background-color: lightgray !important;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        margin: 0 5px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .dataTable, .dataTable th, .dataTable td {
+        border-color: #0fa0e1 !important;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+
+    .dt-paging .dt-paging-button.current {
+        background-color: #0fa0e1 !important;
+        color: white;
+        font-weight: bold;
+    }
+
+    .dt-paging .dt-paging-button.disabled {
+        background-color: lightgray !important;
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+
+
+    .dt-paging .dt-paging-button:not(.disabled):hover {
+        background-color: #0fa0e1 !important;
+        color: white;
+    }
+
+    .dt-length select {
+        margin-right: 5px;
+    }
+</style>
+
+<div class="input-group">
+    <input type="text" class="input-sm form-control input-sm" id="CustomersCode" name="CustomersCode" value="@ViewBag.CustomersCode" readonly="readonly">
+    <span class="input-group-btn">
+        <button type="button" id="CustomerPicker" class="btn btn-sm btn-info" data-toggle="modal" data-target="#CustomersModal"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Pick</button>
+    </span>
+    <input type="text" class="input-sm form-control input-sm" id="CustomersName" name="CustomersName" value="@ViewBag.CustomersName" readonly="readonly">
+    <input type="hidden" class="input-sm form-control input-sm" id="CustomersId" name="CustomersId" value="@ViewBag.CustomersId" readonly="readonly">
+</div>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-lg" id="CustomersModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title" id="myModalLabel">Existing Customers</h5>
+            </div>
+            <div class="modal-body">
+                <div id="Customerstoolbar">
+                    @Html.ActionLink("Create new", "Create", "Customer", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm", target = "_blank" })
+                    <span class="text-warning">&nbsp;(Requires reload current page to get new item)</span>
+                </div>
+                <table id="CustomersTable"
+                       @*data-toolbar="#Customerstoolbar"
+                       data-toggle="table"
+                       data-search="true"
+                       data-click-to-select="true"
+                       data-single-select="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="6"*@
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th data-field="id" class="hidden">
+                            </th>
+                            <th data-field="CustomerType" class="hidden">
+                            </th>
+                            <th data-checkbox="true">
+                            </th>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="code"
+                                data-sortable="true">
+                                Code
+                            </th>
+                            <th data-field="name"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Name
+                            </th>
+                            <th data-field="contactNo"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Contact No.
+                            </th>
+                            <th data-field="address"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Address
+                            </th>
+                            @*<th data-field="totalDue"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Total Due
+                            </th>*@
+                            <th data-field="CreditDue"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                Hire Due
+                            </th>
+                        </tr>
+                    </thead>
+
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+
+<script>
+
+
+        $(document).ready(function () {
+    var table = $('#CustomersTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '@Url.Action("GetCustomerForHire", "Customer")',
+            type: 'GET'
+        },
+        columns: [
+            { data: 'Id', visible: false },
+            {
+                data: 'CustomerType',
+                visible: false,
+                render: function (data, type, row) {
+                    const customerTypes = {
+                        1: 'Retail',
+                        2: 'Dealer',
+                        3: 'Hire',
+                        4: 'Branch(B2B)'
+                    };
+                    return customerTypes[data] || 'Unknown';
+                }
+            },
+            {
+                data: null,
+                orderable: false,
+                render: function (data, type, row) {
+                    return '<input type="checkbox" class="customer-checkbox" value="' + row.id + '">';
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row, meta) {
+                    return meta.row + 1 + meta.settings._iDisplayStart;
+                }
+            },
+            { data: 'Code' },
+            { data: 'Name' },
+            { data: 'ContactNo' },
+            { data: 'Address' },
+            //{ data: 'TotalDue' },
+            { data: 'CreditDue' }
+
+
+
+        ],
+        order: [[1, 'asc']],
+        lengthMenu: [10, 25, 50],
+        pageLength: 10
+    });
+
+
+        $('#CustomersTable tbody').on('click', 'tr', function (e) {
+
+            if ($(e.target).is('input[type="checkbox"]')) return;
+
+            var $checkbox = $(this).find('.customer-checkbox');
+
+
+            if (!$checkbox.prop('checked')) {
+                $checkbox.prop('checked', true).trigger('change');
+            }
+        });
+
+
+    $('[id*="_CurrentDue"]').val('@ViewBag.CustomersCurrentDue');
+
+
+    $('#CustomersTable tbody').on('change', '.customer-checkbox', function () {
+        var rowData = table.row($(this).closest('tr')).data();
+
+        if ($(this).is(':checked')) {
+            $('.customer-checkbox').not(this).prop('checked', false);
+            $('#CustomersCode').val($.trim(rowData.Code));
+            $('#CustomersName').val($.trim(rowData.Name));
+            $('#CustomersId').val($.trim(rowData.Id));
+            $('[id*="CurrentDue"]').val($.trim(rowData.TotalDue));
+
+            //if (rowData.CustomerType != "Dealer") {
+            //    $('input[id*="_CashPaidAmount"]').attr("readonly", true);
+            //} else {
+            //    $('input[id*="_CashPaidAmount"]').attr("readonly", false);
+            //}
+
+            $('#CustomersModal').modal('hide');
+        } else {
+            $('#CustomersCode').val('');
+            $('#CustomersName').val('');
+            $('#CustomersId').val('');
+            $('[id*="CurrentDue"]').val('');
+            $('input[id*="_CashPaidAmount"]').attr("readonly", false);
+        }
+    });
+
+    $('#CustomersModal').on('hidden.bs.modal', function () {
+        $('.customer-checkbox').prop('checked', false);
+    });
+});
+
+
+
+
+
+
+    @*var $table = $('#CustomersTable');
+    $(document).ready(function () {
+        $('[id*="_CurrentDue"]').val(@ViewBag.CustomersCurrentDue);
+        //$('[id*="_CurrentDue"]').trigger("input");
+    });
+    $table.on('check.bs.table', function (e, row) {
+        $('#CustomersCode').val($.trim(row.code));
+        $('#CustomersName').val($.trim(row.name));
+        $('#CustomersId').val($.trim(row.id));
+        $('[id*="CurrentDue"]').val($.trim(row.CreditDue));
+        });
+    $table.on('uncheck.bs.table', function (e, row) {
+        $('#CustomersCode').val('');
+        $('#CustomersName').val('');
+        $('#CustomersId').val('');
+        $('[id*="CurrentDue"]').val('');
+        });*@
+</script>
+
+
+
+
+@*<tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td class="hidden">
+                        @item.Id
+                    </td>
+                    <td class="hidden">
+                        @item.CustomerType
+                    </td>
+                    <td></td>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @item.Code
+                    </td>
+                    <td>
+                        @item.Name
+                    </td>
+                    <td>
+                        @item.ContactNo
+                    </td>
+                    <td>
+                        @item.Address
+                    </td>
+                    <td>
+                        @item.TotalDue
+                    </td>
+                    <td>
+                        @item.CreditDue
+                    </td>
+                </tr>
+                count++;
+            }
+        }
+    </tbody>*@

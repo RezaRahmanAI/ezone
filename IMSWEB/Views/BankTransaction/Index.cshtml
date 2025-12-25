@@ -1,0 +1,230 @@
+﻿@model IEnumerable<IMSWEB.GetBankTransactionViewModel>
+@using IMSWEB.Model
+
+@{
+    ViewBag.Title = "BankTransactions";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["controller"].ToString();
+}
+<h4 class="text-left inline-header">Existing BankTransactions.</h4>
+<hr />
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        @using (Html.BeginForm(actionName, controllerName, FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                    @Html.ActionLink("Create new", "Create", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<table id="productTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="false"
+       data-pagination="true"
+       data-id-field="productName"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="TranDate"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.TranDate)
+            </th>
+            <th data-field="TransactionNo"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.TransactionNo)
+            </th>
+            <th data-field="BankName"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.BankName)
+            </th>
+            <th data-field="AccountName"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.AccountName)
+            </th>
+            <th data-field="AccountNo"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.AccountNo)
+            </th>
+            <th data-field="TransactionType"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.TransactionType)
+            </th>
+            <th data-field="Amount"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+
+            <th data-field="WFStatus"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.WFStatus)
+            </th>
+
+            <th data-field="Remarks"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Remarks)
+            </th>
+
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @item.TranDate.ToString("dd MMM yyyy")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TransactionNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BankName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TransactionType)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Amount)
+                    </td>
+
+                    <td>
+                        @if (item.WFStatus == EnumWFStatus.Pending)
+                        {
+                            <span class="label label-danger">Pending</span>
+                        }
+
+                        else
+                        {
+                            <span class="label label-success">Approved</span>
+                        }
+
+                    </td>
+                    <td>
+                        <button class="btn btn-info btn-remarks btn-xs" title="@item.Remarks" data-remarks="@item.Remarks" data-header="Remarks"><i class="fa fa-info"></i></button>
+                    </td>
+                    @*@if (User.IsInRole("LocalAdmin") || User.IsInRole("Admin"))
+                        {
+                            <td>
+                                @Html.ActionLink("Money Rcpt.", "MoneyReceipt", new { id = item.BankTranID }, new { @class = "btn btn-xs btn-primary" }) |
+                                @Html.ActionLink("Edit", "Edit", new { id = item.BankTranID }, new { @class = "btn btn-xs btn-info" }) |
+                                @Html.ActionLink("Delete", "Delete", new { id = item.BankTranID }, new { onclick = "if(!confirm('Do you want to delete this Bank Transaction?')) return false;", @class = "btn btn-xs btn-danger" })
+                            </td>
+                        }*@
+
+                    <td>
+                        @Html.ActionLink("Money Rcpt.", "MoneyReceipt", new { id = item.BankTranID }, new { @class = "btn btn-xs btn-primary" })
+                        @if (User.IsInRole(EnumUserRoles.Admin.ToString()) || User.IsInRole(EnumUserRoles.hoqueLocalAdmin.ToString()) || User.IsInRole(EnumUserRoles.LocalAdmin.ToString()))
+                        {
+                            <span>|</span>
+                            @Html.ActionLink("Edit", "Edit", new { id = item.BankTranID }, new { @class = "btn btn-xs btn-info" })
+                            <span>|</span>
+                            @Html.ActionLink("Delete", "Delete", new { id = item.BankTranID }, new { onclick = "if(!confirm('Do you want to delete this Bank Transaction?')) return false;", @class = "btn btn-xs btn-danger" })
+                            if (ViewBag.IsBankApprovalEnable && item.WFStatus == EnumWFStatus.Pending)
+                            {
+                                <span>|</span>
+                                @Html.ActionLink("Approved", "ApprovedIndex", new { orderId = item.BankTranID }, new { onclick = "if(!confirm('Do you want to approved this transaction?')) return false;", @class = "btn btn-sm btn-warning" })
+                            }
+                        }
+
+                    </td>
+                </tr>
+                count++;
+            }
+        }
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        @{
+            if (TempData.ContainsKey("BankTranID"))
+            {
+                @:$.ajax({
+                    @:url: "/Report/BankTransMoneyReceipt",
+                @:type: "GET",
+                @:dataType: "html",
+                @:success: function (data) {
+                        @:$('#report').html(data);
+                        @:},
+                @:error: function (err) {
+                        @:console.error(JSON.stringify(err));
+                        @:}
+                @:});
+            }
+       }
+
+
+        $('#FromDate').datetimepicker({
+            defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+            format: 'DD-MMM-YYYY'
+        });
+
+        $('#ToDate').datetimepicker({
+            defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+            format: 'DD-MMM-YYYY'
+        });
+    });
+</script>

@@ -1,0 +1,92 @@
+﻿@model IEnumerable<GetSupplierViewModel>
+@using IMSWEB.Model
+
+@{
+    ViewBag.Title = "Suppliers";
+}
+
+<h4 class="text-left inline-header">Existing suppliers</h4>
+@Html.ActionLink("Create new supplier", "Create", "Supplier", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+<hr />
+
+<table id="supplierTable"
+       data-toggle="table"
+       data-search="true"
+       data-show-refresh="true"
+       data-show-toggle="true"
+       data-show-columns="true"
+       data-show-export="true"
+       data-detail-view="true"
+       data-pagination="true"
+       data-id-field="name"
+       data-page-list="[10, 25, 50, 100, ALL]"
+       data-page-size="10"
+       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>
+                Sl
+            </th>
+            <th data-field="code"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Code)
+            </th>
+            <th data-field="name"
+                data-sorter="sorter"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th data-field="contactNo"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.ContactNo)
+            </th>
+            <th data-field="totalDue"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.TotalDue)
+            </th>
+            <th data-field="ownerName"
+                data-sortable="true">
+                @Html.DisplayNameFor(model => model.OwnerName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int count = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Code)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ContactNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TotalDue)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OwnerName)
+                    </td>
+                    @if (User.IsInRole(EnumUserRoles.Admin.ToString()) || (User.IsInRole(EnumUserRoles.LocalAdmin.ToString())))
+                    {
+                        <td>
+
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                            @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { onclick = "if(!confirm('Do you want to delete this supplier?')) return false;" })
+
+                        </td>
+                    }
+                    </tr>
+                count++;
+            }
+        }
+    </tbody>
+</table>

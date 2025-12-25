@@ -1,0 +1,449 @@
+﻿@using IMSWEB.Model
+@model IEnumerable<IMSWEB.CreateColorViewModel>
+
+@{
+    ViewBag.Title = "bKash";
+    decimal serviceRemainingCharge = 0m;
+    if (TempData.ContainsKey("ServiceRemainingMonth"))
+    {
+        serviceRemainingCharge = decimal.Parse(TempData["ServiceRemainingMonth"].ToString());
+    }
+}
+
+<style>
+
+    table#paymentQuery td, table#paymentQuery th.spaceWord, table#paymentQuery th {
+        line-height: 14px !important;
+        padding: 5px !important;
+    }
+    table#paymentQuery {
+        white-space: normal !important;
+    }
+
+    #ConcernsTable input[name="btSelectAll"] {
+        display: none;
+    }
+
+    .centerItems {
+        height: 30vh;
+        display: flex;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+
+    #btnPayWithbKash {
+        background: #D32165;
+        border-color: #D32165;
+    }
+
+    table#paymentInfo tr, table#payErrorInfo tr, table#paymentQuery tr {
+        background: #FBEBF1;
+        color: #eb1a6a;
+    }
+
+        table#paymentInfo tr th {
+            color: #eb1a6a;
+        }
+
+        table#paymentInfo tr td, table#payErrorInfo tr th, table#paymentQuery tr th {
+            padding: 15px;
+        }
+
+        table#payErrorInfo tr th {
+            font-size: 20px;
+            font-weight: bold;
+            font-variant: small-caps;
+        }
+
+    /*Ajax overlay loader*/
+    #overlay {
+        position: fixed;
+        top: 0;
+        z-index: 100;
+        width: 100%;
+        height: 100%;
+        /*display: none;*/
+        background: rgba(0,0,0,0.6);
+    }
+
+    .cv-spinner {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px #ddd solid;
+        border-top: 4px #2e93e6 solid;
+        border-radius: 50%;
+        animation: sp-anime 0.8s infinite linear;
+    }
+
+    div#infoBlock table tr th {
+        text-align: right;
+    }
+
+    div#infoBlock table tr td {
+        text-align: left;
+    }
+
+    @@keyframes sp-anime {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<div id="overlay">
+    <div class="cv-spinner">
+        <span class="spinner"></span>
+    </div>
+</div>
+
+<div class="row">
+
+    @if (TempData.ContainsKey("ExpireMessage") && serviceRemainingCharge > 0)
+    {
+        <div id="infoBlock" class="col-md-5 col-md-offset-4">
+            <div class="panel panel-default">
+                <div class="panel-body" id="divPayInfo">
+                    <table class="table" id="paymentQuery">
+                        @*<tr>
+                            <td colspan="3" style="text-align: center; font-weight: bold"><input type="checkbox" id="isAllConcern" /> Pay All Concern</td>
+                        </tr>*@
+                        <tr>
+                            <th class="text-right">Concern</th>
+                            <td>:</td>
+                            <td>
+                                <span id="concernName">
+                                    @if(TempData.ContainsKey("ConcernName"))
+                                    {
+                                        <span id="txtConcernNames">@TempData.Peek("ConcernName").ToString()</span>
+                                    }
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Total Concern</th>
+                            <td>:</td>
+                            <td><span id="txtConcernCount">1</span></td>
+                        </tr>
+                        <tr>
+                            <th class="spaceWord">Remaining Month</th>
+                            <td>:</td>
+                            <td><span id="txtRemainingMonth">@serviceRemainingCharge</span></td>
+                        </tr>
+                        <tr>
+                            <th class="spaceWord">Total Service Charge</th>
+                            <td>:</td>
+                            <td><span id="txtTotalDueAmount">@TempData.Peek("TotalChargeDue") BDT</span></td>
+                        </tr>
+                        <tr id="trConcerSelection">
+
+                            <td style="text-align:right;">Select Concern</td>
+                            <td>:</td>
+                            @if (@TempData.Peek("UserConcern") != null)
+                            {
+                                <th>
+                                    @{Html.RenderAction("RenderPicker", "NewPicker", new { pickerType = PickerType.SisterConcern, id = "0" });}
+                                </th>
+                            }
+                            else if (@TempData.Peek("payConcernId") != null)
+                            {
+                                <th>
+                                    @{Html.RenderAction("RenderPicker", "NewPicker", new { pickerType = PickerType.SisterConcern, id = "0" });}
+                                </th>
+                            }
+                        </tr>
+                          
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (serviceRemainingCharge > 0)
+    {
+        <div id="payBtnBlock" class="col-md-5 col-md-offset-4">
+            <div class="panel panel-default">
+                <div class="panel-body text-center">
+                    <button type="button" id="btnPayWithbKash" class="btn btn-danger">Pay With bKash</button>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div id="greetingsBlock" class="col-md-5 col-md-offset-4" style="height: 150vh">
+            <div class="panel panel-default text-center centerItems">
+                <div class="panel-body text-center">
+                    <h4 class="text-danger" style="color: red">You don't have any pending due for payment. Thank you for being with us! <br /> <span class="text-info">Object Canvas Technology</span></h4>
+                </div>
+            </div>
+        </div>
+    }
+    <div id="greetingsBlock" class="col-md-5 col-md-offset-4" style="height: 150vh" hidden>
+        <div class="panel panel-default text-center centerItems">
+            <div class="panel-body text-center">
+                <h4 class="text-danger" style="color: red">You don't have any pending due for payment. Thank you for being with us! <br /> <span class="text-info">Object Canvas Technology</span></h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5 col-md-offset-4" id="payInfoGrid" hidden>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table class="table" id="paymentInfo">
+                    <tr>
+                        <td colspan="3" style="text-align: center; font-weight: bold">Payment Success! Please use this invoice number as further reference.</td>
+                    </tr>
+                    <tr>
+                        <th>Invoice</th>
+                        <td>:</td>
+                        <td><span id="payInvNo">001</span></td>
+                    </tr>
+                    <tr>
+                        <th>bKash No</th>
+                        <td>:</td>
+                        <td><span id="paybKashNo">01739408145</span></td>
+                    </tr>
+                    <tr>
+                        <th>Amount</th>
+                        <td>:</td>
+                        <td><span id="payAmount">500 BDT</span></td>
+                    </tr>
+                    <tr>
+                        <th>Trx Id</th>
+                        <td>:</td>
+                        <td><span id="payTrxId">SXWWJ256WS</span></td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td>:</td>
+                        <td><span id="payDate">21 Mar, 2023 01:53 PM</span></td>
+                    </tr>
+
+                    <tr>
+                        <th>You can</th>
+                        <td>:</td>
+                        <td><a href="/Account/Login" class="btn btn-danger btn-sm">Login</a></td>
+
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-5 col-md-offset-4" id="payErrorGrid" hidden>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table class="table" id="payErrorInfo">
+                    <tr>
+                        <th colspan="3">Payment Failed! Please retry!</th>
+                    </tr>
+                    <tr>
+                        <td>Reason</td>
+                        <th>:</th>
+                        <td><span id="payErrorMsg">N/A</span></td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ajaxStart(function () {
+        $("#overlay").show();
+    });
+
+    $(document).ajaxStop(function () {
+        $("#overlay").hide();
+    });
+
+
+    $(document).ready(function () {
+
+
+        $("#btnPayWithbKash").on("click", function () {
+            getBkashToken(null);
+        });
+
+        var paymentId = $.urlParam('paymentID');
+        var status = $.urlParam('status');
+
+        console.log(paymentId)
+        console.log(status)
+
+        if (paymentId === null) {
+            // Check all rows and trigger the 'check.bs.table' event for each row
+            if (typeof $table !== 'undefined') {
+                $table.bootstrapTable('checkAll').bootstrapTable('getData').forEach(function (row) {
+                    idsArray.push($.trim(row.id)); // add the checked ID to the array
+                    $p.text(idsArray.length + ' item(s) selected');
+                    getPaymentDetailsForConcern();
+                });
+            }
+
+            // Show the "ColorsModal" modal
+
+            if (typeof idsArray !== 'undefined' && idsArray.length > 1) {
+                $('#ColorsModal').modal('show');
+
+            } else {
+                $('#trConcerSelection').css('display', 'none');
+            }
+        }
+
+
+        // Check if the "paymentid" and "status" parameters exist
+        if (paymentId != null && status != null) {
+
+            removeQueryString();
+
+            if (status === 'success') {
+                getBkashToken(paymentId);
+            } else {
+                toastr.error('Payment failed! please try again!');
+                
+            }
+
+        } else {
+            console.log('payment id or status not found!');
+        }
+
+
+
+    });
+
+    function getBkashToken(paymentId) {
+        $("#overlay").show();
+        var bKashUrl = "";
+        $.ajax({
+            url: "/Payment/GetBkashTokenOrConfirmPayment",
+            type: "GET",
+            async: false,
+            data: { 'paymentId': paymentId },
+            success: function (data) {
+
+                if (paymentId == null && data.bkashURL != null) {
+                    bKashUrl = data.bkashURL;
+                } else {
+                    if (paymentId == null) {
+                        toastr.error(data.statusMessage);
+                        //alert(data.statusMessage)
+                    } else {
+                        if (data.trxID != null) {
+                            //alert('payment successfull of ' + data.currency + " " + data.amount);
+                            toastr.success('payment successfull of ' + data.currency + " " + data.amount)
+                            console.log(data);
+                            showSuccessErrorData(data);
+                            $("#overlay").hide();
+                            $('div.modal-backdrop.fade.in').css('display', 'none');
+                        } else {
+                            toastr.error(data.statusMessage)
+                            //alert(data.statusMessage);
+                            showSuccessErrorData(data);
+
+                            // Check all rows and trigger the 'check.bs.table' event for each row
+                            if (typeof $table !== 'undefined') {
+                                $table.bootstrapTable('checkAll').bootstrapTable('getData').forEach(function (row) {
+                                    idsArray.push($.trim(row.id)); // add the checked ID to the array
+                                    $p.text(idsArray.length + ' item(s) selected');
+                                    getPaymentDetailsForConcern();
+                                });
+                            }
+
+                            // Show the "ColorsModal" modal
+
+                            if (typeof idsArray !== 'undefined' && idsArray.length > 1) {
+                                $('#ColorsModal').modal('show');
+
+                            } else {
+                                $('#trConcerSelection').css('display', 'none');
+                            }
+                        }
+                    }
+
+                }
+            },
+            error: function (err) {
+
+            },
+            complete: function () {
+                $("#overlay").hide();
+                $('div.modal-backdrop.fade in').css('display', 'none');
+                //alert(bKashUrl);
+                if (paymentId == null) {
+                    window.location.replace(bKashUrl);
+                } else {
+
+                }
+
+            }
+        });
+    }
+
+
+
+
+    // Function to get the value of a query string parameter
+    $.urlParam = function (name) {
+        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+        if (results == null) {
+            return null;
+        }
+        return decodeURI(results[1]) || 0;
+    };
+
+    function removeQueryString() {
+        if (window.location.href.indexOf('?') > -1) {
+            history.pushState('', document.title, window.location.pathname);
+        }
+    }
+
+
+    function showSuccessErrorData(data) {
+        var dateString = data.paymentExecuteTime;
+        var dateObj = moment(dateString, "YYYY-MM-DDTHH:mm:ss:SSS [GMT]ZZ");
+        var formattedDate = dateObj.format("DD MMM, YYYY h:mm A");
+        $('#payDate').text(formattedDate);
+        $('#payTrxId').text(data.trxID);
+        $('#payAmount').text(data.amount);
+        $('#paybKashNo').text(data.customerMsisdn);
+        $('#payInvNo').text(data.merchantInvoiceNumber);
+
+        $('#payErrorMsg').text(data.statusMessage);
+
+
+        if (data.trxID != null) {
+            $('#payInfoGrid').show(500);
+            $('#payErrorGrid').hide(500);
+            //$('#greetingsBlock').show(500);
+            $('#payBtnBlock').hide(500);
+            $('#infoBlock').hide(500);
+
+            $("#overlay").hide();
+
+        } else {
+            $('#payInfoGrid').hide(500);
+            $('#payErrorGrid').show(500);
+            $('#greetingsBlock').hide(500);
+            $('#payBtnBlock').show(500);
+            $('#infoBlock').show(500);
+        }
+
+    }
+
+
+</script>

@@ -1,0 +1,272 @@
+﻿@using IMSWEB.Model
+@model IMSWEB.BankLoanCollectionVM
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    ViewBag.Title = actionName + " Bank Loan Payment";
+}
+<h4>@(ViewBag.Title + ".")</h4>
+
+<hr />
+@using (Html.BeginForm(actionName, "BankLoanCollection", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Code, htmlAttributes: new { @class = "control-label col-md-2", autofocus = "autofocus" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                            @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CollectionDate, htmlAttributes: new { @class = "control-label col-md-2", autofocus = "autofocus" })
+                        <div class="col-md-10">
+                            @if (User.IsInRole("Mobile User"))
+                            {
+                                <div class='input-group date' id='CollectionDate'>
+                                    <input type='text' class="input-sm form-control input-sm" readonly name='CollectionDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class='input-group date' id='CollectionDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='CollectionDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            }
+
+                            @Html.ValidationMessageFor(model => model.CollectionDate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CollectionType, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EnumDropDownListFor(model => model.CollectionType, "--Select Type--", new { @class = "form-control input-sm ddl2", tabindex = 5 })
+                            @Html.ValidationMessageFor(model => model.CollectionType, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BankId, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.BankId, Model.Banks, "--Select a Bank--", new { @class = "form-control input-sm ddl2" })
+                            @Html.ValidationMessageFor(model => model.BankId, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BankLoanDetailsId, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.BankLoanDetailsId, Model.BankLoans, "--Select a Loan--", new { @class = "form-control input-sm ddl2", @id = "ddlLoanDetailsId" })
+                            @Html.ValidationMessageFor(model => model.BankLoanDetailsId, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LoanAmount, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.LoanAmount, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", @step = "0.01", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.LoanAmount, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CollectionAmount, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.CollectionAmount, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", @step = "0.01", @oninput = "getTotal()" } })
+                            @Html.ValidationMessageFor(model => model.CollectionAmount, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div id="toogleType">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.SDPS, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.SDPS, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", @step = "0.01", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.SDPS, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Savings, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Savings, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", @step = "0.01", @oninput = "getTotal()" } })
+                                @Html.ValidationMessageFor(model => model.Savings, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TotalAmount, htmlAttributes: new { @class = "control-label col-md-2", @id = "lblTotal" })
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.TotalAmount, new { htmlAttributes = new { @class = "form-control input-sm", @type = "number", @step = "0.01", @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.TotalAmount, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-1">
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <input type="submit" name="submitButton" value="Save Paid" class="btn btn-sm btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+}
+
+<script>
+
+    $(function () {
+
+        if (getDefaultIntIfEmpty($('#CollectionType').val()) == 1) {
+            $('#toogleType').show(500);
+            $('#lblTotal').text("Total");
+        } else {
+            $('#toogleType').hide(500);
+            $('#lblTotal').text("Remaining");
+        }
+
+        $(".ddl2").select2({
+            placeholder: "---Select---",
+            allowClear: true
+        });
+
+        $('#CollectionDate').datetimepicker({
+            @{
+                if (Model == null || Model.CollectionDate == null)
+                {
+                    @:defaultDate: moment(),
+                }
+                else
+                {
+                 @:defaultDate: '@(Convert.ToDateTime(Model.CollectionDate).ToString("dd-MMM-yyyy"))',
+                                        }
+               @:format: 'DD-MMM-YYYY'
+                                     }
+        });
+
+
+        $('#CollectionType').change(function () {
+            if ($(this).val() == 1) {
+                $('#toogleType').show(500);
+                $('#lblTotal').text("Total")
+            } else {
+                $('#toogleType').hide(500);
+                $('#lblTotal').text("Remaining")
+            }
+        });
+
+    });
+
+
+    $("#BankId").change(function () {
+        var collectionType = getDefaultIntIfEmpty($('#CollectionType').val());
+        if (collectionType == 0) {
+            toastr.error("Select collection type first.");
+            return;
+        }
+        $("#ddlLoanDetailsId").empty();
+        var pre = '<option value=""></option>';
+        $("#ddlLoanDetailsId").append(pre);
+        $("#select2-ddlLoanDetailsId-container").empty();
+        $("#select2-ddlLoanDetailsId-container").append('<span class="select2-selection__placeholder">---Select---</span>');
+        if ($("#BankId").val() > 0) {
+            $.ajax({
+                type: 'Get',
+                url: '@Url.Action("GetLoanByBank")',
+                dataType: 'json',
+                data: { bankId: $(this).val(), collectionType: collectionType },
+                success: function (units) {
+                    if (units.length > 0) {
+                        $.each(units, function (i, units) {
+                            $("#ddlLoanDetailsId").append('<option value="'
+                                + units.Id + '">'
+                                + units.Name + '</option>');
+                        });
+
+                    } else {
+                        alert('No Loan found ');
+                    }
+                },
+                error: function (ex) {
+
+                    alert('Error ');
+                }
+            });
+        }
+    });
+
+    $("#ddlLoanDetailsId").change(function () {
+
+        var collectionType = getDefaultIntIfEmpty($('#CollectionType').val());
+
+        if ($(this).val() > 0) {
+            $.ajax({
+                type: 'Get',
+                url: '@Url.Action("GetRemainingAmountByBankLoanId")',
+                dataType: 'json',
+                data: { bankLoanId: $(this).val(), collectionType: collectionType },
+                success: function (data) {
+                    console.log(data);
+                    if (collectionType == 1) {
+                        $('#LoanAmount').val(data.loanAmount);
+                        $('#SDPS').val(data.sdpsAmount);
+                        getTotal();
+                    } else {
+                        $('#LoanAmount').val(data.loanAmount);
+                        $('#SDPS').val(data.sdpsAmount);
+                    }
+                    
+                    
+                    
+                },
+                error: function (ex) {
+
+                }
+            });
+        }
+    });
+
+    function getTotal() {
+
+        var collectionType = getDefaultIntIfEmpty($('#CollectionType').val());
+
+        if (collectionType == 1) {
+            var sdps = getDefaultFloatIfEmpty($('#SDPS').val());
+            var collectionAmount = getDefaultFloatIfEmpty($('#CollectionAmount').val());
+            var savings = getDefaultFloatIfEmpty($('#Savings').val());
+
+            var total = sdps + collectionAmount + savings;
+
+            $('#TotalAmount').val(total);
+        } else {
+            var collectionAmount = getDefaultFloatIfEmpty($('#CollectionAmount').val());
+            var loanAmount = getDefaultFloatIfEmpty($('#LoanAmount').val());
+            $('#TotalAmount').val(loanAmount - collectionAmount);
+        }
+
+        
+    }
+
+</script>

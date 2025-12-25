@@ -1,0 +1,166 @@
+﻿@model IEnumerable<AdvanceSalaryViewModel>
+@{
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    string controllerName = ViewContext.RouteData.Values["Controller"].ToString();
+    int Counter = 1;
+    ViewBag.Title = "Advance Salary";
+}
+<h4 class="text-left inline-header">Existing Advance Salary</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6  col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Html.BeginForm("Search", controllerName, new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+
+                    <div class="form-group">
+                        <div class="col-md-6 mt-3">
+                            <div class='input-group date' id='FromDate'>
+                                <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                <span class="input-group-addon">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="btn btn-group">
+                                <input type="submit" value="Search" class="btn btn-info btn-sm mr-2" name="btnSearch" />
+                                @Html.ActionLink("Create new", "Create", controllerName, routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right" })
+                            </div>
+                        </div>
+                    </div>
+
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table id="advanceSalaryTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="10"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                SL
+                            </th>
+                            <th data-field="EmployeeCode"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.EmployeeCode)
+                            </th>
+                            <th data-field="EmployeeName"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.EmployeeName)
+                            </th>
+                            @*<th data-field="DepartmentName"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.DepartmentName)
+                            </th>*@
+                            <th data-field="DesignationName"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.DesignationName)
+                            </th>
+                            @*<th data-field="GradeName"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.GradeName)
+                            </th>*@
+                            <th data-field="Amount"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Amount)
+                            </th>
+                            <th data-field="Date"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Date)
+                            </th>
+
+                            <th data-field="Remarks"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Remarks)
+                            </th>
+                            <th data-field="SalaryType"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.SalaryType)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                        <tr>
+                            <td>
+                                @Counter
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.EmployeeCode)
+                            </td>
+
+                            <td>
+                                @Html.DisplayFor(modelItem => item.EmployeeName)
+                            </td>
+                            @*<td>
+                                @Html.DisplayFor(modelItem => item.DepartmentName)
+                            </td>*@
+                            <td>
+                                @Html.DisplayFor(modelItem => item.DesignationName)
+                            </td>
+                            @*<td>
+                                @Html.DisplayFor(modelItem => item.GradeName)
+                            </td>*@
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Amount)
+                            </td>
+                            <td>
+                                @item.Date.ToString("dd MMM yyyy")
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Remarks)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SalaryType)
+                            </td>
+                            <td>
+                                @Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-sm btn-info" }) |
+                                @Html.ActionLink("Delete", "Delete", new { id = item.ID }, new { @class = "btn btn-sm btn-danger" })
+                            </td>
+                        </tr>
+                            Counter++;
+                        }
+                    </tbody>
+
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+        $('#FromDate').datetimepicker({
+            @{
+              if (ViewBag.SearchDate == null)
+              {
+                    @:defaultDate: moment(),
+                                                                                              }
+              else
+              {
+                  @:defaultDate: '@(Convert.ToDateTime(ViewBag.SearchDate).ToString("MMMM-yyyy"))',
+                                                                                              }
+            @:format: 'MMMM-YYYY'
+                                                                                           }
+        });
+</script>

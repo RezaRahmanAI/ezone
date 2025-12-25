@@ -1,0 +1,194 @@
+﻿@model AttendenceMonthViewModel
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Daily Attendence";
+    int Counter = 1;
+}
+
+<h4 class="text-left inline-header">Daily Attendence</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @using (Html.BeginForm("DailyAttendenceList", "UploadAttendence", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal" }))
+                {
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="form-group">
+                                <label for="FromDate" class="control-label col-md-2">From Date</label>
+                                <div class="col-md-3">
+                                    <div class='input-group date' id='FromDate'>
+                                        <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <label for="ToDate" class="control-label col-md-2">To Date</label>
+                                <div class="col-md-3">
+                                    <div class='input-group date' id='ToDate'>
+                                        <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                                </div>
+                                <div class="col-md-1 btn-group">
+                                    <button type="submit" value="Sync Attendence" name="btnSearch" class="btn btn-sm btn-success mr-2">
+                                        <i class="fa fa-refresh" aria-hidden="true"></i>&nbsp;Sync Attendence
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table id="emplyeeattendenceTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-detail-view="true"
+                       data-pagination="true"
+                       data-id-field="name"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="20"
+                       class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th data-field="Sl"
+                                data-sortable="true">
+                                Sl
+                            </th>
+                            <th data-field="EmployeeNo"
+                                data-sortable="true">
+                                A/C No
+                            </th>
+                            <th data-field="Name"
+                                data-sortable="true">
+                                Name
+                            </th>
+                            <th data-field="Date"
+                                data-sortable="true">
+                                Date
+                            </th>
+                            <th data-field="ClockIn"
+                                data-sortable="true">
+                                Check In
+                            </th>
+                            <th data-field="ClockOut"
+                                data-sortable="true">
+                                Check Out
+                            </th>
+                            <th data-field="Late"
+                                data-sortable="true">
+                                Late
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            foreach (var item in Model.Attendences)
+                            {
+                                <tr>
+                                    <td>
+                                        @Counter
+                                    </td>
+                                    <td>
+                                        @item.EmployeeNo
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </td>
+                                    <td>
+                                        @item.Date.ToString("dd MMM yyyyy")
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ClockIn)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ClockOut)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Late)
+                                    </td>
+                                </tr>
+                                Counter++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        $('#FromDate').datetimepicker({
+            @{
+            if (ViewBag.FromDate == null)
+            {
+                @:defaultDate: moment(),
+            }
+            else
+            {
+                @:defaultDate: '@(Convert.ToDateTime(ViewBag.FromDate).ToString("dd-MMM-yyyy"))',
+            }
+            @:format: 'DD-MMM-YYYY'
+                                                                                                                                        }
+        });
+
+        $('#ToDate').datetimepicker({
+         @{
+             if (ViewBag.ToDate == null)
+         {
+             @:defaultDate: moment(),
+         }
+        else
+        {
+        @:defaultDate: '@(Convert.ToDateTime(ViewBag.ToDate).ToString("dd-MMM-yyyy"))',
+        }
+        @:format: 'DD-MMM-YYYY'
+        }
+    });
+
+        $(document).on('change', ':file', function () {
+            var input = $(this),
+                numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [numFiles, label]);
+
+            $("#filesize_Name").val(label)
+        });
+
+        $(document).on("submit", function (e) {
+            //var IsPrevent = $("#spinningIcon").val() == "" ? false : true;
+            //if (IsPrevent) {
+            //    e.preventDefault();
+            //}
+            $("#spinningIcon").show();
+        });
+
+    });
+
+
+</script>

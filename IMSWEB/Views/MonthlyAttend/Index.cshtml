@@ -1,0 +1,176 @@
+﻿@model CreateMonthlyAttendenceVM
+@{
+    ViewBag.Title = "Monthly Attendence";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+    int count = 1;
+}
+
+<h4 class="text-left inline-header">@ViewBag.Title.</h4>
+
+@using (Html.BeginForm("Index", "MonthlyAttend", new { ReturnUrl = ViewBag.ReturnUrl },
+    FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-1 control-label">Department</label>
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(m => m.DepartmentID, new SelectList(Model.Departments, "DepartmentId", "DESCRIPTION"), "--Select department--", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table id="cashcollectionTable"
+                           data-toggle="table"
+                           data-search="false"
+                           data-show-refresh="false"
+                           data-show-toggle="false"
+                           data-show-columns="false"
+                           data-show-export="false"
+                           data-detail-view="false"
+                           data-pagination="false"
+                           data-id-field="name"
+                           data-page-list="[10, 25, 50, 100, ALL]"
+                           data-page-size="31"
+                           class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Sl
+                                </th>
+                                <th data-field="select"
+                                    data-sorter="sorter"
+                                    data-sortable="false">
+                                    <label>
+                                        <input type="checkbox" id="AllSelect" />
+                                        All Select
+                                    </label>
+                                </th>
+                                <th data-field="Month"
+                                    data-sorter="sorter"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(i => i.Attendences.FirstOrDefault().Month)
+                                </th>
+                                <th data-field="EmployeeName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(i => i.Attendences.FirstOrDefault().EmployeeName)
+                                </th>
+                                <th data-field="DesignationName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(i => i.Attendences.FirstOrDefault().DesignationName)
+                                </th>
+                                <th data-field="DepartmentName"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(i => i.Attendences.FirstOrDefault().DepartmentName)
+                                </th>
+                                <th data-field="Days"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(i => i.Attendences.FirstOrDefault().Days)
+                                </th>
+                                <th data-field="OTDays"
+                                    data-sortable="true">
+                                    @Html.DisplayNameFor(i => i.Attendences.FirstOrDefault().OTDays)
+                                </th>
+                                <th>
+                                    Error
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.Attendences.Count(); i++)
+                            {
+
+                                <tr>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        <label>
+                                            @Html.EditorFor(item => item.Attendences[i].IsSelect)
+                                            Select
+                                        </label>
+                                        @Html.HiddenFor(item => item.Attendences[i].MAID)
+                                        @Html.HiddenFor(item => item.Attendences[i].EmployeeID)
+                                        @Html.HiddenFor(item => item.Attendences[i].EmployeeName)
+                                        @Html.HiddenFor(item => item.Attendences[i].DesignationName)
+                                        @Html.HiddenFor(item => item.Attendences[i].DepartmentName)
+                                        @Html.HiddenFor(item => item.Attendences[i].Month)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(item => item.Attendences[i].Month, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(item => item.Attendences[i].EmployeeName, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(item => item.Attendences[i].DesignationName, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(item => item.Attendences[i].DepartmentName, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                    </td>
+                                    <td>
+                                        @Html.EditorFor(item => item.Attendences[i].Days, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                    </td>
+                                    <td>
+                                        @Html.EditorFor(item => item.Attendences[i].OTDays, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                    </td>
+                                    <td>
+                                        @Html.ValidationMessageFor(model => model.Attendences[i].Days, "", new { @class = "text-danger" })
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="btn btn-group">
+                        <input type="submit" id="btnSave" value="Save" class="btn btn-primary btn-sm ml-1" name="btnSave" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+<script>
+    $(document).ready(function () {
+        $('#DepartmentID').select2();
+
+    });
+
+    $(document).on('change', '#AllSelect', function () {
+        if (this.checked) {
+            $('input[id$="__IsSelect"]').prop('checked', true);
+        }
+        else {
+            $('input[id$="__IsSelect"]').prop('checked', false);
+        }
+    });
+
+    $('#DepartmentID').on('change', function (e) {
+        var id = $('#DepartmentID').val();
+        if (id === "" || id === undefined) {
+            e.preventDefault();
+            return;
+        }
+
+        $('form').submit();
+    })
+</script>

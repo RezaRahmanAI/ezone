@@ -1,0 +1,231 @@
+﻿@model IEnumerable<GetCreditSalesOrderViewModel>
+@using IMSWEB.Model
+
+@{
+    ViewBag.Title = "Hire Sales Return Orders";
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+}
+<h4 class="text-left inline-header">Existing Hire sales Return orders.</h4>
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        @using (Html.BeginForm("Index", controllerName, FormMethod.Post, new { }))
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table text-nowrap">
+                        <tr>
+                            <td>
+                                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='FromDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='FromDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                            </td>
+                            <td>
+                                <div class='col-sm-12 input-group date' id='ToDate'>
+                                    <input type='text' class="input-sm form-control input-sm" name='ToDate' />
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <img id="spinningIcon" height="45" width="45" style="display: none;" class="pull-right" src="~/Content/images/Spinner.gif" />
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <input id="btnPreview" type="submit" value="Search" class="btn btn-sm btn-info mr-2" />
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@*@if (!User.IsInRole("LocalAdmin"))*@
+
+    @Html.ActionLink("Create New Order", "Create", routeValues: null, htmlAttributes: new { @class = "btn btn-primary btn-sm pull-right", id = "toolbar" })
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="panel-body">
+                <table id="salesOrderTable"
+                       data-toggle="table"
+                       data-search="true"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-detail-view="false"
+                       data-pagination="true"
+                       data-id-field="customerName"
+                       data-page-list="[10, 25, 50, 100, ALL]"
+                       data-page-size="15"
+                       data-toolbar="#toolbar"
+                       class="table table-responsive table-bordered table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                Sl
+                            </th>
+                            <th data-field="invoiceNo"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.InvoiceNo)
+                            </th>
+                            <th data-field="orderDate"
+                                data-sorter="sorter"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.OrderDate)
+                            </th>
+                            <th data-field="CustomerCode"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.CustomerCode)
+                            </th>
+                            <th data-field="customerName"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.CustomerName)
+                            </th>
+                            <th data-field="contactNo"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.ContactNo)
+                            </th>
+                            <th data-field="status"
+                                data-sortable="true">
+                                @Html.DisplayNameFor(model => model.Status)
+                            </th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @count
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.InvoiceNo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.OrderDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CustomerCode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CustomerName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ContactNo)
+                                    </td>
+                                    <td>
+                                        <span class="@item.Status">
+                                            Returned
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink("Invoice", "Invoice", new { orderId = item.SalesOrderId })
+                                    </td>
+
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        @{
+    @*if (TempData.ContainsKey("IsCInvoiceReady") && Convert.ToBoolean(TempData["IsCInvoiceReady"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/CreditSalesInvoice",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+      }
+
+    if (TempData.ContainsKey("IsCInvoiceReadyById") && Convert.ToBoolean(TempData["IsCInvoiceReadyById"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/CreditSalesInvoiceReportByID",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+     }*@
+
+    if (TempData.ContainsKey("IsInvoiceReady") && Convert.ToBoolean(TempData["IsInvoiceReady"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/HireReturnInvoiceReport",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+     }
+
+    if (TempData.ContainsKey("IsInvoiceReadyById") && Convert.ToBoolean(TempData["IsInvoiceReadyById"]) == true)
+    {
+        @:$.ajax({
+        @:url: "/Report/HireReturnInvoiceById",
+        @:type: "GET",
+        @:dataType: "html",
+        @:success: function (data) {
+        @:$('#report').html(data);
+        @:},
+        @:error: function (err) {
+        @:console.error(JSON.stringify(err));
+        @:}
+        @:});
+     }
+
+}
+
+
+        $('#FromDate').datetimepicker({
+            defaultDate: "@ViewBag.FromDate.ToString("dd-MMM-yyyy")",
+        format: 'DD-MMM-YYYY'
+    });
+
+    $('#ToDate').datetimepicker({
+        defaultDate: "@ViewBag.ToDate.ToString("dd-MMM-yyyy")",
+    format: 'DD-MMM-YYYY'
+    });
+
+    });
+</script>

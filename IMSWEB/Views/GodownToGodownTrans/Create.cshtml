@@ -1,0 +1,176 @@
+﻿@model IMSWEB.TransferHistoryViewModel
+@using IMSWEB.Model
+@{
+    ViewBag.Title = "Create Internal Transfer";
+    string actionName = ViewContext.RouteData.Values["action"].ToString();
+}
+
+<h4 class="text-left inline-header">@ViewBag.Title</h4>
+@using (Html.BeginForm(actionName, "GodownToGodownTrans", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+<div class="row">
+    <div class="col-md-7">
+        <div class="panel panel-default">
+            <div class="panel-body">
+           
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.TransferModel.TransferHID);
+                        <div class="row">
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.TransferModel.ProductId, new { @class = "control-label col-md-4" })
+                                    <div class="col-md-8">
+                                        <span id="pickerSpace">
+                                            @{Html.RenderAction("RenderProductPicker", "Picker", new { pickerType = PickerType.ProductDetail, id = (Model != null && Model.TransferModel.ProductId != null) ? Model.TransferModel.ProductId : "0", godownID = (Model != null && Model.TransferModel.GodownID != null) ? Model.TransferModel.GodownID : "0" });}
+                                        </span>
+                                        @Html.HiddenFor(m => m.TransferModel.GodownID, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(m => m.TransferModel.ProductId, "", new { @class = "text-danger" })
+                                        @Html.ValidationMessageFor(m => m.TransferModel.GodownID, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.TransferModel.PreviousStock, new { @class = "control-label col-md-4" })
+                                    <div class="col-md-8">
+                                        @Html.EditorFor(m => m.TransferModel.PreviousStock, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", @readonly = "readonly", @Value = Model.TransferModel.PreviousStock } })
+                                        @Html.ValidationMessageFor(m => m.TransferModel.PreviousStock, "", new { @class = "text-danger" })
+                                      
+                                    </div>
+                                </div>
+                              
+
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.TransferModel.Quantity, new { @class = "control-label col-md-4" })
+                                    <div class="col-md-8">
+                                        @Html.EditorFor(m => m.TransferModel.Quantity, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "number", step = "0.01", @Value = Model.TransferModel.Quantity } })
+                                        @Html.ValidationMessageFor(m => m.TransferModel.Quantity, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.TransferModel.CategoryName, new { @class = "control-label col-md-4" })
+                                    <div class="col-md-8">
+                                        @Html.EditorFor(m => m.TransferModel.CategoryName, new { htmlAttributes = new { @class = "input-sm form-control input-sm text-right", type = "text", step = "0.01", @readonly = "readonly", @Value = Model.TransferModel.CategoryName } })
+                                        @Html.ValidationMessageFor(m => m.TransferModel.CategoryName, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                               
+                              
+
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.TransferModel.ToGodownName, new { @class = "control-label col-md-4" })
+                                    <div class="col-md-8">
+                                        <span id="pickerSpace">
+                                            @{Html.RenderAction("RenderPicker", "Picker", new { pickerType = PickerType.Godown, id = (Model != null && Model.TransferModel.ToGodown != null) ? Model.TransferModel.ToGodown : "0" });}
+                                            @Html.ValidationMessageFor(m => m.TransferModel.ToGodownName, "", new { @class = "text-danger" })
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <input type="submit" value="Add" id="addButton" name="addButton" class="btn btn-sm btn-primary pull-right" />
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+
+        <table id="productTable"
+               data-toggle="table"
+               data-height="190"
+               class="table table-responsive table-bordered table-striped text-nowrap" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>
+                        Sl
+                    </th>
+                    <th data-field="qauntity"
+                        data-sortable="true">
+                        @Html.DisplayNameFor(model => model.TransferModel.ProductName)
+                    </th>
+                    <th data-field="unitPrice"
+                        data-sortable="true">
+                        @Html.DisplayNameFor(model => model.TransferModel.FromGodownName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TransferModel.ToGodownName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TransferModel.Quantity)
+                    </th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int count = 1;
+                    foreach (var item in Model.TransferList)
+                    {
+                        //if (item.Status == EnumStatus.Updated || item.Status == EnumStatus.Deleted) { continue; }
+                        <tr>
+                            <td>
+                                @count
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ProductName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FromGodownName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ToGodownName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Quantity)
+                            </td>
+                            <td>
+                                @Html.ActionLink("Delete", "DeleteFromView", new { id = item.ProductId, detailId = item.GodownID, previousAction = actionName.ToLower() }, new { onclick = "if(!confirm('Do you want to delete this order?')) return false;" })
+                               @* @Html.ActionLink("Edit", "EditFromView", new { id = item.ProductId, detailId = item.GodownID, previousAction = actionName.ToLower() }, new { @class = "btn btn-xs btn-info" })*@
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                }
+            </tbody>
+        </table>
+        <br />
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <input type="submit" id="submitButton" name="submitButton" class="btn btn-sm btn-primary pull-right" value="Transfer" />
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+
+
+
+<script>
+    $("#TransferModel_Packet").on("input", function () {
+        var packet = getDefaultFloatIfEmpty(this.value);
+        var sheet = getDefaultFloatIfEmpty($("#TransferModel_Sheet").val());
+        var PKTSheet = getDefaultFloatIfEmpty($("#TransferModel_PKTSheet").val());
+        var unitprice = $("#TransferModel_UnitPrice").val();
+        var totalsheet = getDefaultFloatIfEmpty(packet * PKTSheet + sheet);
+        $("#TransferModel_Quantity").val(totalsheet);
+    });
+
+    $("#TransferModel_Sheet").on("input", function () {
+        var sheet = getDefaultFloatIfEmpty(this.value);
+        var packet = getDefaultFloatIfEmpty($("#TransferModel_Packet").val());
+        var PKTSheet = getDefaultFloatIfEmpty($("#TransferModel_PKTSheet").val());
+        var totalsheet = packet * PKTSheet + sheet;
+        var unitprice = $("#TransferModel_UnitPrice").val();
+        $("#TransferModel_Quantity").val(totalsheet);
+    });
+
+</script>
