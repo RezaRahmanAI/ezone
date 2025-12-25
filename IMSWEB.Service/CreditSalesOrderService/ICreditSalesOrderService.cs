@@ -13,7 +13,7 @@ namespace IMSWEB.Service
         Task<IEnumerable<Tuple<int, string, DateTime, string,
             string, decimal, EnumSalesType, Tuple<string, int>>>>
             GetAllSalesOrderAsync(DateTime fromDate, DateTime toDate, bool IsVATManager,
-            int concernID, string InvoiceNo = "", string ContactNo = "", string CustomerName = "",string AccountNo="");
+            int concernID, string InvoiceNo = "", string ContactNo = "", string CustomerName = "", string AccountNo = "", int page = 1, int pageSize = 50);
 
         void AddSalesOrder(CreditSale salesOrder);
 

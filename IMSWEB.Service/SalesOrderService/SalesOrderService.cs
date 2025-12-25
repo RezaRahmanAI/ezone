@@ -95,21 +95,21 @@ namespace IMSWEB.Service
 
         public async Task<IEnumerable<Tuple<int, string, DateTime, string,
             string, decimal, EnumSalesType, Tuple<string, int, decimal>>>> GetAllSalesOrderAsync(DateTime fromDate, DateTime toDate, List<EnumSalesType> SalesType, bool IsVATManager, int concernID
-            , string InvoiceNo, string ContactNo , string CustomerName, string AccountNo)
+            , string InvoiceNo, string ContactNo, string CustomerName, string AccountNo, int page, int pageSize)
         {
             return await _baseSalesOrderRepository.GetAllSalesOrderAsync(_customerRepository,
                 _SisterConcernRepository, fromDate, toDate, SalesType, IsVATManager, concernID,
-                InvoiceNo, ContactNo, CustomerName,AccountNo);
+                InvoiceNo, ContactNo, CustomerName, AccountNo, page, pageSize);
         }
 
         public async Task<IEnumerable<Tuple<int, string, DateTime, string,
         string, decimal, EnumSalesType, Tuple<string>>>> GetAllSalesOrderAsyncByUserID(int UserID,
-            DateTime fromDate, DateTime toDate, EnumSalesType SalesType, 
-            string InvoiceNo, string ContactNo, string CustomerName,string AccountNo)
+            DateTime fromDate, DateTime toDate, EnumSalesType SalesType,
+            string InvoiceNo, string ContactNo, string CustomerName, string AccountNo, int page, int pageSize)
         {
             return await _baseSalesOrderRepository.GetAllSalesOrderAsyncByUserID(_customerRepository,
                 UserID, fromDate, toDate, SalesType,
-                InvoiceNo, ContactNo, CustomerName, AccountNo);
+                InvoiceNo, ContactNo, CustomerName, AccountNo, page, pageSize);
         }
         public IQueryable<SOrder> GetAllIQueryable()
         {

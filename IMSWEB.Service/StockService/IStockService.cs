@@ -20,7 +20,7 @@ namespace IMSWEB.Service
         
         Stock GetStockByProductId(int id);
         Task<IEnumerable<Tuple<int, string, string, string,
-            decimal, decimal, decimal, Tuple<string, int, int, decimal, decimal, decimal, decimal, Tuple<string>>>>> GetAllStockAsync(int ConcernID, bool IsVATManager);
+            decimal, decimal, decimal, Tuple<string, int, int, decimal, decimal, decimal, decimal, Tuple<string>>>>> GetAllStockAsync(int ConcernID, bool IsVATManager, int page = 1, int pageSize = 50);
 
         Task<IEnumerable<Tuple<int, string, string, string,
             string, string, string, Tuple<string>>>> GetAllStockDetailAsync(int ConcernID, bool IsVATManager);

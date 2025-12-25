@@ -106,9 +106,9 @@ namespace IMSWEB.Service
             return _basePurchaseOrderRepository.All.Where(i => i.Status == (int)EnumPurchaseType.Purchase);
         }
         public async Task<IEnumerable<Tuple<int, string, DateTime, string,
-            string, string, EnumPurchaseType, Tuple<int>>>> GetAllPurchaseOrderAsync(DateTime fromDate, DateTime toDate, bool IsVATManager, int concernID)
+            string, string, EnumPurchaseType, Tuple<int>>>> GetAllPurchaseOrderAsync(DateTime fromDate, DateTime toDate, bool IsVATManager, int concernID, int page, int pageSize)
         {
-            return await _basePurchaseOrderRepository.GetAllPurchaseOrderAsync(_supplierRepository, _SisterConcernRepository, fromDate, toDate, IsVATManager, concernID);
+            return await _basePurchaseOrderRepository.GetAllPurchaseOrderAsync(_supplierRepository, _SisterConcernRepository, fromDate, toDate, IsVATManager, concernID, page, pageSize);
         }
 
         public async Task<IEnumerable<Tuple<int, string, DateTime, string,

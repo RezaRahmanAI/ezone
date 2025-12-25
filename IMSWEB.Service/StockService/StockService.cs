@@ -125,9 +125,9 @@ namespace IMSWEB.Service
             return _stockRepository.FindBy(x => x.ProductID == id).First();
         }
         public async Task<IEnumerable<Tuple<int, string, string, string, decimal,
-            decimal, decimal, Tuple<string, int, int, decimal, decimal, decimal, decimal, Tuple<string>>>>> GetAllStockAsync(int ConcernID, bool IsVATManager)
+            decimal, decimal, Tuple<string, int, int, decimal, decimal, decimal, decimal, Tuple<string>>>>> GetAllStockAsync(int ConcernID, bool IsVATManager, int page, int pageSize)
         {
-            return await _stockRepository.GetAllStockAsync(_productRepository, _ColorRepository, _stockDetailRepository, _GodownRepository, _SisterConcernRepository, _CategoryRepository, _CompanyRepository, ConcernID, IsVATManager);
+            return await _stockRepository.GetAllStockAsync(_productRepository, _ColorRepository, _stockDetailRepository, _GodownRepository, _SisterConcernRepository, _CategoryRepository, _CompanyRepository, ConcernID, IsVATManager, page, pageSize);
         }
 
         public async Task<IEnumerable<Tuple<int, string, string, string,

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IMSWEB.Service.Infrastructure;
 
 namespace IMSWEB.Service
 {
@@ -34,6 +35,7 @@ namespace IMSWEB.Service
         public void SaveSisterConcern()
         {
             _unitOfWork.Commit();
+            LookupCache.RemoveByPrefix("Lookup:SisterConcern");
         }
 
         public IEnumerable<SisterConcern> GetAllSisterConcern()
@@ -62,19 +64,26 @@ namespace IMSWEB.Service
         public void DeleteSisterConcern(int id)
         {
             _sisterConcernRepository.Delete(x => x.ConcernID == id);
+            LookupCache.RemoveByPrefix("Lookup:SisterConcern");
         }
 
         public List<SisterConcern> GetFamilyTree(int ConcernID)
         {
-            return _sisterConcernRepository.GetFamilyTree(ConcernID).ToList();
+            var cacheKey = LookupCache.BuildTenantKey("Lookup:SisterConcern:FamilyTree", ConcernID);
+            return LookupCache.GetOrCreate(cacheKey,
+                () => _sisterConcernRepository.GetFamilyTree(ConcernID).ToList(),
+                TimeSpan.FromMinutes(90));
         }
         public List<IdNameList> GetFamilyTreeDDL(int ConcernID)
         {
-            return _sisterConcernRepository.GetFamilyTree(ConcernID).Select(d => new IdNameList
-            {
-                Id = d.ConcernID,
-                Name = d.Name
-            }).ToList();
+            var cacheKey = LookupCache.BuildTenantKey("Lookup:SisterConcern:FamilyTreeDDL", ConcernID);
+            return LookupCache.GetOrCreate(cacheKey,
+                () => _sisterConcernRepository.GetFamilyTree(ConcernID).Select(d => new IdNameList
+                {
+                    Id = d.ConcernID,
+                    Name = d.Name
+                }).ToList(),
+                TimeSpan.FromMinutes(90));
         }
         public List<SisterConcern> GetFamilyTreeForNotLoggedInUser(int ConcernID)
         {

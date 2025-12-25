@@ -15,15 +15,15 @@ namespace IMSWEB.Data
             GetAllStockAsync(this IBaseRepository<Stock> stockRepository, IBaseRepository<Product> productRepository,
             IBaseRepository<Color> colorRepository, IBaseRepository<StockDetail> StockDetailRepository, IBaseRepository<Godown> GodownRepository,
             IBaseRepository<SisterConcern> SisterConcernRepository, IBaseRepository<Category> CategoryRepository, IBaseRepository<Company> CompanyRepository,
-            int ConcernID, bool IsVATManager)
+            int ConcernID, bool IsVATManager, int page, int pageSize)
         {
-            IQueryable<Product> products = productRepository.All;
-            IQueryable<Color> colors = colorRepository.All;
-            var StockDetails = StockDetailRepository.All;
-            var Godowns = GodownRepository.All;
+            IQueryable<Product> products = productRepository.All.AsNoTracking();
+            IQueryable<Color> colors = colorRepository.All.AsNoTracking();
+            var StockDetails = StockDetailRepository.All.AsNoTracking();
+            var Godowns = GodownRepository.All.AsNoTracking();
 
 
-            var items = await stockRepository.All.Join(products,
+            var items = await stockRepository.All.AsNoTracking().Join(products,
                 stk => stk.ProductID, prod => prod.ProductID, (stk, prod) => new { Stock = stk, Product = prod }).
                 Join(colors, sp => sp.Stock.ColorID, c => c.ColorID,
                 (sp, c) => new { Product = sp.Product, Stock = sp.Stock, Color = c }).
@@ -47,7 +47,11 @@ namespace IMSWEB.Data
                     CreditSalesPrice12 = StockDetails.FirstOrDefault(i => i.ProductID == x.Product.ProductID && i.ColorID == x.Color.ColorID && i.Status == (int)EnumStockStatus.Stock) != null ? StockDetails.FirstOrDefault(i => i.ProductID == x.Product.ProductID && i.ColorID == x.Color.ColorID && i.Status == (int)EnumStockStatus.Stock).CRSalesRate12Month : 0m,
                     GodownName = x.Godown.Name
 
-                }).Where(x => x.StockQty > 0).ToListAsync();
+                }).Where(x => x.StockQty > 0)
+                .OrderByDescending(x => x.StockID)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             //var items = await (from s in stockRepository.All
             //             join p in products on s.ProductID equals p.ProductID

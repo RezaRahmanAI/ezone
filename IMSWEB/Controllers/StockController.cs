@@ -38,11 +38,12 @@ namespace IMSWEB.Controllers
         [HttpGet]
         [Authorize]
         [Route("index")]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int page = 1, int pageSize = 50)
         {
             //int PageSize = 15;
             //int Pages = Page.HasValue ? Convert.ToInt32(Page) : 1;
-            var StocksAsync = _StockService.GetAllStockAsync(User.Identity.GetConcernId(), IsVATManager());
+            NormalizePaging(ref page, ref pageSize);
+            var StocksAsync = _StockService.GetAllStockAsync(User.Identity.GetConcernId(), IsVATManager(), page, pageSize);
             var vmodel = _mapper.Map<IEnumerable<Tuple<int, string, string,
             string, decimal, decimal, decimal, Tuple<string, int, int, decimal, decimal, decimal, decimal, Tuple<string>>>>, IEnumerable<GetStockViewModel>>(await StocksAsync);
             //var pagelist = vmodel.ToPagedList(Pages, PageSize);

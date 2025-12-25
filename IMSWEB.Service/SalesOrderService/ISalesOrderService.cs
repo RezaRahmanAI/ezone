@@ -17,12 +17,12 @@ namespace IMSWEB.Service
             string, decimal, EnumSalesType, Tuple<string, int, decimal>>>>
             GetAllSalesOrderAsync(DateTime fromDate, DateTime toDate,
             List<EnumSalesType> SalesType, bool IsVATManager, int concernID, 
-            string InvoiceNo = "", string ContactNo = "", string CustomerName = "", string AccountNo="");
+            string InvoiceNo = "", string ContactNo = "", string CustomerName = "", string AccountNo = "", int page = 1, int pageSize = 50);
 
         Task<IEnumerable<Tuple<int, string, DateTime, string,
         string, decimal, EnumSalesType, Tuple<string>>>>
             GetAllSalesOrderAsyncByUserID(int UserID, DateTime fromDate, DateTime toDate,
-            EnumSalesType SalesType, string InvoiceNo = "", string ContactNo = "", string CustomerName = "",string AccountNo="");
+            EnumSalesType SalesType, string InvoiceNo = "", string ContactNo = "", string CustomerName = "", string AccountNo = "", int page = 1, int pageSize = 50);
 
         IQueryable<SOrder> GetAllIQueryable();
         void AddSalesOrder(SOrder salesOrder);

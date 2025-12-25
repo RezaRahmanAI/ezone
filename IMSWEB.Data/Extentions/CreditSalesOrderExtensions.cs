@@ -14,10 +14,10 @@ namespace IMSWEB.Data
             string, decimal, EnumSalesType, Tuple<string, int>>>> GetAllSalesOrderAsync(this IBaseRepository<CreditSale> salesOrderRepository,
             IBaseRepository<Customer> customerRepository, IBaseRepository<SisterConcern> SisterConcernRepository,
             DateTime fromDate, DateTime toDate, bool IsVATManager,
-            int concernID, string InvoiceNo, string ContactNo, string CustomerName, string AccountNo)
+            int concernID, string InvoiceNo, string ContactNo, string CustomerName, string AccountNo, int page, int pageSize)
         {
-            IQueryable<Customer> customers = customerRepository.All;
-            IQueryable<CreditSale> creditSales = salesOrderRepository.All
+            IQueryable<Customer> customers = customerRepository.All.AsNoTracking();
+            IQueryable<CreditSale> creditSales = salesOrderRepository.All.AsNoTracking()
                                                 .Where(i => i.IsStatus == EnumSalesType.Sales || i.IsStatus == EnumSalesType.Pending);
 
             bool IsSearchByDate = true;
@@ -46,43 +46,72 @@ namespace IMSWEB.Data
             if (IsSearchByDate)
                 creditSales = creditSales.Where(i => (i.SalesDate >= fromDate && i.SalesDate <= toDate));
 
-            var items = await (from so in creditSales
-                               join c in customers on so.CustomerID equals c.CustomerID
-                               select new ProductWiseSalesReportModel
-                               {
-                                   SOrderID = so.CreditSalesID,
-                                   InvoiceNo = so.InvoiceNo,
-                                   Date = so.SalesDate,
-                                   CustomerCode = c.Code,
-                                   CustomerName = c.Name,
-                                   Mobile = c.ContactNo,
-                                   PaymentDue = so.Remaining,
-                                   IsStatus = so.IsStatus,
-                                   TotalAmount = so.NetAmount,
-                                   IsReturn = so.IsReturn
-                               }).ToListAsync();
+            var baseQuery = from so in creditSales
+                            join c in customers on so.CustomerID equals c.CustomerID
+                            select new ProductWiseSalesReportModel
+                            {
+                                SOrderID = so.CreditSalesID,
+                                InvoiceNo = so.InvoiceNo,
+                                Date = so.SalesDate,
+                                CustomerCode = c.Code,
+                                CustomerName = c.Name,
+                                Mobile = c.ContactNo,
+                                PaymentDue = so.Remaining,
+                                IsStatus = so.IsStatus,
+                                TotalAmount = so.NetAmount,
+                                IsReturn = so.IsReturn
+                            };
 
-            List<ProductWiseSalesReportModel> finalData = new List<ProductWiseSalesReportModel>();
-            if (IsVATManager)
+            var orderedQuery = baseQuery.OrderByDescending(i => i.Date).ThenByDescending(i => i.InvoiceNo);
+
+            if (!IsVATManager)
             {
-                items = items.OrderByDescending(i => i.Date).ToList();
-                var oConcern = SisterConcernRepository.All.FirstOrDefault(i => i.ConcernID == concernID);
-                decimal FalesSales = (items.Sum(i => i.TotalAmount) * oConcern.SalesShowPercent) / 100m;
-                decimal FalesSalesCount = 0m;
+                var pagedItems = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+                return pagedItems.Select(x => new Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int>>
+                    (
+                        x.SOrderID,
+                        x.InvoiceNo,
+                        x.Date,
+                        x.CustomerName,
+                        x.Mobile,
+                        x.PaymentDue,
+                        x.IsStatus,
+                        new Tuple<string, int>
+                        (x.CustomerCode, x.IsReturn)
+                    )).ToList();
+            }
 
-                foreach (var item in items)
+            var oConcern = await SisterConcernRepository.All.AsNoTracking()
+                .FirstOrDefaultAsync(i => i.ConcernID == concernID);
+            var totalAmount = await baseQuery.SumAsync(i => (decimal?)i.TotalAmount) ?? 0m;
+            var salesPercent = oConcern?.SalesShowPercent ?? 100m;
+            var falesSales = (totalAmount * salesPercent) / 100m;
+            var falesSalesCount = 0m;
+            var pagedData = new List<ProductWiseSalesReportModel>();
+            var start = (page - 1) * pageSize;
+            var filteredIndex = 0;
+
+            foreach (var item in orderedQuery.AsEnumerable())
+            {
+                falesSalesCount += item.TotalAmount;
+                if (falesSalesCount > falesSales)
                 {
-                    FalesSalesCount += item.TotalAmount;
-                    if (FalesSalesCount <= FalesSales)
-                        finalData.Add(item);
-                    else
-                        break;
+                    break;
+                }
+
+                if (filteredIndex >= start && pagedData.Count < pageSize)
+                {
+                    pagedData.Add(item);
+                }
+
+                filteredIndex++;
+                if (filteredIndex >= start + pageSize)
+                {
+                    break;
                 }
             }
-            else
-                finalData = items;
 
-            return finalData.Select(x => new Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int>>
+            return pagedData.Select(x => new Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int>>
                 (
                     x.SOrderID,
                     x.InvoiceNo,
@@ -93,7 +122,7 @@ namespace IMSWEB.Data
                     x.IsStatus,
                     new Tuple<string, int>
                     (x.CustomerCode, x.IsReturn)
-                )).OrderByDescending(x => x.Item3).ThenByDescending(i => i.Item2).ToList();
+                )).ToList();
         }
 
         public static IEnumerable<Tuple<int, int, int, int,

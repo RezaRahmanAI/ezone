@@ -73,7 +73,7 @@ namespace IMSWEB.Controllers
             _dOService = dOService;
         }
 
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int page = 1, int pageSize = 50)
         {
             ViewBag.IsEditReqPermission = _sysInfoService.IsEditReqPermission();
             ViewBag.IsEditReqPermissionFalse = _sysInfoService.IsEditReqPermissionFalse();
@@ -82,14 +82,15 @@ namespace IMSWEB.Controllers
             var DateRange = GetFirstAndLastDateOfMonth(DateTime.Today);
             ViewBag.FromDate = DateRange.Item1;
             ViewBag.ToDate = DateRange.Item2;
-            var customPO = _purchaseOrderService.GetAllPurchaseOrderAsync(DateRange.Item1, DateRange.Item2, IsVATManager(), User.Identity.GetConcernId());
+            NormalizePaging(ref page, ref pageSize);
+            var customPO = _purchaseOrderService.GetAllPurchaseOrderAsync(DateRange.Item1, DateRange.Item2, IsVATManager(), User.Identity.GetConcernId(), page, pageSize);
             var vmPO = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, string, string, string, EnumPurchaseType, Tuple<int>>>,
                 IEnumerable<GetPurchaseOrderViewModel>>(await customPO);
             return View(vmPO);
         }
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult> Index(FormCollection formCollection)
+        public async Task<ActionResult> Index(FormCollection formCollection, int page = 1, int pageSize = 50)
         {
             ViewBag.IsEditReqPermission = _sysInfoService.IsEditReqPermission();
             ViewBag.IsEditReqPermissionFalse = _sysInfoService.IsEditReqPermissionFalse();
@@ -97,7 +98,8 @@ namespace IMSWEB.Controllers
                 ViewBag.FromDate = Convert.ToDateTime(formCollection["FromDate"]);
             if (!string.IsNullOrEmpty(formCollection["ToDate"]))
                 ViewBag.ToDate = Convert.ToDateTime(formCollection["ToDate"]);
-            var customPO = _purchaseOrderService.GetAllPurchaseOrderAsync(ViewBag.FromDate, ViewBag.ToDate, IsVATManager(), User.Identity.GetConcernId());
+            NormalizePaging(ref page, ref pageSize);
+            var customPO = _purchaseOrderService.GetAllPurchaseOrderAsync(ViewBag.FromDate, ViewBag.ToDate, IsVATManager(), User.Identity.GetConcernId(), page, pageSize);
             var vmPO = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, string, string, string, EnumPurchaseType, Tuple<int>>>,
                 IEnumerable<GetPurchaseOrderViewModel>>(await customPO);
             return View("Index", vmPO);

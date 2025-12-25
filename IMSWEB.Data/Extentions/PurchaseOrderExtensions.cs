@@ -15,14 +15,15 @@ namespace IMSWEB.Data
         public static async Task<IEnumerable<Tuple<int, string, DateTime, string,
         string, string, EnumPurchaseType, Tuple<int>>>> GetAllPurchaseOrderAsync(this IBaseRepository<POrder> purchaseOrderRepository,
             IBaseRepository<Supplier> supplierRepository, IBaseRepository<SisterConcern> SisterConcernRepository,
-            DateTime fromDate, DateTime toDate, bool IsVATManager, int ConcernID)
+            DateTime fromDate, DateTime toDate, bool IsVATManager, int ConcernID, int page, int pageSize)
         {
-            IQueryable<Supplier> suppliers = supplierRepository.All;
+            IQueryable<Supplier> suppliers = supplierRepository.All.AsNoTracking();
 
-            var items = await purchaseOrderRepository.All.Where(i => i.Status == (int)EnumPurchaseType.Purchase && (i.OrderDate >= fromDate && i.OrderDate <= toDate)).
-                GroupJoin(suppliers, p => p.SupplierID, s => s.SupplierID,
-                (p, s) => new { PurchaseOrder = p, Suppliers = s }).
-                SelectMany(x => x.Suppliers.DefaultIfEmpty(), (p, s) => new { PurchaseOrder = p.PurchaseOrder, Supplier = s })
+            var baseQuery = purchaseOrderRepository.All.AsNoTracking()
+                .Where(i => i.Status == (int)EnumPurchaseType.Purchase && (i.OrderDate >= fromDate && i.OrderDate <= toDate))
+                .GroupJoin(suppliers, p => p.SupplierID, s => s.SupplierID,
+                (p, s) => new { PurchaseOrder = p, Suppliers = s })
+                .SelectMany(x => x.Suppliers.DefaultIfEmpty(), (p, s) => new { PurchaseOrder = p.PurchaseOrder, Supplier = s })
                 .Select(x => new ProductWisePurchaseModel
                 {
                     POrderID = x.PurchaseOrder.POrderID,
@@ -34,29 +35,58 @@ namespace IMSWEB.Data
                     Status = x.PurchaseOrder.Status,
                     TAmount = x.PurchaseOrder.TotalAmt,
                     EditReqStatus = x.PurchaseOrder.EditReqStatus
-                }).ToListAsync();
+                });
 
-            List<ProductWisePurchaseModel> finalData = new List<ProductWisePurchaseModel>();
-            if (IsVATManager)
+            var orderedQuery = baseQuery.OrderByDescending(i => i.Date).ThenByDescending(i => i.POrderID);
+
+            if (!IsVATManager)
             {
-                items = items.OrderByDescending(i => i.Date).ToList();
-                var oConcern = SisterConcernRepository.All.FirstOrDefault(i => i.ConcernID == ConcernID);
-                decimal FalesPurchase = (items.Sum(i => i.TAmount) * oConcern.PurchaseShowPercent) / 100m;
-                decimal FalesPurchaseCount = 0m;
+                var pagedItems = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+                return pagedItems.Select(x => new Tuple<int, string, DateTime, string, string, string, EnumPurchaseType, Tuple<int>>
+                    (
+                        x.POrderID,
+                        x.ChallanNo,
+                        x.Date,
+                        x.SupplierName,
+                        x.OwnerName,
+                        x.Mobile,
+                        (EnumPurchaseType)x.Status,
+                        new Tuple<int>
+                        (x.EditReqStatus)
+                    )).ToList();
+            }
 
-                foreach (var item in items)
+            var oConcern = await SisterConcernRepository.All.AsNoTracking()
+                .FirstOrDefaultAsync(i => i.ConcernID == ConcernID);
+            var totalAmount = await baseQuery.SumAsync(i => (decimal?)i.TAmount) ?? 0m;
+            var purchasePercent = oConcern?.PurchaseShowPercent ?? 100m;
+            var falesPurchase = (totalAmount * purchasePercent) / 100m;
+            var falesPurchaseCount = 0m;
+            var pagedData = new List<ProductWisePurchaseModel>();
+            var start = (page - 1) * pageSize;
+            var filteredIndex = 0;
+
+            foreach (var item in orderedQuery.AsEnumerable())
+            {
+                falesPurchaseCount += item.TAmount;
+                if (falesPurchaseCount > falesPurchase)
                 {
-                    FalesPurchaseCount += item.TAmount;
-                    if (FalesPurchaseCount <= FalesPurchase)
-                        finalData.Add(item);
-                    else
-                        break;
+                    break;
+                }
+
+                if (filteredIndex >= start && pagedData.Count < pageSize)
+                {
+                    pagedData.Add(item);
+                }
+
+                filteredIndex++;
+                if (filteredIndex >= start + pageSize)
+                {
+                    break;
                 }
             }
-            else
-                finalData = items;
 
-            return finalData.Select(x => new Tuple<int, string, DateTime, string, string, string, EnumPurchaseType, Tuple<int>>
+            return pagedData.Select(x => new Tuple<int, string, DateTime, string, string, string, EnumPurchaseType, Tuple<int>>
                 (
                     x.POrderID,
                     x.ChallanNo,
@@ -67,7 +97,7 @@ namespace IMSWEB.Data
                     (EnumPurchaseType)x.Status,
                     new Tuple<int>
                     (x.EditReqStatus)
-                )).OrderByDescending(x => x.Item1).ToList();
+                )).ToList();
         }
 
         public static async Task<IEnumerable<Tuple<int, string, DateTime, string,

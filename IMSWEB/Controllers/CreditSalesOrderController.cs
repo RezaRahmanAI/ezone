@@ -83,20 +83,22 @@ namespace IMSWEB.Controllers
         [HttpGet]
         [Authorize]
         [Route("index")]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int page = 1, int pageSize = 50)
         {
             TempData["creditSalesOrderViewModel"] = null;
             var DateRange = GetFirstAndLastDateOfMonth(DateTime.Today);
             ViewBag.FromDate = DateRange.Item1;
             ViewBag.ToDate = DateRange.Item2;
-            var customSO = _creditSalesOrderService.GetAllSalesOrderAsync(ViewBag.FromDate, ViewBag.ToDate, IsVATManager(), User.Identity.GetConcernId());
+            NormalizePaging(ref page, ref pageSize);
+            var customSO = _creditSalesOrderService.GetAllSalesOrderAsync(ViewBag.FromDate, ViewBag.ToDate, IsVATManager(), User.Identity.GetConcernId(),
+                page: page, pageSize: pageSize);
             var vmSO = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int>>>,
                 IEnumerable<GetCreditSalesOrderViewModel>>(await customSO);
             return View(vmSO);
         }
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult> Index(FormCollection formCollection)
+        public async Task<ActionResult> Index(FormCollection formCollection, int page = 1, int pageSize = 50)
         {
             TempData["creditSalesOrderViewModel"] = null;
             string InvoiceNo = string.Empty, ContactNo = "", CustomerName = "", AccountNo = "";
@@ -113,8 +115,9 @@ namespace IMSWEB.Controllers
             if (!string.IsNullOrEmpty(formCollection["AccountNo"]))
                 AccountNo = formCollection["AccountNo"].Trim();
 
+            NormalizePaging(ref page, ref pageSize);
             var customSO = _creditSalesOrderService.GetAllSalesOrderAsync(ViewBag.FromDate, ViewBag.ToDate,
-                IsVATManager(), User.Identity.GetConcernId(), InvoiceNo, ContactNo, CustomerName, AccountNo);
+                IsVATManager(), User.Identity.GetConcernId(), InvoiceNo, ContactNo, CustomerName, AccountNo, page, pageSize);
             var vmSO = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int>>>,
                 IEnumerable<GetCreditSalesOrderViewModel>>(await customSO);
             return View(vmSO);
