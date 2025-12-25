@@ -81,19 +81,21 @@ namespace IMSWEB.Controllers
         [HttpGet]
         [Authorize]
         [Route("index")]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int page = 1, int pageSize = 50)
         {
             ViewBag.IsEditReqPermission = _SysInfoService.IsEditReqPermission();
             ViewBag.IsEditReqPermissionFalse = _SysInfoService.IsEditReqPermissionFalse();
             int userId = System.Web.HttpContext.Current.User.Identity.GetUserId<int>();
             TempData["salesOrderViewModel"] = null;
             //if(userId==1014 || userId==1015 || userId==1016 || userId==1017|| userId==1018)
+            NormalizePaging(ref page, ref pageSize);
             var DateRange = GetFirstAndLastDateOfMonth(DateTime.Today);
             ViewBag.FromDate = DateRange.Item1;
             ViewBag.ToDate = DateRange.Item2;
             if (User.IsInRole(ConstantData.ROLE_MOBILE_USER))
             {
-                var customSO = _salesOrderService.GetAllSalesOrderAsyncByUserID(userId, DateRange.Item1, DateRange.Item2, EnumSalesType.Sales);
+                var customSO = _salesOrderService.GetAllSalesOrderAsyncByUserID(userId, DateRange.Item1, DateRange.Item2, EnumSalesType.Sales,
+                    page: page, pageSize: pageSize);
                 var vmSO = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string>>>,
                 IEnumerable<GetSalesOrderViewModel>>(await customSO);
                 return View(vmSO);
@@ -103,7 +105,8 @@ namespace IMSWEB.Controllers
                 List<EnumSalesType> status = new List<EnumSalesType>();
                 status.Add(EnumSalesType.Sales);
                 status.Add(EnumSalesType.Pending);
-                var customSO = _salesOrderService.GetAllSalesOrderAsync(DateRange.Item1, DateRange.Item2, status, IsVATManager(), User.Identity.GetConcernId());
+                var customSO = _salesOrderService.GetAllSalesOrderAsync(DateRange.Item1, DateRange.Item2, status, IsVATManager(), User.Identity.GetConcernId(),
+                    page: page, pageSize: pageSize);
                 var vmSO = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int, decimal>>>,
                 IEnumerable<GetSalesOrderViewModel>>(await customSO);
                 return View(vmSO);
@@ -111,7 +114,7 @@ namespace IMSWEB.Controllers
         }
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult> Index(FormCollection formCollection)
+        public async Task<ActionResult> Index(FormCollection formCollection, int page = 1, int pageSize = 50)
         {
             ViewBag.IsEditReqPermission = _SysInfoService.IsEditReqPermission();
             ViewBag.IsEditReqPermissionFalse = _SysInfoService.IsEditReqPermissionFalse();
@@ -127,6 +130,7 @@ namespace IMSWEB.Controllers
 
             ViewBag.FromDate = fromDate;
             ViewBag.ToDate = toDate;
+            NormalizePaging(ref page, ref pageSize);
 
             if (!string.IsNullOrEmpty(formCollection["InvoiceNo"]))
                 InvoiceNo = formCollection["InvoiceNo"].Trim();
@@ -142,7 +146,7 @@ namespace IMSWEB.Controllers
             {
                 int userId = System.Web.HttpContext.Current.User.Identity.GetUserId<int>();
                 var customSO = _salesOrderService.GetAllSalesOrderAsyncByUserID(userId, ViewBag.FromDate, ViewBag.ToDate, EnumSalesType.Sales,
-                    InvoiceNo, ContactNo, CustomerName, AccountNo);
+                    InvoiceNo, ContactNo, CustomerName, AccountNo, page, pageSize);
                 var vmSO = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string>>>,
                 IEnumerable<GetSalesOrderViewModel>>(await customSO);
                 return View("Index", vmSO);
@@ -155,7 +159,7 @@ namespace IMSWEB.Controllers
                 status.Add(EnumSalesType.Pending);
 
                 var customSO = _salesOrderService.GetAllSalesOrderAsync(fromDate, toDate,
-                    status, IsVATManager(), User.Identity.GetConcernId(), InvoiceNo, ContactNo, CustomerName, AccountNo);
+                    status, IsVATManager(), User.Identity.GetConcernId(), InvoiceNo, ContactNo, CustomerName, AccountNo, page, pageSize);
                 var vmSO = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int, decimal>>>,
                 IEnumerable<GetSalesOrderViewModel>>(await customSO);
                 return View("Index", vmSO);

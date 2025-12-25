@@ -66,9 +66,9 @@ namespace IMSWEB.Service
         }
 
         public async Task<IEnumerable<Tuple<int, string, DateTime, decimal, decimal, decimal, int, Tuple<string, string>>>>
-            GetAllAsync(DateTime fromDate, DateTime toDate, int ConcernID)
+            GetAllAsync(DateTime fromDate, DateTime toDate, int ConcernID, int page, int pageSize)
         {
-            return await _baseRepository.GetAllAsync(_SisterConcernRepository, fromDate, toDate, ConcernID);
+            return await _baseRepository.GetAllAsync(_SisterConcernRepository, fromDate, toDate, ConcernID, page, pageSize);
         }
 
         public Transfer GetById(int id)

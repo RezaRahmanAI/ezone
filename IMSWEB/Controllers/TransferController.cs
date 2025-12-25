@@ -51,19 +51,20 @@ namespace IMSWEB.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int page = 1, int pageSize = 50)
         {
             TempData["TransferViewModel"] = null;
 
             var daterange = GetFirstAndLastDateOfMonth(DateTime.Now);
-            var ITrans = _transferService.GetAllAsync(daterange.Item1, daterange.Item2, User.Identity.GetConcernId());
+            NormalizePaging(ref page, ref pageSize);
+            var ITrans = _transferService.GetAllAsync(daterange.Item1, daterange.Item2, User.Identity.GetConcernId(), page, pageSize);
             ViewBag.FromDate = daterange.Item1;
             ViewBag.ToDate = daterange.Item2;
             var vmTrans = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, decimal, decimal, decimal, int, Tuple<string, string>>>, IEnumerable<GetTransferViewModel>>(await ITrans);
             return View(vmTrans);
         }
         [HttpPost]
-        public async Task<ActionResult> Index(FormCollection formCollection)
+        public async Task<ActionResult> Index(FormCollection formCollection, int page = 1, int pageSize = 50)
         {
             TempData["TransferViewModel"] = null;
 
@@ -71,7 +72,8 @@ namespace IMSWEB.Controllers
                 ViewBag.FromDate = Convert.ToDateTime(formCollection["FromDate"]);
             if (!string.IsNullOrEmpty(formCollection["ToDate"]))
                 ViewBag.ToDate = Convert.ToDateTime(formCollection["ToDate"]);
-            var ITrans = _transferService.GetAllAsync(ViewBag.FromDate, ViewBag.ToDate, User.Identity.GetConcernId());
+            NormalizePaging(ref page, ref pageSize);
+            var ITrans = _transferService.GetAllAsync(ViewBag.FromDate, ViewBag.ToDate, User.Identity.GetConcernId(), page, pageSize);
             var vmTrans = _mapper.Map<IEnumerable<Tuple<int, string, DateTime, decimal, decimal, decimal, int, Tuple<string, string>>>, IEnumerable<GetTransferViewModel>>(await ITrans);
             return View(vmTrans);
         }

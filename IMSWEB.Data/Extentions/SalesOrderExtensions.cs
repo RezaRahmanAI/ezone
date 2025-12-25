@@ -14,10 +14,11 @@ namespace IMSWEB.Data
             string, decimal, EnumSalesType, Tuple<string, int, decimal>>>> GetAllSalesOrderAsync(this IBaseRepository<SOrder> salesOrderRepository,
             IBaseRepository<Customer> customerRepository, IBaseRepository<SisterConcern> SisterConcernRepository,
             DateTime fromDate, DateTime toDate, List<EnumSalesType> SalesType, bool IsVATManager, int concernID,
-            string InvoiceNo, string ContactNo, string CustomerName, string AccountNo)
+            string InvoiceNo, string ContactNo, string CustomerName, string AccountNo, int page, int pageSize)
         {
-            IQueryable<Customer> customers = customerRepository.All;
-            IQueryable<SOrder> sorders = salesOrderRepository.All.Where(x => x.IsReplacement == 0 && SalesType.Contains((EnumSalesType)x.Status));
+            IQueryable<Customer> customers = customerRepository.All.AsNoTracking();
+            IQueryable<SOrder> sorders = salesOrderRepository.All.AsNoTracking()
+                .Where(x => x.IsReplacement == 0 && SalesType.Contains((EnumSalesType)x.Status));
             bool IsSearchByDate = true;
             if (!string.IsNullOrWhiteSpace(InvoiceNo))
             {
@@ -44,45 +45,75 @@ namespace IMSWEB.Data
             if (IsSearchByDate)
                 sorders = sorders.Where(i => (i.InvoiceDate >= fromDate && i.InvoiceDate <= toDate));
 
+            var baseQuery = from so in sorders
+                            join c in customers on so.CustomerID equals c.CustomerID
+                            select new ProductWiseSalesReportModel
+                            {
+                                SOrderID = so.SOrderID,
+                                InvoiceNo = so.InvoiceNo,
+                                Date = so.InvoiceDate,
+                                CustomerName = c.Name,
+                                CustomerCode = c.Code,
+                                Mobile = c.ContactNo,
+                                TotalDue = c.TotalDue,
+                                Status = so.Status,
+                                IsReplacement = so.IsReplacement,
+                                TotalAmount = so.TotalAmount,
+                                EditReqStatus = so.EditReqStatus
+                            };
 
-            var items = await (from so in sorders
-                               join c in customers on so.CustomerID equals c.CustomerID
-                               select new ProductWiseSalesReportModel
-                               {
-                                   SOrderID = so.SOrderID,
-                                   InvoiceNo = so.InvoiceNo,
-                                   Date = so.InvoiceDate,
-                                   CustomerName = c.Name,
-                                   CustomerCode = c.Code,
-                                   Mobile = c.ContactNo,
-                                   TotalDue = c.TotalDue,
-                                   Status = so.Status,
-                                   IsReplacement = so.IsReplacement,
-                                   TotalAmount = so.TotalAmount,
-                                   EditReqStatus = so.EditReqStatus
-                               }).ToListAsync();
+            var orderedQuery = baseQuery.OrderByDescending(i => i.Date).ThenByDescending(i => i.InvoiceNo);
 
-            List<ProductWiseSalesReportModel> finalData = new List<ProductWiseSalesReportModel>();
-            if (IsVATManager)
+            if (!IsVATManager)
             {
-                items = items.OrderByDescending(i => i.Date).ToList();
-                var oConcern = SisterConcernRepository.All.FirstOrDefault(i => i.ConcernID == concernID);
-                decimal FalesSales = (items.Sum(i => i.TotalAmount) * oConcern.SalesShowPercent) / 100m;
-                decimal FalesSalesCount = 0m;
+                var pagedItems = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+                return pagedItems.Select(x => new Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int, decimal>>
+                    (
+                        x.SOrderID,
+                        x.InvoiceNo,
+                        x.Date,
+                        x.CustomerName,
+                        x.Mobile,
+                        x.TotalDue,
+                        (EnumSalesType)x.Status,
+                        new Tuple<string, int, decimal>
+                        (x.CustomerCode,
+                        x.EditReqStatus,
+                        x.TotalAmount)
+                    )).ToList();
+            }
 
-                foreach (var item in items)
+            var oConcern = await SisterConcernRepository.All.AsNoTracking()
+                .FirstOrDefaultAsync(i => i.ConcernID == concernID);
+            var totalAmount = await baseQuery.SumAsync(i => (decimal?)i.TotalAmount) ?? 0m;
+            var salesPercent = oConcern?.SalesShowPercent ?? 100m;
+            var falesSales = (totalAmount * salesPercent) / 100m;
+            var falesSalesCount = 0m;
+            var pagedData = new List<ProductWiseSalesReportModel>();
+            var start = (page - 1) * pageSize;
+            var filteredIndex = 0;
+
+            foreach (var item in orderedQuery.AsEnumerable())
+            {
+                falesSalesCount += item.TotalAmount;
+                if (falesSalesCount > falesSales)
                 {
-                    FalesSalesCount += item.TotalAmount;
-                    if (FalesSalesCount <= FalesSales)
-                        finalData.Add(item);
-                    else
-                        break;
+                    break;
+                }
+
+                if (filteredIndex >= start && pagedData.Count < pageSize)
+                {
+                    pagedData.Add(item);
+                }
+
+                filteredIndex++;
+                if (filteredIndex >= start + pageSize)
+                {
+                    break;
                 }
             }
-            else
-                finalData = items;
 
-            return finalData.Select(x => new Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int, decimal>>
+            return pagedData.Select(x => new Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string, int, decimal>>
                 (
                     x.SOrderID,
                     x.InvoiceNo,
@@ -95,17 +126,17 @@ namespace IMSWEB.Data
                     (x.CustomerCode,
                     x.EditReqStatus,
                     x.TotalAmount)
-                )).OrderByDescending(x => x.Item3).ThenByDescending(i => i.Item2).ToList();
+                )).ToList();
         }
 
         public static async Task<IEnumerable<Tuple<int, string, DateTime, string,
             string, decimal, EnumSalesType, Tuple<string>>>> GetAllSalesOrderAsyncByUserID(this IBaseRepository<SOrder> salesOrderRepository,
             IBaseRepository<Customer> customerRepository, int UserID,
             DateTime fromDate, DateTime toDate, EnumSalesType SalesType,
-            string InvoiceNo, string ContactNo, string CustomerName, string AccountNo)
+            string InvoiceNo, string ContactNo, string CustomerName, string AccountNo, int page, int pageSize)
         {
-            IQueryable<Customer> customers = customerRepository.All;
-            IQueryable<SOrder> sorders = salesOrderRepository.All
+            IQueryable<Customer> customers = customerRepository.All.AsNoTracking();
+            IQueryable<SOrder> sorders = salesOrderRepository.All.AsNoTracking()
                                         .Where(x => x.Status == (int)SalesType && x.CreatedBy == UserID);
 
             bool IsSearchByDate = true;
@@ -134,9 +165,9 @@ namespace IMSWEB.Data
             if (IsSearchByDate)
                 sorders = sorders.Where(i => (i.InvoiceDate >= fromDate && i.InvoiceDate <= toDate));
 
-            var items = await salesOrderRepository.All.
+            var items = await sorders.
                 GroupJoin(customers, p => p.CustomerID, c => c.CustomerID,
-                (p, c) => new { SalesOrder = p, Customers = c }).
+                (p, c) => new { SalesOrder = p, Customers = c })
                 SelectMany(x => x.Customers.DefaultIfEmpty(), (p, c) => new { SalesOrder = p.SalesOrder, Customer = c })
                 .Select(x => new
                 {
@@ -150,7 +181,12 @@ namespace IMSWEB.Data
                     x.SalesOrder.Status,
                     x.SalesOrder.CreatedBy,
                     x.SalesOrder.IsReplacement
-                }).Where(i => i.IsReplacement == 0).OrderByDescending(i => i.InvoiceDate).ToListAsync();
+                }).Where(i => i.IsReplacement == 0)
+                .OrderByDescending(i => i.InvoiceDate)
+                .ThenByDescending(i => i.InvoiceNo)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             return items.Select(x => new Tuple<int, string, DateTime, string, string, decimal, EnumSalesType, Tuple<string>>
                 (

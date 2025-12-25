@@ -16,7 +16,7 @@ namespace IMSWEB.Service
         IQueryable<Transfer> GetAll();
         IQueryable<Transfer> GetAll(DateTime fromDate, DateTime toDate);
         Task<IEnumerable<Tuple<int, string, DateTime, decimal, decimal, decimal, int, Tuple<string, string>>>>
-            GetAllAsync(DateTime fromDate, DateTime toDate, int ConcernID);
+            GetAllAsync(DateTime fromDate, DateTime toDate, int ConcernID, int page = 1, int pageSize = 50);
         Transfer GetById(int id);
         void Delete(int id);
         Tuple<bool, int> AddTranserferUsingSP(DataTable dtTranser, DataTable dtDetails, DataTable dtTransferFromStock, DataTable dtTransferToStock);

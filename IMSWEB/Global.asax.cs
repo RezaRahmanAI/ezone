@@ -9,6 +9,8 @@ using System.Web.Routing;
 using System.Web.Http;
 using IMSWEB.Service;
 using System.Net;
+using System.Data.Entity.Infrastructure.Interception;
+using IMSWEB.Infrastructure.Diagnostics;
 
 namespace IMSWEB
 {
@@ -24,6 +26,7 @@ namespace IMSWEB
             //Please find all the configuration in owin Startup class
             DataAnnotationsModelValidatorProvider.AddImplicitRequiredAttributeForValueTypes = false;
             log4net.Config.XmlConfigurator.Configure(new FileInfo(Server.MapPath("~/Web.config")));
+            DbInterception.Add(new RequestTimingDbInterceptor());
             GlobalConfiguration.Configure(WebApiConfig.Register);
             //new JobScheduler().Start();
         }

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.Entity;
+using IMSWEB.Service.Infrastructure;
 
 namespace IMSWEB.Service
 {
@@ -32,11 +34,16 @@ namespace IMSWEB.Service
         public void SaveDesignation()
         {
             _unitOfWork.Commit();
+            LookupCache.RemoveByPrefix("Lookup:Designation");
         }
 
         public IEnumerable<Designation> GetAllDesignation()
         {
-            return _designationRepository.All.ToList();
+            var concernId = LookupCache.GetConcernId();
+            var cacheKey = LookupCache.BuildTenantKey("Lookup:Designation:All", concernId);
+            return LookupCache.GetOrCreate(cacheKey,
+                () => _designationRepository.All.AsNoTracking().ToList(),
+                TimeSpan.FromMinutes(60));
         }
         public  IQueryable<Designation> GetAllIQueryable()
         {
@@ -55,6 +62,7 @@ namespace IMSWEB.Service
         public void DeleteDesignation(int id)
         {
             _designationRepository.Delete(x => x.DesignationID == id);
+            LookupCache.RemoveByPrefix("Lookup:Designation");
         }
     }
 }

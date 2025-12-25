@@ -13,7 +13,7 @@ namespace IMSWEB.Service
     {
         IQueryable<POrder> GetAllIQueryable();
         Task<IEnumerable<Tuple<int, string, DateTime, string,
-            string, string, EnumPurchaseType, Tuple<int>>>> GetAllPurchaseOrderAsync(DateTime fromDate, DateTime toDate, bool IsVATManager, int concernID);
+            string, string, EnumPurchaseType, Tuple<int>>>> GetAllPurchaseOrderAsync(DateTime fromDate, DateTime toDate, bool IsVATManager, int concernID, int page = 1, int pageSize = 50);
 
         Task<IEnumerable<Tuple<int, string, DateTime, string,
           string, string, EnumPurchaseType>>> GetAllReturnPurchaseOrderAsync();

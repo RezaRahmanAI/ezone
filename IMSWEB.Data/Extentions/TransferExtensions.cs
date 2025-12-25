@@ -12,11 +12,11 @@ namespace IMSWEB.Data
     {
         public static async Task<IEnumerable<Tuple<int, string, DateTime, decimal, decimal, decimal, int, Tuple<string, string>>>>
             GetAllAsync(this IBaseRepository<Transfer> TransferRepository, IBaseRepository<SisterConcern> SisterConcernRepository,
-            DateTime fromDate, DateTime toDate, int ConcernID)
+            DateTime fromDate, DateTime toDate, int ConcernID, int page, int pageSize)
         {
-            var data = await (from t in TransferRepository.GetAll()
-                              join fs in SisterConcernRepository.GetAll() on t.FromConcernID equals fs.ConcernID
-                              join ts in SisterConcernRepository.GetAll() on t.ToConcernID equals ts.ConcernID
+            var data = await (from t in TransferRepository.GetAll().AsNoTracking()
+                              join fs in SisterConcernRepository.GetAll().AsNoTracking() on t.FromConcernID equals fs.ConcernID
+                              join ts in SisterConcernRepository.GetAll().AsNoTracking() on t.ToConcernID equals ts.ConcernID
                               where t.TransferDate >= fromDate && t.TransferDate <= toDate && (t.ToConcernID == ConcernID || t.FromConcernID == ConcernID)
                               select new
                               {
@@ -29,7 +29,10 @@ namespace IMSWEB.Data
                                   t.Remarks,
                                   t.TotalAmount,
                                   t.Status
-                              }).OrderByDescending(i => i.TransferDate).ThenByDescending(i => i.TransferNo).ToListAsync();
+                              }).OrderByDescending(i => i.TransferDate).ThenByDescending(i => i.TransferNo)
+                              .Skip((page - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToListAsync();
 
             return data.Select(x => new Tuple<int, string, DateTime, decimal, decimal, decimal, int, Tuple<string, string>>(
                          x.TransferID,

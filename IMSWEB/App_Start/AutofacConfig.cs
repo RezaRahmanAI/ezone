@@ -17,6 +17,7 @@ using IMSWEB.Data.Repositories.StockRepository;
 using Autofac.Integration.WebApi;
 using IMSWEB.APIController;
 using System.Web.Http;
+using IMSWEB.Infrastructure.Diagnostics;
 
 namespace IMSWEB
 {
@@ -30,7 +31,14 @@ namespace IMSWEB
             //builder.RegisterType<AttendenceSyncController>().AsSelf().InstancePerRequest();
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
 
-            builder.RegisterType<IMSWEBContext>().As<DbContext>().InstancePerRequest();
+            builder.RegisterType<IMSWEBContext>().As<DbContext>().InstancePerRequest()
+                .OnActivated(e =>
+                {
+                    if (e.Instance is IMSWEBContext context)
+                    {
+                        context.Database.Log = RequestDiagnostics.AppendEfLog;
+                    }
+                });
             builder.RegisterType<ApplicationUserManager>().AsSelf().InstancePerRequest();
             builder.RegisterType<ApplicationSignInManager>().AsSelf().InstancePerRequest();
             builder.Register(c => new UserStore<ApplicationUser, ApplicationRole, int, ApplicationUserLogin,

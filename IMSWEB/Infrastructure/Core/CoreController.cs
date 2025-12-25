@@ -13,6 +13,8 @@ using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Text.RegularExpressions;
+using log4net;
+using IMSWEB.Infrastructure.Diagnostics;
 
 namespace IMSWEB
 {
@@ -21,6 +23,7 @@ namespace IMSWEB
         #region Variables
         protected readonly IErrorService _errorService;
         private readonly ISystemInformationService _sysInfoService;
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(CoreController));
 
         #endregion
 
@@ -33,6 +36,35 @@ namespace IMSWEB
         #endregion
 
         #region Methods
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            RequestDiagnostics.StartRequest();
+            base.OnActionExecuting(filterContext);
+        }
+
+        protected override void OnActionExecuted(ActionExecutedContext filterContext)
+        {
+            var summary = RequestDiagnostics.StopRequest();
+            var routeValues = filterContext.RouteData.Values;
+            var controller = routeValues["controller"]?.ToString() ?? "UnknownController";
+            var action = routeValues["action"]?.ToString() ?? "UnknownAction";
+            var concernId = 0;
+
+            if (User?.Identity != null)
+            {
+                concernId = User.Identity.GetConcernId();
+            }
+
+            Logger.Info($"Request {controller}/{action} ConcernId={concernId} TotalMs={summary.ElapsedMs} DbMs={summary.DbDurationMs}");
+
+            if (summary.ElapsedMs >= RequestDiagnostics.SlowRequestThresholdMs && summary.HasSqlLog)
+            {
+                Logger.Info($"SlowRequestSql {controller}/{action} ConcernId={concernId} TotalMs={summary.ElapsedMs} DbMs={summary.DbDurationMs}\n{summary.SqlLog}");
+            }
+
+            base.OnActionExecuted(filterContext);
+        }
 
         #region OnException
         protected override void OnException(ExceptionContext filterContext)
@@ -77,6 +109,24 @@ namespace IMSWEB
         public string GetDefaultIfNull(string obj)
         {
             return string.IsNullOrEmpty(obj) ? "0" : obj;
+        }
+
+        protected void NormalizePaging(ref int page, ref int pageSize, int defaultPageSize = 50, int maxPageSize = 200)
+        {
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = defaultPageSize;
+            }
+
+            if (pageSize > maxPageSize)
+            {
+                pageSize = maxPageSize;
+            }
         }
 
         public void AddToastMessage(string title = "", string message = "", ToastType toastType = ToastType.Info)

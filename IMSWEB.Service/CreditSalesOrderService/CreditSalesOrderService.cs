@@ -66,10 +66,10 @@ namespace IMSWEB.Service
         public async Task<IEnumerable<Tuple<int, string, DateTime, string,
             string, decimal, EnumSalesType, Tuple<string, int>>>>
             GetAllSalesOrderAsync(DateTime fromDate, DateTime toDate, bool IsVATManager, int concernID,
-            string InvoiceNo,string ContactNo,string CustomerName,string AccountNo)
+            string InvoiceNo, string ContactNo, string CustomerName, string AccountNo, int page, int pageSize)
         {
             return await _baseSalesOrderRepository.GetAllSalesOrderAsync(_customerRepository, _SisterConcernRepository,
-                fromDate, toDate, IsVATManager, concernID,InvoiceNo, ContactNo, CustomerName, AccountNo);
+                fromDate, toDate, IsVATManager, concernID, InvoiceNo, ContactNo, CustomerName, AccountNo, page, pageSize);
         }
 
         public void AddSalesOrder(CreditSale salesOrder)
